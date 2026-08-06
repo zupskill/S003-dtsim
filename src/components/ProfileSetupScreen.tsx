@@ -94,9 +94,11 @@ export default function ProfileSetupScreen({
       {/* Header Logotype */}
       <div className="w-full max-w-5xl mx-auto flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-primary/80 rounded-lg flex items-center justify-center font-black text-black text-lg shadow-[0_0_15px_rgba(0,181,230,0.4)]">
-            ZS
-          </div>
+          <img
+            src="/zupskill-logo.png"
+            alt="ZupSkill"
+            className="h-10 w-auto object-contain select-none"
+          />
           <div>
             <span className="text-sm font-bold tracking-tight text-text-primary uppercase italic">DT INNOVATION PORTAL</span>
           </div>

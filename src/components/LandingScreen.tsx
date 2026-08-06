@@ -101,10 +101,10 @@ export default function LandingScreen({
         className="w-full max-w-5xl mx-auto flex items-center justify-between z-10"
       >
         <div className="flex items-center justify-start shrink-0">
-          <img 
-            src="/zupskill-logo.png" 
-            alt="ZupSkill" 
-            className="h-[36px] w-auto max-w-[180px] object-contain block" 
+          <img
+            src="/zupskill-logo.png"
+            alt="ZupSkill"
+            className="h-10 w-auto object-contain select-none"
           />
         </div>
         

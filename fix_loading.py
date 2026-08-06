@@ -1,37 +1,22 @@
-import re
+import os
 
-with open('src/App.tsx', 'r') as f:
-    content = f.read()
+file = 'src/App.tsx'
 
-new_auth_block = """  // Handle Supabase Sign-In auth state changes
-  useEffect(() => {
-    setLoadingAuth(true);
-    supabase.auth.getSession().then(({ data }) => {
-      console.log("Loaded Supabase session:", data.session);
-      setUser(data.session?.user ?? null);
-      if (data.session?.user) {
-        loadUserProfile(data.session.user).finally(() => setLoadingAuth(false));
-      } else {
-        setLoadingAuth(false);
-      }
-    });
+placeholder = """          <div className="w-16 h-16 bg-gradient-to-tr from-brand-primary to-brand-primary/80 rounded-2xl flex items-center justify-center mx-auto text-xl font-mono text-black font-black shadow-[0_0_20px_rgba(0,181,230,0.3)]">
+            ZS
+          </div>"""
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("AUTH EVENT:", event, session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        setLoadingAuth(true);
-        loadUserProfile(session.user).finally(() => setLoadingAuth(false));
-      } else {
-        setLoadingAuth(false);
-      }
-    });
+new_img = """          <img
+            src="/zupskill-logo.png"
+            alt="ZupSkill"
+            className="h-16 w-auto object-contain mx-auto select-none"
+          />"""
 
-    return () => subscription.unsubscribe();
-  }, []);"""
+if os.path.exists(file):
+    with open(file, 'r') as f:
+        content = f.read()
+    
+    content = content.replace(placeholder, new_img)
 
-pattern = re.compile(r"// Handle Supabase Sign-In auth state changes\s+useEffect\(\(\) => \{.*?(?=  const loadUserProfile)", re.DOTALL)
-content = pattern.sub(new_auth_block + "\n\n", content)
-
-with open('src/App.tsx', 'w') as f:
-    f.write(content)
+    with open(file, 'w') as f:
+        f.write(content)

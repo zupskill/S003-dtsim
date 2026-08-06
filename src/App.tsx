@@ -688,9 +688,11 @@ export default function App() {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center text-center p-6 select-none relative overflow-hidden cyber-grid">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-brand-primary/10 blur-[100px] pointer-events-none animate-pulse" />
         <div className="space-y-4 animate-pulse">
-          <div className="w-16 h-16 bg-gradient-to-tr from-brand-primary to-brand-primary/80 rounded-2xl flex items-center justify-center mx-auto text-xl font-mono text-black font-black shadow-[0_0_20px_rgba(0,181,230,0.3)]">
-            ZS
-          </div>
+          <img
+            src="/zupskill-logo.png"
+            alt="ZupSkill"
+            className="h-16 w-auto object-contain mx-auto select-none"
+          />
           <h2 className="text-sm font-black text-text-primary font-mono uppercase tracking-[0.25em]">Syncing Neural Coordinates</h2>
           <span className="text-[10px] uppercase font-bold text-text-tertiary">Connecting to DT Innovation Network...</span>
         </div>
@@ -718,11 +720,11 @@ export default function App() {
       {(activeScreen === "simulation" || activeScreen === "report" || activeScreen === "recap") && (
         <header className="bg-background border-b border-slate-850 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-40 sticky top-0 overflow-hidden">
           <div className="flex items-center justify-start shrink-0">
-            <img 
-              src="/zupskill-logo.png" 
-              alt="ZupSkill" 
-              className="h-[36px] w-auto max-w-[180px] object-contain block" 
-            />
+          <img
+            src="/zupskill-logo.png"
+            alt="ZupSkill"
+            className="h-10 w-auto object-contain select-none"
+          />
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">

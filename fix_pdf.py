@@ -1,13 +1,15 @@
-import re
+import os
 
-with open('src/utils/pdfGenerator.ts', 'r') as f:
-    content = f.read()
+file = 'src/utils/pdfGenerator.ts'
 
-content = content.replace('6, 182, 212', '0, 181, 230')
-content = content.replace('240, 253, 250', '230, 247, 253') # Light azure bg
-content = content.replace('20, 184, 166', '0, 181, 230') # Border azure
-content = content.replace('15, 118, 110', '0, 158, 209') # Dark azure text
+old_src = 'https://res.cloudinary.com/dmyxvewda/image/upload/v1731665476/ZupSkill_Blue_rxyo7c.png'
+new_src = '/zupskill-logo.png'
 
-with open('src/utils/pdfGenerator.ts', 'w') as f:
-    f.write(content)
+if os.path.exists(file):
+    with open(file, 'r') as f:
+        content = f.read()
+    
+    content = content.replace(old_src, new_src)
 
+    with open(file, 'w') as f:
+        f.write(content)

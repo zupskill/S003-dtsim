@@ -51,7 +51,7 @@ export const generateRecapReport = async (
   try {
     const logoImg = new Image();
     logoImg.crossOrigin = "Anonymous";
-    logoImg.src = "https://res.cloudinary.com/dmyxvewda/image/upload/v1731665476/ZupSkill_Blue_rxyo7c.png";
+    logoImg.src = "/zupskill-logo.png";
     await new Promise((resolve, reject) => {
       logoImg.onload = resolve;
       logoImg.onerror = reject;
@@ -399,7 +399,7 @@ export const generateDesignThinkingReport = async (
   try {
     const logoImg = new Image();
     logoImg.crossOrigin = "Anonymous";
-    logoImg.src = "https://res.cloudinary.com/dmyxvewda/image/upload/v1731665476/ZupSkill_Blue_rxyo7c.png";
+    logoImg.src = "/zupskill-logo.png";
     await new Promise((resolve, reject) => {
       logoImg.onload = resolve;
       logoImg.onerror = reject;

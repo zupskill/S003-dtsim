@@ -717,11 +717,11 @@ export default function App() {
       {/* PERSISTENT HEADER BAR (Rendered for in-sim / feed views) */}
       {(activeScreen === "simulation" || activeScreen === "report" || activeScreen === "recap") && (
         <header className="bg-background border-b border-slate-850 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-40 sticky top-0 overflow-hidden">
-          <div className="flex items-center shrink-0">
+          <div className="flex items-center justify-start shrink-0">
             <img 
               src="/zupskill-logo.png" 
               alt="ZupSkill" 
-              className="h-8 sm:h-10 w-auto object-contain" 
+              className="h-[36px] w-auto max-w-[180px] object-contain block" 
             />
           </div>
 

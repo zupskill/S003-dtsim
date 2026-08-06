@@ -100,11 +100,11 @@ export default function LandingScreen({
         transition={{ duration: 0.4 }}
         className="w-full max-w-5xl mx-auto flex items-center justify-between z-10"
       >
-        <div className="flex items-center shrink-0">
+        <div className="flex items-center justify-start shrink-0">
           <img 
             src="/zupskill-logo.png" 
             alt="ZupSkill" 
-            className="h-8 sm:h-10 w-auto object-contain" 
+            className="h-[36px] w-auto max-w-[180px] object-contain block" 
           />
         </div>
         

@@ -1159,8 +1159,8 @@ export default function EmpathizeStage({
       <div className="text-center mb-8 max-w-3xl mx-auto">
         <span className={`text-xs font-mono uppercase tracking-[0.2em] px-3 py-1 rounded-full border ${
           isDark 
-            ? "text-brand-secondary bg-brand-secondary/35 border-brand-secondary/20" 
-            : "text-brand-secondary bg-brand-secondary/10 border-brand-secondary font-bold"
+            ? "text-brand-primary bg-brand-primary/35 border-brand-primary/20" 
+            : "text-brand-primary bg-brand-primary/10 border-brand-primary font-bold"
         }`}>
           Step 2: Empathize 🧠
         </span>
@@ -1168,7 +1168,7 @@ export default function EmpathizeStage({
           isDark ? "text-text-primary" : "text-slate-950 font-black"
         }`}>
           See the problem through <span className={`bg-clip-text text-transparent bg-gradient-to-r ${
-            isDark ? "from-brand-secondary to-brand-secondary/80" : "from-indigo-600 to-cyan-600"
+            isDark ? "from-brand-primary to-brand-primary/80" : "from-brand-primary to-brand-primary/80"
           }`}>different eyes</span>
         </h2>
         <p className={`text-sm max-w-2xl mx-auto ${
@@ -1181,22 +1181,22 @@ export default function EmpathizeStage({
       {/* COMPACT INTUITIVE METRICS MONITOR BAR */}
       <div className={`p-4 rounded-2xl flex flex-col items-stretch gap-4 mb-6 border-2 shadow-sm transition-all ${
         isDark 
-          ? "bg-brand-secondary/15 border-brand-secondary/10" 
-          : "bg-brand-secondary/10/70 border-brand-secondary"
+          ? "bg-brand-primary/15 border-brand-primary/10" 
+          : "bg-brand-primary/10/70 border-brand-primary"
       }`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="relative flex h-2.5 w-2.5">
               <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                isDark ? "bg-brand-secondary" : "bg-indigo-650"
+                isDark ? "bg-brand-primary" : "bg-indigo-650"
               }`}></span>
               <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-                isDark ? "bg-brand-secondary" : "bg-brand-secondary"
+                isDark ? "bg-brand-primary" : "bg-brand-primary"
               }`}></span>
             </div>
             <div>
               <span className={`text-[9px] font-mono font-bold uppercase tracking-wider block ${
-                isDark ? "text-brand-secondary" : "text-brand-secondary font-black"
+                isDark ? "text-brand-primary" : "text-brand-primary font-black"
               }`}>
                 STUDY REGION ACTIVE
               </span>
@@ -1217,7 +1217,7 @@ export default function EmpathizeStage({
         {isBroadFallback && (
           <div className={`p-3 rounded-xl border text-xs leading-relaxed ${
             isDark 
-              ? "bg-amber-950/20 border-brand-primary/20 text-amber-300" 
+              ? "bg-amber-950/20 border-brand-secondary/20 text-amber-300" 
               : "bg-amber-50 border-amber-300/40 text-amber-950 font-bold"
           }`}>
             💡 <span className="font-extrabold">Broad Perspectives Active:</span> Because this topic description is quite open-ended or generic, broad community viewpoints have been generated to help you find an entry point.
@@ -1269,8 +1269,8 @@ export default function EmpathizeStage({
                         className={`px-4 py-2.5 rounded-xl border transition-all text-xs font-bold flex items-center gap-2 cursor-pointer ${
                           isSelected
                             ? isDark
-                              ? "bg-brand-secondary/10 text-brand-secondary border-brand-secondary/60 shadow-[0_0_12px_rgba(34,211,238,0.15)] scale-[1.02]"
-                              : "bg-brand-secondary/20/98 text-brand-secondary border-brand-secondary shadow-[0_2px_10px_rgba(79,70,229,0.1)] scale-[1.02]"
+                              ? "bg-brand-primary/10 text-brand-primary border-brand-primary/60 shadow-[0_0_12px_rgba(0,181,230,0.15)] scale-[1.02]"
+                              : "bg-brand-primary/20/98 text-brand-primary border-brand-primary shadow-[0_2px_10px_rgba(79,70,229,0.1)] scale-[1.02]"
                             : isDark
                               ? "bg-background/45 text-text-secondary border-border hover:text-text-primary hover:border-border"
                               : "bg-surface text-slate-700 border-slate-250 hover:bg-surface-hover hover:text-slate-900 hover:border-slate-400 shadow-sm"
@@ -1334,7 +1334,7 @@ export default function EmpathizeStage({
               {/* Context Summary */}
               <div>
                 <span className={`text-[10px] uppercase block mb-1.5 ${
-                  isDark ? "font-mono text-brand-secondary/80 font-bold tracking-widest" : "font-sans text-brand-secondary font-black tracking-wider"
+                  isDark ? "font-mono text-brand-primary/80 font-bold tracking-widest" : "font-sans text-brand-primary font-black tracking-wider"
                 }`}>
                   WHO THEY ARE
                 </span>
@@ -1413,7 +1413,7 @@ export default function EmpathizeStage({
                               <span className={`text-[10px] font-semibold whitespace-nowrap flex items-center gap-1 ${
                                 isDark ? "text-text-tertiary" : "text-text-tertiary font-bold"
                               }`}>
-                                Pinned <Check className={`w-3.5 h-3.5 ${isDark ? "text-brand-secondary" : "text-brand-secondary"}`} />
+                                Pinned <Check className={`w-3.5 h-3.5 ${isDark ? "text-brand-primary" : "text-brand-primary"}`} />
                               </span>
                             ) : validatingTargetId === targetFeedbackKey ? (
                               <span className="text-[10px] text-text-tertiary flex items-center gap-1.5 font-mono">
@@ -1425,8 +1425,8 @@ export default function EmpathizeStage({
                                 onClick={() => injectNoteToBoard(struggle, targetFeedbackKey)}
                                 className={`text-[10px] uppercase font-mono tracking-wider font-extrabold px-3 py-1.5 rounded-lg cursor-pointer transition-all flex items-center gap-1 border ${
                                   isDark
-                                    ? "bg-brand-secondary/40 hover:bg-brand-primary hover:text-black hover:border-brand-secondary text-brand-secondary border-brand-secondary/20"
-                                    : "bg-brand-secondary/10 hover:bg-brand-secondary hover:text-text-primary hover:border-brand-secondary text-brand-secondary border-brand-secondary shadow-sm"
+                                    ? "bg-brand-primary/40 hover:bg-brand-primary hover:text-black hover:border-brand-primary text-brand-primary border-brand-primary/20"
+                                    : "bg-brand-primary/10 hover:bg-brand-primary hover:text-text-primary hover:border-brand-primary text-brand-primary border-brand-primary shadow-sm"
                                 }`}
                               >
                                 Pin it 📌
@@ -1458,7 +1458,7 @@ export default function EmpathizeStage({
                 {showDuplicateWarning && (
                   <div className={`mb-3.5 p-4 rounded-xl border animate-in fade-in slide-in-from-bottom-2 duration-200 ${
                     isDark 
-                      ? "bg-amber-950/20 border-brand-primary/35 text-amber-100 shadow-[0_0_15px_rgba(245,158,11,0.05)]" 
+                      ? "bg-amber-950/20 border-brand-secondary/35 text-amber-100 shadow-[0_0_15px_rgba(255,200,61,0.05)]" 
                       : "bg-amber-50/70 border-amber-200 text-amber-950 shadow-sm"
                   }`}>
                     <div className="flex items-center gap-1.5 mb-1.5">
@@ -1501,8 +1501,8 @@ export default function EmpathizeStage({
                 {refinerSuggestion && !showDuplicateWarning && (
                   <div className={`mb-3.5 p-4 rounded-xl border animate-in fade-in slide-in-from-bottom-2 duration-200 ${
                     isDark 
-                      ? "bg-brand-secondary/20 border-brand-secondary/35 text-brand-secondary shadow-[0_0_15px_rgba(6,182,212,0.05)]" 
-                      : "bg-brand-secondary/10/70 border-brand-secondary text-brand-secondary shadow-sm"
+                      ? "bg-brand-primary/20 border-brand-primary/35 text-brand-primary shadow-[0_0_15px_rgba(0,181,230,0.05)]" 
+                      : "bg-brand-primary/10/70 border-brand-primary text-brand-primary shadow-sm"
                   }`}>
                     <div className="flex items-center gap-1.5 mb-2.5">
                       <span className="text-xs">✨</span>
@@ -1522,7 +1522,7 @@ export default function EmpathizeStage({
                       </div>
 
                       <div>
-                        <span className={`text-[10px] font-bold tracking-wider uppercase font-mono block mb-1 ${isDark ? "text-brand-secondary" : "text-brand-secondary"}`}>
+                        <span className={`text-[10px] font-bold tracking-wider uppercase font-mono block mb-1 ${isDark ? "text-brand-primary" : "text-brand-primary"}`}>
                           Suggested Observation:
                         </span>
                         <div className={`p-3 rounded-lg break-words border text-xs font-semibold leading-relaxed ${
@@ -1543,7 +1543,7 @@ export default function EmpathizeStage({
                         className={`text-xs px-3.5 py-2 rounded-lg font-bold transition-all active:scale-95 cursor-pointer hover:scale-[1.01] ${
                           isDark 
                             ? "bg-brand-primary text-black hover:bg-brand-primary-hover" 
-                            : "bg-brand-secondary text-text-primary hover:bg-indigo-705 shadow-sm font-black"
+                            : "bg-brand-primary text-text-primary hover:bg-indigo-705 shadow-sm font-black"
                         }`}
                       >
                         {isCheckingDuplicate ? "Checking..." : "Use Suggested Version"}
@@ -1575,8 +1575,8 @@ export default function EmpathizeStage({
                       onChange={(e) => handleStickyTextChange(e.target.value)}
                       className={`w-full text-xs px-3.5 py-3 rounded-xl focus:outline-none transition-all font-medium border leading-relaxed min-h-[90px] ${
                         isDark
-                          ? "bg-slate-955/70 border-slate-885 text-text-primary placeholder:text-text-tertiary focus:border-brand-secondary/80 focus:ring-1 focus:ring-brand-secondary/20 shadow-inner"
-                          : "bg-background border-2 border-slate-300 text-slate-950 placeholder:text-text-secondary focus:border-brand-secondary focus:ring-1 focus:ring-indigo-600/20 font-bold shadow-sm"
+                          ? "bg-slate-955/70 border-slate-885 text-text-primary placeholder:text-text-tertiary focus:border-brand-primary/80 focus:ring-1 focus:ring-brand-primary/20 shadow-inner"
+                          : "bg-background border-2 border-slate-300 text-slate-950 placeholder:text-text-secondary focus:border-brand-primary focus:ring-1 focus:ring-indigo-600/20 font-bold shadow-sm"
                       }`}
                     />
                     {observationFeedback.message && (
@@ -1600,8 +1600,8 @@ export default function EmpathizeStage({
                       disabled={isCheckingDuplicate || !newStickyText.trim() || showDuplicateWarning}
                       className={`w-full sm:w-auto px-5 py-3 rounded-xl text-xs font-bold transition-all hover:scale-[1.01] active:scale-95 cursor-pointer whitespace-nowrap flex items-center justify-center gap-1.5 disabled:opacity-45 disabled:cursor-not-allowed ${
                         isDark 
-                          ? "bg-brand-primary hover:bg-brand-primary-hover text-black shadow-[0_0_12px_rgba(6,182,212,0.25)]"
-                          : "bg-brand-secondary hover:bg-indigo-700 text-text-primary shadow-[0_2px_8px_rgba(79,70,229,0.25)] font-black border border-brand-secondary"
+                          ? "bg-brand-primary hover:bg-brand-primary-hover text-black shadow-[0_0_12px_rgba(0,181,230,0.25)]"
+                          : "bg-brand-primary hover:bg-indigo-700 text-text-primary shadow-[0_2px_8px_rgba(79,70,229,0.25)] font-black border border-brand-primary"
                       }`}
                     >
                       {isCheckingDuplicate ? (
@@ -1668,13 +1668,13 @@ export default function EmpathizeStage({
                 <div className={`px-3 py-1.5 rounded-xl text-right shrink-0 border ${
                   isDark 
                     ? "bg-background/60 border-border" 
-                    : "bg-brand-secondary/10 border-brand-secondary text-brand-secondary font-bold"
+                    : "bg-brand-primary/10 border-brand-primary text-brand-primary font-bold"
                 }`}>
                   <span className={`text-[8px] font-mono uppercase font-extrabold block ${
                     isDark ? "text-text-tertiary" : "text-text-tertiary"
                   }`}>Collected</span>
                   <span className={`text-xs font-black font-mono ${
-                    isDark ? "text-brand-secondary" : "text-brand-secondary"
+                    isDark ? "text-brand-primary" : "text-brand-primary"
                   }`}>
                     {problemObservations.length} / 5
                   </span>
@@ -1743,8 +1743,8 @@ export default function EmpathizeStage({
 
                         {enhancement && enhancement.status === "ready" && enhancement.suggestion && (
                           <div className="mt-2.5 pt-2 border-t border-amber-200/60 text-amber-950">
-                            <div className="flex items-center gap-1 text-[10px] font-bold text-brand-secondary mb-1.5">
-                              <Sparkles className="w-3.5 h-3.5 animate-bounce text-brand-secondary shrink-0" />
+                            <div className="flex items-center gap-1 text-[10px] font-bold text-brand-primary mb-1.5">
+                              <Sparkles className="w-3.5 h-3.5 animate-bounce text-brand-primary shrink-0" />
                               <span>✨ Suggested Improvement Available</span>
                             </div>
                             <p 
@@ -1757,7 +1757,7 @@ export default function EmpathizeStage({
                             <div className="flex gap-2">
                               <button 
                                 onClick={() => handleApplyEnhancement(obs.id)}
-                                className="px-2.5 py-1 bg-gradient-to-r from-indigo-600 to-brand-secondary/80 hover:from-indigo-700 hover:to-brand-secondary/80 text-text-primary rounded-md text-[10px] font-bold flex items-center gap-1 shadow-sm transition-all cursor-pointer"
+                                className="px-2.5 py-1 bg-gradient-to-r from-indigo-600 to-brand-primary/80 hover:from-indigo-700 hover:to-brand-primary/80 text-text-primary rounded-md text-[10px] font-bold flex items-center gap-1 shadow-sm transition-all cursor-pointer"
                               >
                                 Improve
                               </button>
@@ -1804,7 +1804,7 @@ export default function EmpathizeStage({
         <button
           disabled={problemObservations.length === 0}
           onClick={onNext}
-          className="px-10 py-3.5 bg-teal-600 hover:bg-teal-500 text-text-primary font-extrabold text-xs uppercase tracking-widest rounded-full cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(13,148,136,0.3)] hover:shadow-[0_0_25px_rgba(13,148,136,0.5)] disabled:opacity-45 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+          className="px-10 py-3.5 bg-brand-primary hover:bg-brand-primary-hover text-text-primary font-extrabold text-xs uppercase tracking-widest rounded-full cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(0,181,230,0.3)] hover:shadow-[0_0_25px_rgba(0,181,230,0.5)] disabled:opacity-45 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
         >
           Define the Challenge →
         </button>
@@ -1905,7 +1905,7 @@ export default function EmpathizeStage({
                 <button
                   type="submit"
                   disabled={isGeneratingPerspective || !isCustomRoleSafe || !isCustomContextSafe}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-500 to-brand-secondary/80 hover:from-purple-400 hover:to-brand-secondary/80 text-text-primary rounded-lg font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-55 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-gradient-to-r from-purple-500 to-brand-primary/80 hover:from-purple-400 hover:to-brand-primary/80 text-text-primary rounded-lg font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-55 disabled:cursor-not-allowed"
                 >
                   {isGeneratingPerspective ? (
                     <>

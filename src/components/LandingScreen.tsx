@@ -65,7 +65,7 @@ export default function LandingScreen({
       <motion.div 
         animate={isStarting ? { scale: 1.4, opacity: 0.1, filter: "blur(150px)" } : { scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-brand-secondary/10 blur-[120px] pointer-events-none animate-pulse" 
+        className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-brand-primary/10 blur-[120px] pointer-events-none animate-pulse" 
       />
       <motion.div 
         animate={isStarting ? { scale: 1.5, opacity: 0.05, filter: "blur(150px)" } : { scale: 1, opacity: 1 }}
@@ -77,7 +77,7 @@ export default function LandingScreen({
       <motion.div 
         animate={isStarting ? { scale: 1.3, opacity: 0 } : { scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-indigo-150/20 dark:bg-brand-secondary/10 blur-[130px] pointer-events-none -z-10" 
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-indigo-150/20 dark:bg-brand-primary/10 blur-[130px] pointer-events-none -z-10" 
       />
 
       {/* Subtle Studio Accents */}
@@ -85,7 +85,7 @@ export default function LandingScreen({
         <motion.div 
           animate={isStarting ? { scale: 1.2, opacity: 0 } : { scale: 1, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="absolute top-10 left-[8%] w-[500px] h-[500px] rounded-full bg-cyan-200/15 dark:bg-brand-secondary/5 blur-[130px] pointer-events-none" 
+          className="absolute top-10 left-[8%] w-[500px] h-[500px] rounded-full bg-brand-primary/15 dark:bg-brand-primary/5 blur-[130px] pointer-events-none" 
         />
         <motion.div 
           animate={isStarting ? { scale: 1.2, opacity: 0 } : { scale: 1, opacity: 1 }}
@@ -101,7 +101,7 @@ export default function LandingScreen({
         className="w-full max-w-5xl mx-auto flex items-center justify-between z-10"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-brand-secondary to-brand-secondary/80 rounded-lg flex items-center justify-center font-black text-black text-lg shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+          <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-primary/80 rounded-lg flex items-center justify-center font-black text-black text-lg shadow-[0_0_15px_rgba(0,181,230,0.4)]">
             ZS
           </div>
           <div>
@@ -116,15 +116,15 @@ export default function LandingScreen({
             <>
               <div className="flex items-center gap-2.5 bg-surface border border-border rounded-xl px-3.5 py-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.3)] animate-in fade-in duration-200">
                 {profile.photoURL ? (
-                  <img referrerPolicy="no-referrer" src={profile.photoURL} alt={profile.username} className="w-6.5 h-6.5 rounded-full border border-brand-secondary/40 shrink-0" />
+                  <img referrerPolicy="no-referrer" src={profile.photoURL} alt={profile.username} className="w-6.5 h-6.5 rounded-full border border-brand-primary/40 shrink-0" />
                 ) : (
-                  <div className="w-6.5 h-6.5 rounded-full bg-gradient-to-tr from-brand-secondary to-brand-secondary/80 flex items-center justify-center text-[10px] text-black font-black font-mono shrink-0">
+                  <div className="w-6.5 h-6.5 rounded-full bg-gradient-to-tr from-brand-primary to-brand-primary/80 flex items-center justify-center text-[10px] text-black font-black font-mono shrink-0">
                     {profile.username?.substring(0, 2).toUpperCase()}
                   </div>
                 )}
                 <div className="text-left leading-tight">
                   <span className="text-xs font-bold text-text-primary block line-clamp-1">{profile.username}</span>
-                  <span className="text-[9px] font-mono font-semibold text-brand-secondary uppercase tracking-widest">{profile.level}</span>
+                  <span className="text-[9px] font-mono font-semibold text-brand-primary uppercase tracking-widest">{profile.level}</span>
                 </div>
               </div>
               <SignOutButton onSignOut={onSignOut} />
@@ -153,19 +153,19 @@ export default function LandingScreen({
                 y: [0, -4, 0],
                 rotate: [-0.3, 0.3, -0.3],
                 borderColor: [
-                  "rgba(6,182,212,0.25)",
-                  "rgba(6,182,212,0.6)",
-                  "rgba(6,182,212,0.25)"
+                  "rgba(0,181,230,0.25)",
+                  "rgba(0,181,230,0.6)",
+                  "rgba(0,181,230,0.25)"
                 ],
                 boxShadow: [
-                  "0 0 10px rgba(6,182,212,0.04)",
-                  "0 0 20px rgba(6,182,212,0.2)",
-                  "0 0 10px rgba(6,182,212,0.04)"
+                  "0 0 10px rgba(0,181,230,0.04)",
+                  "0 0 20px rgba(0,181,230,0.2)",
+                  "0 0 10px rgba(0,181,230,0.04)"
                 ],
                 backgroundColor: [
-                  "rgba(6,182,212,0.08)",
-                  "rgba(6,182,212,0.16)",
-                  "rgba(6,182,212,0.08)"
+                  "rgba(0,181,230,0.08)",
+                  "rgba(0,181,230,0.16)",
+                  "rgba(0,181,230,0.08)"
                 ]
               }}
               transition={{
@@ -173,14 +173,14 @@ export default function LandingScreen({
                 ease: "easeInOut",
                 repeat: Infinity
               }}
-              className="inline-flex items-center gap-2 px-3 py-1 border rounded-full text-brand-secondary text-xs font-semibold mb-6 uppercase tracking-wider select-none cursor-default backdrop-blur-sm"
+              className="inline-flex items-center gap-2 px-3 py-1 border rounded-full text-brand-primary text-xs font-semibold mb-6 uppercase tracking-wider select-none cursor-default backdrop-blur-sm"
             >
-              <Sparkles className="w-3.5 h-3.5 text-brand-secondary" /> DT INNOVATION LAB
+              <Sparkles className="w-3.5 h-3.5 text-brand-primary" /> DT INNOVATION LAB
             </motion.div>
 
             <h2 className="font-extrabold tracking-tight text-text-primary leading-none mb-6" style={{ fontSize: "clamp(2.25rem, 5vw, 3.75rem)" }}>
               Most people notice problems.<br />
-              <span className="bg-gradient-to-r from-brand-secondary via-sky-500 to-brand-secondary/80 dark:from-brand-secondary dark:via-sky-400 dark:to-brand-secondary/80 text-transparent bg-clip-text">
+              <span className="bg-gradient-to-r from-brand-primary via-sky-500 to-brand-primary/80 dark:from-brand-primary dark:via-sky-400 dark:to-brand-primary/80 text-transparent bg-clip-text">
                 Let's learn how to solve them.
               </span>
             </h2>
@@ -197,7 +197,7 @@ export default function LandingScreen({
                 <button
                   id="google-signin-btn"
                   onClick={onSignInWithGoogle}
-                  className="w-full sm:w-auto px-8 py-4 bg-brand-primary hover:bg-brand-primary-hover text-text-primary text-sm md:text-base font-extrabold uppercase tracking-widest rounded-full transition-all duration-300 transform hover:scale-105 shadow-[0_10px_30px_rgba(37,99,235,0.25)] flex items-center justify-center gap-3 cursor-pointer"
+                  className="w-full sm:w-auto px-8 py-4 bg-brand-primary hover:bg-brand-primary-hover text-text-primary text-sm md:text-base font-extrabold uppercase tracking-widest rounded-full transition-all duration-300 transform hover:scale-105 shadow-[0_10px_30px_rgba(0,181,230,0.25)] flex items-center justify-center gap-3 cursor-pointer"
                 >
                   <span className="w-6 h-6 rounded-full bg-background flex items-center justify-center text-blue-600 font-black text-xs font-mono select-none">G</span>
                   Continue with Google
@@ -210,7 +210,7 @@ export default function LandingScreen({
                       <button
                         id="resume-simulation-btn"
                         onClick={handleResume}
-                        className="w-full sm:w-auto px-8 py-4 bg-brand-primary hover:bg-brand-primary-hover text-black text-sm md:text-base font-extrabold uppercase tracking-widest rounded-full transition-all duration-300 transform hover:scale-105 shadow-[0_10px_30px_rgba(34,211,238,0.3)] hover:shadow-[0_15px_35px_rgba(34,211,238,0.5)] flex items-center justify-center gap-2 cursor-pointer"
+                        className="w-full sm:w-auto px-8 py-4 bg-brand-primary hover:bg-brand-primary-hover text-black text-sm md:text-base font-extrabold uppercase tracking-widest rounded-full transition-all duration-300 transform hover:scale-105 shadow-[0_10px_30px_rgba(0,181,230,0.3)] hover:shadow-[0_15px_35px_rgba(0,181,230,0.5)] flex items-center justify-center gap-2 cursor-pointer"
                       >
                         Resume Simulation <Rocket className="w-5 h-5" />
                       </button>
@@ -226,7 +226,7 @@ export default function LandingScreen({
                     <button
                       id="start-simulation-btn"
                       onClick={handleStart}
-                      className="w-full sm:w-auto px-8 py-4 bg-brand-primary hover:bg-brand-primary-hover text-black text-base font-bold uppercase tracking-widest rounded-full transition-all duration-300 transform hover:scale-105 shadow-[0_10px_30px_rgba(34,211,238,0.3)] hover:shadow-[0_15px_35px_rgba(34,211,238,0.5)] flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full sm:w-auto px-8 py-4 bg-brand-primary hover:bg-brand-primary-hover text-black text-base font-bold uppercase tracking-widest rounded-full transition-all duration-300 transform hover:scale-105 shadow-[0_10px_30px_rgba(0,181,230,0.3)] hover:shadow-[0_15px_35px_rgba(0,181,230,0.5)] flex items-center justify-center gap-2 cursor-pointer"
                     >
                       Start Simulation <Rocket className="w-5 h-5" />
                     </button>
@@ -264,7 +264,7 @@ export default function LandingScreen({
               >
                 <X className="w-5 h-5" />
               </button>
-              <div className="flex items-center gap-2 text-brand-secondary font-semibold uppercase tracking-wider text-xs sm:text-sm mb-1 sm:mb-2">
+              <div className="flex items-center gap-2 text-brand-primary font-semibold uppercase tracking-wider text-xs sm:text-sm mb-1 sm:mb-2">
                 <span>🎬</span> Demo
               </div>
               <h2 className="text-xl sm:text-3xl font-bold text-text-primary mb-1 sm:mb-2">DT Innovation Lab Demo</h2>
@@ -287,19 +287,19 @@ export default function LandingScreen({
               <h3 className="text-sm sm:text-lg font-medium text-text-primary mb-2 sm:mb-3">In this demo you'll discover:</h3>
               <ul className="space-y-1.5 sm:space-y-2">
                 <li className="flex items-start gap-2 text-xs sm:text-sm text-text-secondary">
-                  <span className="text-brand-secondary mt-0.5 sm:mt-1">•</span>
+                  <span className="text-brand-primary mt-0.5 sm:mt-1">•</span>
                   <span>How the Design Thinking simulation works</span>
                 </li>
                 <li className="flex items-start gap-2 text-xs sm:text-sm text-text-secondary">
-                  <span className="text-brand-secondary mt-0.5 sm:mt-1">•</span>
+                  <span className="text-brand-primary mt-0.5 sm:mt-1">•</span>
                   <span>What each stage teaches</span>
                 </li>
                 <li className="flex items-start gap-2 text-xs sm:text-sm text-text-secondary">
-                  <span className="text-brand-secondary mt-0.5 sm:mt-1">•</span>
+                  <span className="text-brand-primary mt-0.5 sm:mt-1">•</span>
                   <span>How your ideas evolve into solutions</span>
                 </li>
                 <li className="flex items-start gap-2 text-xs sm:text-sm text-text-secondary">
-                  <span className="text-brand-secondary mt-0.5 sm:mt-1">•</span>
+                  <span className="text-brand-primary mt-0.5 sm:mt-1">•</span>
                   <span>How achievements and XP are earned</span>
                 </li>
               </ul>
@@ -323,7 +323,7 @@ export default function LandingScreen({
                       onSignInWithGoogle();
                     }
                   }}
-                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-text-primary bg-brand-secondary hover:bg-brand-secondary-hover transition-colors flex items-center justify-center gap-2 order-1 sm:order-2"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-text-primary bg-brand-primary hover:bg-brand-primary-hover transition-colors flex items-center justify-center gap-2 order-1 sm:order-2"
                 >
                   Start Simulation
                   <Play className="w-4 h-4" />

@@ -59,7 +59,7 @@ export default function ProfileSection({
             onClick={() => setActiveTab("details")}
             className={`pb-3 text-sm font-bold uppercase tracking-wider flex items-center gap-2 border-b-2 transition-all ${
               activeTab === "details"
-                ? "border-brand-secondary text-text-primary"
+                ? "border-brand-primary text-text-primary"
                 : "border-transparent text-text-tertiary hover:text-slate-350"
             }`}
           >
@@ -71,7 +71,7 @@ export default function ProfileSection({
             onClick={() => setActiveTab("achievements")}
             className={`pb-3 text-sm font-bold uppercase tracking-wider flex items-center gap-2 border-b-2 transition-all ${
               activeTab === "achievements"
-                ? "border-brand-secondary text-text-primary"
+                ? "border-brand-primary text-text-primary"
                 : "border-transparent text-text-tertiary hover:text-slate-350"
             }`}
           >
@@ -86,9 +86,9 @@ export default function ProfileSection({
             <div className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-2xl bg-surface/50 border border-border">
               <div className="relative">
                 {profile.photoURL ? (
-                  <img src={profile.photoURL} alt={profile.username} className="w-24 h-24 rounded-full border-2 border-brand-secondary/30 object-cover" referrerPolicy="no-referrer" />
+                  <img src={profile.photoURL} alt={profile.username} className="w-24 h-24 rounded-full border-2 border-brand-primary/30 object-cover" referrerPolicy="no-referrer" />
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-brand-primary/10 text-brand-secondary flex items-center justify-center border-2 border-brand-secondary/30">
+                  <div className="w-24 h-24 rounded-full bg-brand-secondary/10 text-brand-primary flex items-center justify-center border-2 border-brand-primary/30">
                     <User className="w-10 h-10" />
                   </div>
                 )}
@@ -99,7 +99,7 @@ export default function ProfileSection({
               <div className="flex-1 text-center sm:text-left">
                 <h3 className="text-2xl font-bold text-text-primary mb-1">{profile.username}</h3>
                 <p className="text-text-secondary mb-4">{profile.email}</p>
-                <div className="inline-block bg-brand-secondary/10 text-brand-secondary px-3 py-1 rounded-full text-xs font-mono font-bold tracking-widest uppercase border border-brand-secondary/20">
+                <div className="inline-block bg-brand-primary/10 text-brand-primary px-3 py-1 rounded-full text-xs font-mono font-bold tracking-widest uppercase border border-brand-primary/20">
                   {profile.level}
                 </div>
               </div>
@@ -150,7 +150,7 @@ export default function ProfileSection({
                 <span className="text-brand-secondary">{profile.xp} / {currentLevelTarget} XP</span>
               </div>
               <div className="w-full h-2.5 bg-background rounded-full overflow-hidden border border-border p-0.5">
-                <div className="h-full bg-gradient-to-r from-brand-secondary to-brand-secondary/80 rounded-full transition-all duration-350" style={{ width: `${progressRatio}%` }} />
+                <div className="h-full bg-gradient-to-r from-brand-secondary to-brand-secondary/80 rounded-full shadow-[0_0_8px_rgba(255,200,61,0.4)] transition-all duration-350" style={{ width: `${progressRatio}%` }} />
               </div>
             </div>
 
@@ -170,11 +170,11 @@ export default function ProfileSection({
                       key={b.id}
                       className={`p-3 rounded-xl border transition-all text-left flex items-center gap-3 ${
                         isUnlocked
-                          ? "bg-brand-secondary/20 border-brand-secondary/25 text-brand-secondary"
+                          ? "bg-brand-secondary/10 border-brand-secondary/30 text-brand-secondary"
                           : "bg-background/40 border-border text-slate-650 opacity-40 select-none"
                       }`}
                     >
-                      <div className={`p-2 rounded-lg border shrink-0 ${isUnlocked ? "bg-brand-secondary/30 border-brand-secondary/30 text-brand-secondary" : "bg-surface border-slate-850"}`}>
+                      <div className={`p-2 rounded-lg border shrink-0 ${isUnlocked ? "bg-brand-secondary/20 border-brand-secondary/40 text-brand-secondary" : "bg-surface border-slate-850"}`}>
                         <Icon className="w-4 h-4" />
                       </div>
                       

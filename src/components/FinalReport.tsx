@@ -69,7 +69,7 @@ export default function FinalReport({
         desc: "Exceptional! You demonstrated master-level systemic design thinking. Your prototype showcases phenomenal user empathy, unique and highly creative novelty, and real-world scalability.",
         strengthScores: scores,
         tierName: "DT Innovation Master",
-        colorClass: "bg-brand-secondary/40 border border-brand-secondary/20 text-brand-secondary"
+        colorClass: "bg-brand-primary/40 border border-brand-primary/20 text-brand-primary"
       };
     }
     if (avgScore >= 76) {
@@ -79,7 +79,7 @@ export default function FinalReport({
         desc: "Fantastic! You generated highly original ideas, built a very sound prototype, and proved useful real-world potential with clear stakeholder empathy.",
         strengthScores: scores,
         tierName: "Innovation Builder",
-        colorClass: "bg-amber-950/40 border border-brand-primary/20 text-amber-300"
+        colorClass: "bg-amber-950/40 border border-brand-secondary/20 text-amber-300"
       };
     }
     if (avgScore >= 61) {
@@ -89,7 +89,7 @@ export default function FinalReport({
         desc: "Great job! You explored alternative futures, formulated elegant ideas, and shaped a solid, interactive design thinking flow.",
         strengthScores: scores,
         tierName: "Creative Thinker",
-        colorClass: "bg-brand-secondary/40 border border-brand-secondary/20 text-brand-secondary"
+        colorClass: "bg-brand-primary/40 border border-brand-primary/20 text-brand-primary"
       };
     }
     if (avgScore >= 41) {
@@ -121,23 +121,23 @@ export default function FinalReport({
   return (
     <div className="w-full max-w-4xl mx-auto py-8 px-4">
       {/* SUCCESS CONFETTI ATMOSPHERE */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-brand-secondary/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-brand-primary/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="glass-panel p-8 rounded-3xl glow-cyan text-center relative overflow-hidden border-brand-secondary/25 mb-8">
+      <div className="glass-panel p-8 rounded-3xl glow-cyan text-center relative overflow-hidden border-brand-primary/25 mb-8">
         
         {/* CELEBRATION MOMENT */}
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5, type: "spring" }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-brand-secondary/20 to-brand-secondary/80/20 border border-brand-secondary/40 rounded-full text-brand-secondary text-xs font-bold mb-6 uppercase tracking-widest font-mono"
+          className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-brand-primary/20 to-brand-primary/80/20 border border-brand-primary/40 rounded-full text-brand-primary text-xs font-bold mb-6 uppercase tracking-widest font-mono"
         >
-          <Sparkles className="w-4 h-4 animate-pulse text-brand-secondary" /> ✨ LAB COMPLETE 🎉 CHALLENGE RESOLVED
+          <Sparkles className="w-4 h-4 animate-pulse text-brand-primary" /> ✨ LAB COMPLETE 🎉 CHALLENGE RESOLVED
         </motion.div>
 
         <h1 className="text-3xl md:text-5xl font-black text-text-primary tracking-tight mb-4 leading-tight">
           You didn’t just solve a problem 👀 <br/>
-          <span className="bg-gradient-to-r from-brand-secondary via-sky-400 to-brand-secondary/80 text-transparent bg-clip-text">
+          <span className="bg-gradient-to-r from-brand-primary via-sky-400 to-brand-primary/80 text-transparent bg-clip-text">
             You learned how to redesign the world.
           </span>
         </h1>
@@ -151,13 +151,13 @@ export default function FinalReport({
           
           {/* ACH LEVEL OUTCOME CARD */}
           <div className={`md:col-span-7 ${cardBgClass}`}>
-            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl pointer-events-none ${isDark ? "bg-brand-secondary/5" : "bg-brand-secondary/3"}`} />
+            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl pointer-events-none ${isDark ? "bg-brand-primary/5" : "bg-brand-primary/3"}`} />
             
             <div>
               <div className="flex items-center gap-2.5 mb-3">
                 <span className="text-3xl">{ach.symbol}</span>
                 <div>
-                  <span className={`text-[9.5px] font-mono uppercase tracking-widest block font-extrabold leading-none mb-1 ${isDark ? "text-brand-secondary" : "text-brand-secondary"}`}>UNLOCKED ACHIEVEMENT</span>
+                  <span className={`text-[9.5px] font-mono uppercase tracking-widest block font-extrabold leading-none mb-1 ${isDark ? "text-brand-primary" : "text-brand-primary"}`}>UNLOCKED ACHIEVEMENT</span>
                   <h3 className={`text-xl font-black ${isDark ? "text-text-primary" : "text-slate-900"}`}>{ach.title}</h3>
                 </div>
               </div>
@@ -169,7 +169,7 @@ export default function FinalReport({
             <div className={`mt-6 pt-4 border-t flex items-center justify-between ${isDark ? "border-border" : "border-slate-150"}`}>
               <span className={`text-[10px] font-mono uppercase tracking-wider ${isDark ? "text-text-tertiary" : "text-text-secondary"}`}>Verified Identity Status</span>
               <span className={`text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-lg ${
-                isDark ? ach.colorClass : "bg-brand-secondary/10 border border-brand-secondary text-brand-secondary"
+                isDark ? ach.colorClass : "bg-brand-primary/10 border border-brand-primary text-brand-primary"
               }`}>
                 {ach.tierName}
               </span>
@@ -178,12 +178,12 @@ export default function FinalReport({
 
           {/* REDESIGNED RESULTS XP CARD */}
           <div className={`md:col-span-5 ${cardBgClass}`}>
-            <div className={`absolute -top-12 -right-12 w-24 h-24 rounded-full blur-2xl pointer-events-none ${isDark ? "bg-brand-secondary/10" : "bg-brand-secondary/3"}`} />
+            <div className={`absolute -top-12 -right-12 w-24 h-24 rounded-full blur-2xl pointer-events-none ${isDark ? "bg-brand-primary/10" : "bg-brand-primary/3"}`} />
             
             <div className="space-y-4">
               {/* SECTION 1: XP EARNED */}
               <div>
-                <span className={`text-[10px] font-mono block tracking-widest uppercase font-black leading-none mb-1.5 ${isDark ? "text-brand-secondary" : "text-brand-secondary"}`}>
+                <span className={`text-[10px] font-mono block tracking-widest uppercase font-black leading-none mb-1.5 ${isDark ? "text-brand-primary" : "text-brand-primary"}`}>
                   XP EARNED
                 </span>
                 <div className="flex items-baseline gap-1.5">
@@ -235,7 +235,7 @@ export default function FinalReport({
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.round(((userProfile.xp % 300) / 300) * 100)}%` }}
                     transition={{ duration: 1.2, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-brand-secondary via-brand-secondary/90 to-brand-secondary/60 rounded-full"
+                    className="h-full bg-gradient-to-r from-brand-primary via-brand-primary/90 to-brand-primary/60 rounded-full"
                   />
                 </div>
               </div>
@@ -262,11 +262,11 @@ export default function FinalReport({
           className={`mb-8 ${isDark ? "bg-background/90 border border-slate-850" : "bg-background border border-slate-200"} rounded-2xl p-6 shadow-sm shadow-slate-100/40 relative overflow-hidden`}
         >
           {/* Ambient decorative glow */}
-          <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl pointer-events-none -mr-8 -mt-8 ${isDark ? "bg-brand-secondary/10" : "bg-brand-secondary/5"}`} />
+          <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl pointer-events-none -mr-8 -mt-8 ${isDark ? "bg-brand-primary/10" : "bg-brand-primary/5"}`} />
           
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-left relative z-10">
             <div className="text-center sm:text-left space-y-1">
-              <span className={`text-[10px] font-mono block uppercase tracking-[0.2em] font-black ${isDark ? "text-brand-secondary" : "text-brand-secondary"}`}>
+              <span className={`text-[10px] font-mono block uppercase tracking-[0.2em] font-black ${isDark ? "text-brand-primary" : "text-brand-primary"}`}>
                 OVERALL DESIGN SCORE
               </span>
               <div className="flex items-baseline justify-center sm:justify-start gap-1">
@@ -296,21 +296,21 @@ export default function FinalReport({
           {/* YOUR STRONGEST AREAS */}
           <div className={isDark ? "bg-background border border-slate-850 rounded-2xl p-6" : "bg-background border border-slate-200 rounded-2xl p-6 shadow-sm shadow-slate-100/40"}>
             <h3 className={`text-sm font-extrabold uppercase tracking-widest mb-4 flex items-center gap-2 ${isDark ? "text-text-secondary" : "text-slate-550"}`}>
-              <Target className={`w-4 h-4 ${isDark ? "text-brand-secondary" : "text-brand-secondary"}`} /> Your Strongest Areas
+              <Target className={`w-4 h-4 ${isDark ? "text-brand-primary" : "text-brand-primary"}`} /> Your Strongest Areas
             </h3>
             
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-xs font-bold mb-1.5">
                   <span className={isDark ? "text-text-secondary flex items-center gap-1" : "text-slate-700 flex items-center gap-1"}>💡 Creativity</span>
-                  <span className={`font-mono ${isDark ? "text-brand-secondary" : "text-brand-secondary"}`}>{ach.strengthScores.creativity}%</span>
+                  <span className={`font-mono ${isDark ? "text-brand-primary" : "text-brand-primary"}`}>{ach.strengthScores.creativity}%</span>
                 </div>
                 <div className={`h-2 rounded-full overflow-hidden ${isDark ? "bg-surface" : "bg-surface-hover"}`}>
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${ach.strengthScores.creativity}%` }}
                     transition={{ duration: 1, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-brand-secondary to-brand-secondary/80 rounded-full"
+                    className="h-full bg-gradient-to-r from-brand-primary to-brand-primary/80 rounded-full"
                   />
                 </div>
               </div>
@@ -318,7 +318,7 @@ export default function FinalReport({
               <div>
                 <div className="flex justify-between text-xs font-bold mb-1.5">
                   <span className={isDark ? "text-text-secondary flex items-center gap-1" : "text-slate-700 flex items-center gap-1"}>❤️ User Understanding</span>
-                  <span className={`font-mono ${isDark ? "text-brand-secondary" : "text-brand-secondary"}`}>{ach.strengthScores.understanding}%</span>
+                  <span className={`font-mono ${isDark ? "text-brand-primary" : "text-brand-primary"}`}>{ach.strengthScores.understanding}%</span>
                 </div>
                 <div className={`h-2 rounded-full overflow-hidden ${isDark ? "bg-surface" : "bg-surface-hover"}`}>
                   <motion.div 
@@ -333,14 +333,14 @@ export default function FinalReport({
               <div>
                 <div className="flex justify-between text-xs font-bold mb-1.5">
                   <span className={isDark ? "text-text-secondary flex items-center gap-1" : "text-slate-700 flex items-center gap-1"}>🚀 Innovation</span>
-                  <span className={`font-mono ${isDark ? "text-brand-secondary" : "text-brand-secondary"}`}>{ach.strengthScores.innovation}%</span>
+                  <span className={`font-mono ${isDark ? "text-brand-primary" : "text-brand-primary"}`}>{ach.strengthScores.innovation}%</span>
                 </div>
                 <div className={`h-2 rounded-full overflow-hidden ${isDark ? "bg-surface" : "bg-surface-hover"}`}>
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${ach.strengthScores.innovation}%` }}
                     transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-                    className="h-full bg-gradient-to-r from-purple-500 to-brand-secondary/80 rounded-full"
+                    className="h-full bg-gradient-to-r from-purple-500 to-brand-primary/80 rounded-full"
                   />
                 </div>
               </div>
@@ -356,7 +356,7 @@ export default function FinalReport({
 
               <ul className="space-y-3">
                 <li className="flex gap-2 text-xs leading-relaxed">
-                  <span className={`shrink-0 font-extrabold ${isDark ? "text-brand-secondary" : "text-brand-secondary"}`}>•</span>
+                  <span className={`shrink-0 font-extrabold ${isDark ? "text-brand-primary" : "text-brand-primary"}`}>•</span>
                   <span className={isDark ? "text-text-secondary" : "text-slate-700"}>Consider more edge cases during testing to preempt user behavioral workarounds before physical launch.</span>
                 </li>
                 <li className="flex gap-2 text-xs leading-relaxed">
@@ -364,7 +364,7 @@ export default function FinalReport({
                   <span className={isDark ? "text-text-secondary" : "text-slate-700"}>Explore more futuristic HOW ideas within the Ideate stage map to discover highly disruptive alternatives.</span>
                 </li>
                 <li className="flex gap-2 text-xs leading-relaxed">
-                  <span className={`shrink-0 font-extrabold ${isDark ? "text-brand-secondary" : "text-brand-secondary"}`}>•</span>
+                  <span className={`shrink-0 font-extrabold ${isDark ? "text-brand-primary" : "text-brand-primary"}`}>•</span>
                   <span className={isDark ? "text-text-secondary" : "text-slate-700"}>Add deeper descriptive layers or visual flow parameters to your blueprint flow elements to guide engineers.</span>
                 </li>
               </ul>
@@ -380,7 +380,7 @@ export default function FinalReport({
         {/* 🎯 PROBLEM SOLVED & 💡 FINAL SOLUTION DETAILS */}
         <div className={`border rounded-2xl p-5 mb-8 text-left relative overflow-hidden backdrop-blur-md ${
           isDark 
-            ? "bg-background border-slate-850 shadow-[0_4px_22px_rgba(245,158,11,0.05)]" 
+            ? "bg-background border-slate-850 shadow-[0_4px_22px_rgba(255,200,61,0.05)]" 
             : "bg-background border-slate-205 shadow-sm shadow-slate-100/40"
         }`}>
           <span className={`text-[10px] font-mono block uppercase mb-4 font-bold tracking-widest border-b pb-2 ${
@@ -393,12 +393,12 @@ export default function FinalReport({
             {/* PROBLEM SOLVED CARD */}
             <div className="flex items-start gap-3">
               <div className={`p-1.5 rounded-xl border shrink-0 select-none text-xs ${
-                isDark ? "bg-brand-secondary/45 border-brand-secondary/20 text-brand-secondary" : "bg-brand-secondary/10 border-brand-secondary text-brand-secondary"
+                isDark ? "bg-brand-primary/45 border-brand-primary/20 text-brand-primary" : "bg-brand-primary/10 border-brand-primary text-brand-primary"
               }`}>
                 🎯
               </div>
               <div className="space-y-1">
-                <span className={`text-[9px] font-mono font-black uppercase tracking-widest block ${isDark ? "text-brand-secondary" : "text-brand-secondary"}`}>
+                <span className={`text-[9px] font-mono font-black uppercase tracking-widest block ${isDark ? "text-brand-primary" : "text-brand-primary"}`}>
                   PROBLEM SOLVED
                 </span>
                 <p className={`text-xs font-semibold leading-relaxed italic ${isDark ? "text-text-primary" : "text-slate-800"}`}>
@@ -412,12 +412,12 @@ export default function FinalReport({
               isDark ? "border-border" : "border-slate-150"
             }`}>
               <div className={`p-1.5 rounded-xl border shrink-0 select-none text-xs ${
-                isDark ? "bg-amber-950/45 border-brand-primary/25 text-brand-primary" : "bg-amber-50 border-amber-250 text-amber-800"
+                isDark ? "bg-amber-950/45 border-brand-secondary/25 text-brand-secondary" : "bg-amber-50 border-amber-250 text-amber-800"
               }`}>
                 💡
               </div>
               <div className="space-y-1">
-                <span className={`text-[9px] font-mono font-black uppercase tracking-widest block ${isDark ? "text-brand-primary" : "text-amber-700"}`}>
+                <span className={`text-[9px] font-mono font-black uppercase tracking-widest block ${isDark ? "text-brand-secondary" : "text-amber-700"}`}>
                   FINAL SOLUTION
                 </span>
                 <h5 className={`text-xs font-bold leading-normal ${isDark ? "text-text-primary" : "text-slate-900"}`}>
@@ -446,7 +446,7 @@ export default function FinalReport({
               }
             }}
             disabled={isGenerating}
-            className={`w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-brand-secondary to-brand-secondary/80 hover:from-brand-secondary hover:to-brand-secondary/80 text-text-primary text-[11px] font-extrabold uppercase tracking-widest rounded-full transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_14px_rgba(6,182,212,0.3)] hover:shadow-[0_6px_20px_rgba(6,182,212,0.45)] ${isGenerating ? 'opacity-70 cursor-not-allowed transform-none' : 'transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98]'}`}
+            className={`w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary hover:to-brand-primary/80 text-text-primary text-[11px] font-extrabold uppercase tracking-widest rounded-full transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_14px_rgba(0,181,230,0.3)] hover:shadow-[0_6px_20px_rgba(0,181,230,0.45)] ${isGenerating ? 'opacity-70 cursor-not-allowed transform-none' : 'transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98]'}`}
           >
             📄 {isGenerating ? "Generating..." : "Download Design Thinking Report"}
           </button>
@@ -455,7 +455,7 @@ export default function FinalReport({
             onClick={onRestart}
             className={`w-full sm:w-auto px-6 py-3.5 text-[11px] font-extrabold uppercase tracking-widest rounded-full transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer ${
               isDark 
-                ? "bg-amber-500/10 hover:bg-amber-500/20 border border-brand-primary/30 hover:border-brand-primary text-amber-300" 
+                ? "bg-amber-500/10 hover:bg-amber-500/20 border border-brand-secondary/30 hover:border-brand-secondary text-amber-300" 
                 : "bg-amber-100 hover:bg-amber-200 border border-amber-350 hover:border-amber-450 text-amber-800"
             }`}
           >

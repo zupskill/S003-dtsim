@@ -26,10 +26,10 @@ export default function SignOutButton({ onSignOut, className = "" }: SignOutButt
       <button
         onClick={() => setShowConfirm(true)}
         title="Sign Out"
-        className={`bg-surface/60 backdrop-blur hover:bg-surface-hover border border-border rounded-xl px-2 sm:px-3 py-1.5 flex items-center justify-center gap-2 transition-all hover:border-brand-secondary/20 hover:shadow-[0_0_10px_rgba(6,182,212,0.1)] group shrink-0 ${className}`}
+        className={`bg-surface/60 backdrop-blur hover:bg-surface-hover border border-border rounded-xl px-2 sm:px-3 py-1.5 flex items-center justify-center gap-2 transition-all hover:border-brand-primary/20 hover:shadow-[0_0_10px_rgba(0,181,230,0.1)] group shrink-0 ${className}`}
       >
-        <LogOut className="w-4 h-4 text-text-secondary group-hover:text-brand-secondary transition-colors" />
-        <span className="hidden sm:inline text-[10px] sm:text-xs font-bold text-text-secondary group-hover:text-brand-secondary transition-colors">Sign Out</span>
+        <LogOut className="w-4 h-4 text-text-secondary group-hover:text-brand-primary transition-colors" />
+        <span className="hidden sm:inline text-[10px] sm:text-xs font-bold text-text-secondary group-hover:text-brand-primary transition-colors">Sign Out</span>
       </button>
 
       {showConfirm && createPortal(
@@ -55,7 +55,7 @@ export default function SignOutButton({ onSignOut, className = "" }: SignOutButt
                     setShowConfirm(false);
                     onSignOut();
                   }}
-                  className="flex-1 px-4 py-2.5 rounded-lg bg-cyan-600 hover:bg-brand-secondary text-sm font-bold text-text-primary transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-lg bg-brand-primary hover:bg-brand-primary text-sm font-bold text-text-primary transition-colors"
                 >
                   Sign Out
                 </button>

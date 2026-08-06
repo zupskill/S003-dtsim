@@ -8,7 +8,7 @@ export const PREDEFINED_TOPICS: Topic[] = [
     trendingTag: "TRAFFIC",
     activityCount: 0,
     iconName: "Car",
-    color: "from-blue-600 to-brand-secondary/80",
+    color: "from-blue-600 to-brand-primary/80",
   },
   {
     id: "college-life",
@@ -26,7 +26,7 @@ export const PREDEFINED_TOPICS: Topic[] = [
     trendingTag: "SOCIAL",
     activityCount: 0,
     iconName: "Sparkles",
-    color: "from-violet-600 to-brand-secondary/60",
+    color: "from-violet-600 to-brand-primary/60",
   },
   {
     id: "mental-health",
@@ -62,7 +62,7 @@ export const PREDEFINED_TOPICS: Topic[] = [
     trendingTag: "CLIMATE",
     activityCount: 0,
     iconName: "Globe",
-    color: "from-teal-600 to-cyan-400",
+    color: "from-brand-primary to-brand-primary/80",
   },
   {
     id: "sleep-burnout",

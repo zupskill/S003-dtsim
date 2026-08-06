@@ -61,7 +61,7 @@ export default function NewSimConfirmModal({
               isDark ? 'border-border' : 'border-slate-100'
             }`}>
               <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
-                isDark ? 'bg-amber-500/10 text-brand-primary' : 'bg-amber-100 text-amber-600'
+                isDark ? 'bg-amber-500/10 text-brand-secondary' : 'bg-amber-100 text-amber-600'
               }`}>
                 <AlertCircle className="w-6 h-6" />
               </div>
@@ -92,7 +92,7 @@ export default function NewSimConfirmModal({
             {(recap || topic) && (
               <div className={`p-6 sm:px-8 border-b ${isDark ? 'border-border/50 bg-surface/50' : 'border-slate-100/50 bg-surface'}`}>
                 <div className="flex items-center gap-2 mb-3">
-                  <FileText className={`w-4 h-4 ${isDark ? 'text-brand-secondary' : 'text-brand-secondary'}`} />
+                  <FileText className={`w-4 h-4 ${isDark ? 'text-brand-primary' : 'text-brand-primary'}`} />
                   <span className={`text-xs font-bold uppercase tracking-wider ${
                     isDark ? 'text-text-secondary' : 'text-text-tertiary'
                   }`}>Current Journey</span>
@@ -101,7 +101,7 @@ export default function NewSimConfirmModal({
                 <div className="space-y-2">
                   <div className="flex flex-col mb-1">
                     <span className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? 'text-text-tertiary' : 'text-text-secondary'}`}>Status</span>
-                    <span className={`text-sm font-semibold truncate ${isDark ? 'text-brand-primary' : 'text-amber-600'}`}>
+                    <span className={`text-sm font-semibold truncate ${isDark ? 'text-brand-secondary' : 'text-amber-600'}`}>
                       {recap ? 'Completed' : `In Progress (Stage ${currentStage})`}
                     </span>
                   </div>
@@ -157,8 +157,8 @@ export default function NewSimConfirmModal({
                 onClick={onConfirm}
                 className={`w-full py-3.5 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg ${
                   isDark
-                    ? 'bg-cyan-600 hover:bg-brand-secondary text-text-primary shadow-brand-secondary/20'
-                    : 'bg-brand-secondary hover:bg-brand-secondary-hover text-text-primary shadow-brand-secondary/20'
+                    ? 'bg-brand-primary hover:bg-brand-secondary text-text-primary shadow-brand-primary/20'
+                    : 'bg-brand-secondary hover:bg-brand-secondary-hover text-text-primary shadow-brand-primary/20'
                 }`}
               >
                 <Play className="w-5 h-5 fill-current" />

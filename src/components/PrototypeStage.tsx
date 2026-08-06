@@ -338,7 +338,7 @@ export default function PrototypeStage({
       
       {/* HEADER SECTION - exciting human phrasing */}
       <div className="text-center mb-8 max-w-2xl mx-auto">
-        <span className="text-xs font-mono text-brand-secondary bg-brand-secondary/45 px-3 py-1 rounded-full border border-brand-secondary/20 uppercase tracking-[0.2em]">
+        <span className="text-xs font-mono text-brand-primary bg-brand-primary/45 px-3 py-1 rounded-full border border-brand-primary/20 uppercase tracking-[0.2em]">
           Step 4: BRING YOUR IDEA TO LIFE 🎬
         </span>
         <h2 className="text-3xl font-extrabold text-text-primary mt-4 mb-2 tracking-tight">
@@ -350,14 +350,14 @@ export default function PrototypeStage({
       </div>
 
       {/* 🎯 CONTEXT DASHBOARD: TARGET PROBLEM & ACTIVE SOLUTION BLUEPRINT */}
-      <div className="bg-background/80 border border-slate-850 p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4.5 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(6,182,212,0.04)] animate-in slide-in-from-top duration-300">
-        <div className="absolute top-0 left-0 w-1 h-full bg-brand-secondary/50" />
+      <div className="bg-background/80 border border-slate-850 p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4.5 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(0,181,230,0.04)] animate-in slide-in-from-top duration-300">
+        <div className="absolute top-0 left-0 w-1 h-full bg-brand-primary/50" />
         
         {/* Left Aspect: Pinned Struggle & Design Challenge */}
         <div className="flex flex-col gap-3 pl-2">
           {/* Target Problem */}
           <div className="flex items-start gap-2.5">
-            <div className="p-1.5 bg-brand-secondary/45 rounded-xl border border-brand-secondary/20 text-brand-secondary mt-0.5 shrink-0 select-none text-xs">
+            <div className="p-1.5 bg-brand-primary/45 rounded-xl border border-brand-primary/20 text-brand-primary mt-0.5 shrink-0 select-none text-xs">
               🎯
             </div>
             <div>
@@ -372,11 +372,11 @@ export default function PrototypeStage({
           
           {/* Design Challenge (HMW) */}
           <div className="flex items-start gap-2.5 pt-2 border-t border-border/60">
-            <div className="p-1.5 bg-brand-secondary/45 rounded-xl border border-brand-secondary/20 text-brand-secondary mt-0.5 shrink-0 select-none text-xs">
+            <div className="p-1.5 bg-brand-primary/45 rounded-xl border border-brand-primary/20 text-brand-primary mt-0.5 shrink-0 select-none text-xs">
               ✨
             </div>
             <div>
-              <span className="text-[9px] font-mono font-black text-brand-secondary tracking-widest block uppercase font-bold text-brand-secondary">
+              <span className="text-[9px] font-mono font-black text-brand-primary tracking-widest block uppercase font-bold text-brand-primary">
                 🎯 DESIGN CHALLENGE (HMW)
               </span>
               <p className="text-xs font-bold text-text-primary mt-0.5 leading-relaxed">
@@ -388,7 +388,7 @@ export default function PrototypeStage({
 
         {/* Right Aspect: Selected Solution Blueprint */}
         <div className="flex items-start gap-2.5 md:border-l md:border-slate-850/85 md:pl-4">
-          <div className="p-1.5 bg-amber-950/45 rounded-xl border border-brand-primary/25 text-brand-primary mt-0.5 shrink-0 select-none">
+          <div className="p-1.5 bg-amber-950/45 rounded-xl border border-brand-secondary/25 text-brand-secondary mt-0.5 shrink-0 select-none">
             💡
           </div>
           <div>
@@ -432,8 +432,8 @@ export default function PrototypeStage({
                   
                   const catBadges: Record<string, string> = {
                     HOW: "bg-purple-950/40 text-purple-400 border-purple-500/15",
-                    WOW: "bg-brand-secondary/40 text-brand-secondary border-brand-secondary/15",
-                    NOW: "bg-yellow-950/40 text-brand-primary border-yellow-500/15",
+                    WOW: "bg-brand-primary/40 text-brand-primary border-brand-primary/15",
+                    NOW: "bg-yellow-950/40 text-brand-secondary border-yellow-500/15",
                   };
 
                   return (
@@ -451,9 +451,9 @@ export default function PrototypeStage({
                         isDimmed 
                           ? "border-border/40 bg-background/5 text-text-tertiary opacity-45 cursor-not-allowed hover:opacity-60 saturate-50 blur-[0.2px] hover:blur-none"
                           : isLoverActive 
-                          ? "border-brand-secondary bg-brand-secondary/20 text-text-primary shadow-[0_0_18px_rgba(6,182,212,0.15)] scale-[1.02] ring-1 ring-brand-secondary/30"
+                          ? "border-brand-primary bg-brand-primary/20 text-text-primary shadow-[0_0_18px_rgba(0,181,230,0.15)] scale-[1.02] ring-1 ring-brand-primary/30"
                           : isSelected
-                          ? "border-brand-primary/40 bg-amber-950/5 text-text-primary scale-[1.01]"
+                          ? "border-brand-secondary/40 bg-amber-950/5 text-text-primary scale-[1.01]"
                           : "border-border/60 bg-transparent text-text-secondary hover:text-text-primary"
                       }`}
                     >
@@ -462,8 +462,8 @@ export default function PrototypeStage({
                           {item.category}
                         </span>
                         {isLoverActive ? (
-                          <span className="text-[8px] font-mono text-brand-secondary flex items-center gap-1 font-bold">
-                            <CheckCircle className="w-3 h-3 text-brand-secondary animate-pulse" /> LOCKED
+                          <span className="text-[8px] font-mono text-brand-primary flex items-center gap-1 font-bold">
+                            <CheckCircle className="w-3 h-3 text-brand-primary animate-pulse" /> LOCKED
                           </span>
                         ) : item.enhanced ? (
                           <span className="text-[8px] font-mono font-bold uppercase text-purple-400">⚡ ENHANCED</span>
@@ -490,9 +490,9 @@ export default function PrototypeStage({
             {selectedIdea && (
               <div className="mt-5">
                 {isCommitted ? (
-                  <div className="p-4.5 bg-gradient-to-r from-brand-secondary/40 via-brand-secondary/90/20 to-amber-950/30 rounded-2xl border border-brand-secondary shadow-[0_0_20px_rgba(6,182,212,0.12)] relative overflow-hidden transition-all duration-300">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-secondary/10 rounded-full blur-xl pointer-events-none" />
-                    <span className="text-[10px] font-mono font-bold text-brand-secondary uppercase tracking-widest block mb-1.5 flex items-center gap-1">
+                  <div className="p-4.5 bg-gradient-to-r from-brand-primary/40 via-brand-primary/90/20 to-amber-950/30 rounded-2xl border border-brand-primary shadow-[0_0_20px_rgba(0,181,230,0.12)] relative overflow-hidden transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-primary/10 rounded-full blur-xl pointer-events-none" />
+                    <span className="text-[10px] font-mono font-bold text-brand-primary uppercase tracking-widest block mb-1.5 flex items-center gap-1">
                       💡 SELECTED SOLUTION
                     </span>
                     <p className="text-xs text-text-primary font-black leading-relaxed italic">
@@ -514,7 +514,7 @@ export default function PrototypeStage({
                           setIsCommitted(false);
                           onShowToast?.("🔓 Choice unlocked. Select another idea card!", "info");
                         }}
-                        className="text-[9px] font-mono bg-background hover:bg-surface text-brand-primary hover:text-amber-300 px-2.5 py-1.5 rounded-lg border border-slate-850 hover:border-border-subtle transition-colors uppercase font-bold flex items-center gap-1 cursor-pointer"
+                        className="text-[9px] font-mono bg-background hover:bg-surface text-brand-secondary hover:text-amber-300 px-2.5 py-1.5 rounded-lg border border-slate-850 hover:border-border-subtle transition-colors uppercase font-bold flex items-center gap-1 cursor-pointer"
                       >
                         🔄 Choose Different Solution
                       </button>
@@ -540,11 +540,11 @@ export default function PrototypeStage({
           {!isCommitted ? (
             <div className="bg-background/25 border border-border/60 p-8 rounded-3xl flex flex-col items-center justify-center text-center min-h-[460px] h-full relative overflow-hidden">
               {/* Visual grid blueprint background */}
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(6,182,212,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[size:14px_24px]" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-brand-secondary/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,181,230,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,181,230,0.03)_1px,transparent_1px)] bg-[size:14px_24px]" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-brand-primary/5 rounded-full blur-3xl pointer-events-none" />
               
               <div className="relative z-10 max-w-sm flex flex-col items-center gap-4">
-                <div className="w-14 h-14 bg-surface border border-border rounded-2xl flex items-center justify-center text-brand-secondary shadow-[0_0_20px_rgba(6,182,212,0.1)] select-none">
+                <div className="w-14 h-14 bg-surface border border-border rounded-2xl flex items-center justify-center text-brand-primary shadow-[0_0_20px_rgba(0,181,230,0.1)] select-none">
                   <span className="text-2xl animate-pulse">🔒</span>
                 </div>
                 <div>
@@ -555,7 +555,7 @@ export default function PrototypeStage({
                     Please select an idea card on the left and finalize your Solution Commitment to unlock this interactive modeling deck!
                   </p>
                 </div>
-                <div className="p-3 bg-brand-secondary/20 rounded-xl border border-brand-secondary/10 text-[10px] font-mono text-brand-secondary">
+                <div className="p-3 bg-brand-primary/20 rounded-xl border border-brand-primary/10 text-[10px] font-mono text-brand-primary">
                   We'll build out your chosen design journey together once committed.
                 </div>
               </div>
@@ -596,9 +596,9 @@ export default function PrototypeStage({
 
               {/* FOCUS BLUEPRINT REMINDER CARD */}
               {selectedIdea && (
-                <div className="bg-brand-secondary/5 border border-brand-secondary/20 p-3 rounded-2xl mb-4 text-[11px] flex items-center justify-between gap-3 text-text-secondary">
+                <div className="bg-brand-primary/5 border border-brand-primary/20 p-3 rounded-2xl mb-4 text-[11px] flex items-center justify-between gap-3 text-text-secondary">
                   <div className="flex items-center gap-2 truncate">
-                    <span className="p-1.5 bg-brand-secondary/50 rounded-lg text-brand-secondary font-bold font-mono text-[9px] shrink-0 select-none">
+                    <span className="p-1.5 bg-brand-primary/50 rounded-lg text-brand-primary font-bold font-mono text-[9px] shrink-0 select-none">
                       ACTIVE SOLUTION
                     </span>
                     <p className="truncate font-medium italic">
@@ -616,9 +616,9 @@ export default function PrototypeStage({
                   <div className="flex justify-end mb-3">
                     <button
                       onClick={handleAutoFillSuggestion}
-                      className="text-[10px] bg-surface/80 hover:bg-surface-hover text-brand-secondary hover:text-brand-secondary rounded-lg px-2.5 py-1 border border-border hover:border-border-subtle transition-colors uppercase font-mono tracking-widest flex items-center gap-1 cursor-pointer"
+                      className="text-[10px] bg-surface/80 hover:bg-surface-hover text-brand-primary hover:text-brand-primary rounded-lg px-2.5 py-1 border border-border hover:border-border-subtle transition-colors uppercase font-mono tracking-widest flex items-center gap-1 cursor-pointer"
                     >
-                      <Sparkles className="w-3 h-3 text-brand-secondary" /> Suggest Starter Draft
+                      <Sparkles className="w-3 h-3 text-brand-primary" /> Suggest Starter Draft
                     </button>
                   </div>
                 )}
@@ -627,7 +627,7 @@ export default function PrototypeStage({
                 {format === "storyboard" && (
                   <div className="space-y-4 animate-in fade-in duration-200">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-brand-secondary font-mono font-bold uppercase tracking-wider block">
+                      <span className="text-[10px] text-brand-primary font-mono font-bold uppercase tracking-wider block">
                         Scene sequence (Build your journey storyboard)
                       </span>
                     </div>
@@ -637,7 +637,7 @@ export default function PrototypeStage({
                         <div key={scene.id} className="flex flex-col items-center w-full">
                           <div className="w-full p-4 bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-850 rounded-2xl flex flex-col gap-3">
                             <div className="flex items-center gap-3">
-                              <span className="text-[10px] font-mono font-black text-brand-secondary bg-brand-secondary/45 px-2.5 py-1 rounded border border-brand-secondary/15 uppercase w-fit shrink-0">
+                              <span className="text-[10px] font-mono font-black text-brand-primary bg-brand-primary/45 px-2.5 py-1 rounded border border-brand-primary/15 uppercase w-fit shrink-0">
                                 Scene {idx + 1}
                               </span>
                               <div className="text-text-primary text-sm font-bold font-sans">
@@ -656,13 +656,13 @@ export default function PrototypeStage({
                               }}
                               onSafetyChange={(safe) => setIsStoryboardSafe(prev => ({ ...prev, [scene.id]: safe }))}
                               context={selectedIdea ? `Prototype Storyboard Scene ${idx + 1} (${scene.title}): ${selectedIdea.text}` : "Prototype Storyboard Scene"}
-                              className="w-full bg-background/80 border border-slate-850 p-3 text-sm text-slate-255 rounded-xl focus:outline-none focus:border-brand-secondary/50 placeholder:text-text-tertiary resize-y min-h-[90px] font-medium leading-relaxed"
+                              className="w-full bg-background/80 border border-slate-850 p-3 text-sm text-slate-255 rounded-xl focus:outline-none focus:border-brand-primary/50 placeholder:text-text-tertiary resize-y min-h-[90px] font-medium leading-relaxed"
                             />
                           </div>
                           
                           {idx < storyboardScenes.length - 1 && (
-                            <div className="h-6 w-0.5 bg-gradient-to-b from-brand-secondary/30 to-transparent my-1 rounded-full relative">
-                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-brand-secondary/50 text-[10px]">
+                            <div className="h-6 w-0.5 bg-gradient-to-b from-brand-primary/30 to-transparent my-1 rounded-full relative">
+                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-brand-primary/50 text-[10px]">
                                 ↓
                               </div>
                             </div>
@@ -676,7 +676,7 @@ export default function PrototypeStage({
                 {/* 2. SOLUTION PITCH EXPERIENCE */}
                 {format === "pitch" && (
                   <div className="space-y-4 animate-in fade-in duration-200">
-                    <span className="text-[10px] text-brand-secondary font-mono font-bold uppercase tracking-wider block">
+                    <span className="text-[10px] text-brand-primary font-mono font-bold uppercase tracking-wider block">
                       SOLUTION PITCH (Pitch your concept in humbles, elegant prose)
                     </span>
 
@@ -700,7 +700,7 @@ export default function PrototypeStage({
                           context={selectedIdea ? `Prototype Pitch Problem Solved: ${selectedIdea.text}` : "Prototype Pitch Problem Solved"}
                           placeholder="State the core student issue your design directly addresses..."
                           rows={3}
-                          className="w-full bg-background border border-slate-850 p-2 text-xs text-text-primary rounded-xl focus:outline-none focus:border-brand-secondary/30 resize-none font-medium leading-relaxed"
+                          className="w-full bg-background border border-slate-850 p-2 text-xs text-text-primary rounded-xl focus:outline-none focus:border-brand-primary/30 resize-none font-medium leading-relaxed"
                         />
                       </div>
 
@@ -723,7 +723,7 @@ export default function PrototypeStage({
                           context={selectedIdea ? `Prototype Pitch Solution Built: ${selectedIdea.text}` : "Prototype Pitch Solution Built"}
                           placeholder="Summarize the core mechanism of your solution..."
                           rows={3}
-                          className="w-full bg-background border border-slate-850 p-2 text-xs text-text-secondary rounded-xl focus:outline-none focus:border-brand-secondary/30 resize-none font-medium leading-relaxed"
+                          className="w-full bg-background border border-slate-850 p-2 text-xs text-text-secondary rounded-xl focus:outline-none focus:border-brand-primary/30 resize-none font-medium leading-relaxed"
                         />
                       </div>
 
@@ -746,7 +746,7 @@ export default function PrototypeStage({
                           context={selectedIdea ? `Prototype Pitch Why It Works: ${selectedIdea.text}` : "Prototype Pitch Why It Works"}
                           placeholder="Details the smart mechanism or logic behind its utility..."
                           rows={3}
-                          className="w-full bg-background border border-slate-850 p-2 text-xs text-text-secondary rounded-xl focus:outline-none focus:border-brand-secondary/30 resize-none font-medium leading-relaxed"
+                          className="w-full bg-background border border-slate-850 p-2 text-xs text-text-secondary rounded-xl focus:outline-none focus:border-brand-primary/30 resize-none font-medium leading-relaxed"
                         />
                       </div>
 
@@ -769,7 +769,7 @@ export default function PrototypeStage({
                           context={selectedIdea ? `Prototype Pitch Impact Created: ${selectedIdea.text}` : "Prototype Pitch Impact Created"}
                           placeholder="How does this resolve anxieties and delight students..."
                           rows={3}
-                          className="w-full bg-background border border-slate-850 p-2 text-xs text-text-secondary rounded-xl focus:outline-none focus:border-brand-secondary/30 resize-none font-medium leading-relaxed"
+                          className="w-full bg-background border border-slate-850 p-2 text-xs text-text-secondary rounded-xl focus:outline-none focus:border-brand-primary/30 resize-none font-medium leading-relaxed"
                         />
                       </div>
                     </div>
@@ -785,14 +785,14 @@ export default function PrototypeStage({
                 <div className="bg-background/30 p-3.5 rounded-2xl border border-border flex flex-col justify-center gap-2">
                   <div className="flex items-center justify-between text-[11px] font-mono uppercase text-text-secondary font-bold">
                     <span>PROTOTYPE PROGRESS</span>
-                    <span className={`font-black ${progress.percentage === 100 ? "text-emerald-400" : "text-brand-secondary"}`}>
+                    <span className={`font-black ${progress.percentage === 100 ? "text-emerald-400" : "text-brand-primary"}`}>
                       {progress.percentage}%
                     </span>
                   </div>
                   
                   <div className="w-full h-1.5 bg-background rounded-full overflow-hidden">
                     <div 
-                      className={`h-full transition-all duration-300 ${progress.percentage === 100 ? "bg-emerald-500" : "bg-brand-secondary"}`}
+                      className={`h-full transition-all duration-300 ${progress.percentage === 100 ? "bg-emerald-500" : "bg-brand-primary"}`}
                       style={{ width: `${progress.percentage}%` }}
                     />
                   </div>
@@ -810,7 +810,7 @@ export default function PrototypeStage({
                   onDrop={handleDrop}
                   className={`border-2 border-dashed rounded-2xl p-3 text-center transition-all flex flex-col justify-center cursor-pointer ${
                     dragOver
-                      ? "border-brand-secondary bg-brand-primary/5"
+                      ? "border-brand-primary bg-brand-primary/5"
                       : uploadedFile
                       ? "border-emerald-500/40 bg-emerald-950/15"
                       : "border-slate-850 bg-background/10 hover:border-border hover:bg-background/30"
@@ -874,10 +874,10 @@ export default function PrototypeStage({
       {showConfirmModal && pendingSelectedIdea && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-surface border border-border rounded-3xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl relative animate-in zoom-in-95 duration-200">
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-secondary to-brand-secondary/80" />
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-primary to-brand-primary/80" />
             
             <div className="flex items-start gap-3 mb-4">
-              <div className="p-2.5 bg-brand-secondary/40 rounded-2xl border border-brand-secondary/20 text-brand-secondary shrink-0">
+              <div className="p-2.5 bg-brand-primary/40 rounded-2xl border border-brand-primary/20 text-brand-primary shrink-0">
                 <Lightbulb className="w-5 h-5 animate-pulse" />
               </div>
               <div>
@@ -919,7 +919,7 @@ export default function PrototypeStage({
                   onShowToast?.("✓ Solution Locked In", "success");
                   onAddXP?.(15);
                 }}
-                className="px-5 py-2.5 bg-brand-secondary hover:bg-brand-primary text-slate-950 rounded-xl text-xs font-black transition-all uppercase font-mono tracking-wider flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.25)] hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]"
+                className="px-5 py-2.5 bg-brand-primary hover:bg-brand-primary text-slate-950 rounded-xl text-xs font-black transition-all uppercase font-mono tracking-wider flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(0,181,230,0.25)] hover:shadow-[0_0_25px_rgba(0,181,230,0.4)]"
               >
                 <Check className="w-4 h-4 text-slate-950 stroke-[3]" /> Prototype This Idea
               </button>

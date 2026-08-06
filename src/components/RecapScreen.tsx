@@ -48,7 +48,7 @@ export default function RecapScreen({ recap, profile, onNewStart, onReviewRecap,
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none" />
           
           <div className="flex flex-col gap-2 relative z-10">
-            <span className={`text-xs font-bold tracking-widest uppercase ${isDark ? 'text-brand-secondary' : 'text-brand-secondary'}`}>
+            <span className={`text-xs font-bold tracking-widest uppercase ${isDark ? 'text-brand-primary' : 'text-brand-primary'}`}>
               {recap.simulationName}
             </span>
             <h2 className="text-2xl font-bold leading-tight">
@@ -87,7 +87,7 @@ export default function RecapScreen({ recap, profile, onNewStart, onReviewRecap,
           {/* Stage 2: Empathize */}
           <div className={`p-5 rounded-2xl border ${isDark ? 'bg-surface/50 border-border' : 'bg-background border-slate-200'}`}>
             <div className="flex items-center gap-2 mb-3">
-              <Star className={`w-5 h-5 ${isDark ? 'text-brand-primary' : 'text-amber-600'}`} />
+              <Star className={`w-5 h-5 ${isDark ? 'text-brand-secondary' : 'text-amber-600'}`} />
               <h3 className="font-bold">Stage 2: Empathize</h3>
             </div>
             <p className={`text-sm ${isDark ? 'text-text-secondary' : 'text-slate-700'}`}>
@@ -109,7 +109,7 @@ export default function RecapScreen({ recap, profile, onNewStart, onReviewRecap,
           {/* Stage 4: Ideate */}
           <div className={`p-5 rounded-2xl border ${isDark ? 'bg-surface/50 border-border' : 'bg-background border-slate-200'} md:col-span-2 lg:col-span-1`}>
             <div className="flex items-center gap-2 mb-3">
-              <Lightbulb className={`w-5 h-5 ${isDark ? 'text-brand-primary' : 'text-brand-primary'}`} />
+              <Lightbulb className={`w-5 h-5 ${isDark ? 'text-brand-secondary' : 'text-brand-secondary'}`} />
               <h3 className="font-bold">Stage 4: Ideate</h3>
             </div>
             <ul className={`text-sm space-y-1 ${isDark ? 'text-text-secondary' : 'text-slate-700'}`}>
@@ -141,7 +141,7 @@ export default function RecapScreen({ recap, profile, onNewStart, onReviewRecap,
         {recap.achievements && recap.achievements.length > 0 && (
           <div className="w-full flex flex-wrap justify-center gap-3 mt-4">
             {recap.achievements.map((ach, idx) => (
-              <div key={idx} className={`px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 ${isDark ? 'bg-brand-secondary/40 border-brand-secondary/30 text-brand-secondary' : 'bg-brand-secondary/10 border-brand-secondary text-brand-secondary'}`}>
+              <div key={idx} className={`px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 ${isDark ? 'bg-brand-primary/40 border-brand-primary/30 text-brand-primary' : 'bg-brand-primary/10 border-brand-primary text-brand-primary'}`}>
                 <Trophy className="w-4 h-4" />
                 {ach}
               </div>
@@ -153,7 +153,7 @@ export default function RecapScreen({ recap, profile, onNewStart, onReviewRecap,
         <div className="flex flex-col sm:flex-row items-center gap-4 mt-8 w-full md:w-auto">
           <button
             onClick={onNewStart}
-            className="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-text-primary bg-brand-secondary hover:bg-brand-secondary-hover transition-all flex items-center justify-center gap-3 shadow-lg shadow-brand-secondary/25"
+            className="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-text-primary bg-brand-primary hover:bg-brand-primary-hover transition-all flex items-center justify-center gap-3 shadow-lg shadow-brand-primary/25"
           >
             <RotateCcw className="w-5 h-5" />
             <span>Start New Simulation</span>
@@ -164,8 +164,8 @@ export default function RecapScreen({ recap, profile, onNewStart, onReviewRecap,
             disabled={isGenerating}
             className={`w-full sm:w-auto px-8 py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-3 border ${
               isDark 
-                ? 'bg-surface border-border-subtle hover:bg-surface-hover text-text-primary' 
-                : 'bg-background border-slate-300 hover:bg-surface text-slate-900'
+                ? 'bg-brand-primary text-text-primary hover:bg-brand-primary-hover border-brand-primary' 
+                : 'bg-brand-primary text-white hover:bg-brand-primary-hover border-brand-primary'
             } ${isGenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <Download className="w-5 h-5" />

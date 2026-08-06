@@ -90,7 +90,7 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
         trendingTag: "CUSTOM CHALLENGE",
         activityCount: 1,
         iconName: "Sparkles",
-        color: "from-purple-600 via-brand-secondary/90 to-blue-500",
+        color: "from-purple-600 via-brand-primary/90 to-blue-500",
         isCustom: true,
       };
       setIsGenerating(false);
@@ -103,11 +103,11 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
     <div className="w-full max-w-6xl mx-auto py-6 px-4 animate-in fade-in duration-300">
       {/* Visual Header */}
       <div className="text-center mb-10 max-w-2xl mx-auto">
-        <span className="text-xs font-mono text-brand-secondary uppercase tracking-[0.2em] px-3 py-1 bg-brand-secondary/35 border border-brand-secondary/20 rounded-full">
+        <span className="text-xs font-mono text-brand-primary uppercase tracking-[0.2em] px-3 py-1 bg-brand-primary/35 border border-brand-primary/20 rounded-full">
           Step 1: Choose a Topic 🎯
         </span>
         <h2 className="text-3xl font-extrabold text-text-primary mt-4 mb-2 tracking-tight">
-          What would you like to <span className="bg-gradient-to-r from-brand-secondary to-brand-secondary/80 text-transparent bg-clip-text">redesign?</span>
+          What would you like to <span className="bg-gradient-to-r from-brand-primary to-brand-primary/80 text-transparent bg-clip-text">redesign?</span>
         </h2>
         <p className="text-sm text-text-secondary">
           Pick an interesting problem you actually want to explore. Choose a card below to start your creative journey!
@@ -222,19 +222,19 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
           disabled={!localSelectedTopic}
           variants={{
             idle: {
-              boxShadow: "0 0 15px rgba(37,99,235,0.3)",
+              boxShadow: "0 0 15px rgba(0,181,230,0.3)",
               borderColor: "rgba(59,130,246,0.3)",
               scale: 1,
             },
             highlight: {
               boxShadow: [
                 "0 0 15px rgba(37, 99, 235, 0.3)",
-                "0 0 35px rgba(34, 211, 238, 0.8)",
+                "0 0 35px rgba(0, 181, 230, 0.8)",
                 "0 0 15px rgba(37, 99, 235, 0.3)",
               ],
               borderColor: [
                 "rgba(59,130,246,0.3)",
-                "rgba(34,211,238,0.85)",
+                "rgba(0,181,230,0.85)",
                 "rgba(59,130,246,0.3)",
               ],
               scale: [1, 1.015, 1],
@@ -333,7 +333,7 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
                 <button
                   type="submit"
                   disabled={isGenerating || !customTitle.trim() || !isTitleSafe || !isDescSafe}
-                  className="px-6 py-2 bg-gradient-to-r from-purple-500 to-brand-secondary/80 hover:from-purple-400 hover:to-brand-secondary/80 text-text-primary text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(147,51,234,0.3)] disabled:opacity-55 disabled:cursor-not-allowed"
+                  className="px-6 py-2 bg-gradient-to-r from-purple-500 to-brand-primary/80 hover:from-purple-400 hover:to-brand-primary/80 text-text-primary text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(147,51,234,0.3)] disabled:opacity-55 disabled:cursor-not-allowed"
                 >
                   {isGenerating ? (
                     <>

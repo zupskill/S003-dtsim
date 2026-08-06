@@ -686,9 +686,9 @@ export default function App() {
   if (loadingAuth) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center text-center p-6 select-none relative overflow-hidden cyber-grid">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-brand-secondary/10 blur-[100px] pointer-events-none animate-pulse" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-brand-primary/10 blur-[100px] pointer-events-none animate-pulse" />
         <div className="space-y-4 animate-pulse">
-          <div className="w-16 h-16 bg-gradient-to-tr from-brand-secondary to-brand-secondary/80 rounded-2xl flex items-center justify-center mx-auto text-xl font-mono text-black font-black shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+          <div className="w-16 h-16 bg-gradient-to-tr from-brand-primary to-brand-primary/80 rounded-2xl flex items-center justify-center mx-auto text-xl font-mono text-black font-black shadow-[0_0_20px_rgba(0,181,230,0.3)]">
             ZS
           </div>
           <h2 className="text-sm font-black text-text-primary font-mono uppercase tracking-[0.25em]">Syncing Neural Coordinates</h2>
@@ -699,7 +699,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen text-text-primary font-sans flex flex-col justify-between selection:bg-brand-secondary selection:text-black">
+    <div className="min-h-screen text-text-primary font-sans flex flex-col justify-between selection:bg-brand-primary selection:text-black">
       {/* New Simulation Confirmation Modal */}
       <NewSimConfirmModal
         isOpen={showNewSimConfirm}
@@ -718,7 +718,7 @@ export default function App() {
       {(activeScreen === "simulation" || activeScreen === "report" || activeScreen === "recap") && (
         <header className="bg-background border-b border-slate-850 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-40 sticky top-0 overflow-hidden">
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-tr from-brand-secondary via-brand-secondary/90 to-brand-secondary/60 rounded-xl flex items-center justify-center border border-brand-secondary/20 shadow-[0_0_15px_rgba(6,182,212,0.15)] shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-tr from-brand-primary via-brand-primary/90 to-brand-primary/60 rounded-xl flex items-center justify-center border border-brand-primary/20 shadow-[0_0_15px_rgba(0,181,230,0.15)] shrink-0">
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-text-primary animate-pulse" />
             </div>
             <div className="flex flex-col">
@@ -745,7 +745,7 @@ export default function App() {
                 className="text-xs uppercase font-bold tracking-wider px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 text-text-secondary hover:text-text-primary"
                 title="Community"
               >
-                <Users className="w-4 h-4 text-brand-secondary shrink-0" />
+                <Users className="w-4 h-4 text-brand-primary shrink-0" />
                 <span>Community</span>
               </button>
             </div>
@@ -756,19 +756,19 @@ export default function App() {
             {/* Profile controller pill button */}
             <button
               onClick={() => setShowProfileModal(true)}
-              className="bg-surface hover:bg-surface-hover border border-border rounded-xl px-2 sm:px-4 py-1.5 flex items-center gap-2 sm:gap-3 text-left transition-all hover:border-brand-secondary/20 cursor-pointer shrink-0"
+              className="bg-surface hover:bg-surface-hover border border-border rounded-xl px-2 sm:px-4 py-1.5 flex items-center gap-2 sm:gap-3 text-left transition-all hover:border-brand-primary/20 cursor-pointer shrink-0"
             >
               {profile.photoURL ? (
-                <img src={profile.photoURL} alt={profile.username} className="w-6 h-6 rounded-full border border-brand-secondary/30 object-cover shrink-0" referrerPolicy="no-referrer" />
+                <img src={profile.photoURL} alt={profile.username} className="w-6 h-6 rounded-full border border-brand-primary/30 object-cover shrink-0" referrerPolicy="no-referrer" />
               ) : (
-                <div className="w-6 h-6 rounded-full bg-brand-primary/10 text-brand-secondary flex items-center justify-center border border-brand-secondary/30 shrink-0">
+                <div className="w-6 h-6 rounded-full bg-brand-secondary/10 text-brand-primary flex items-center justify-center border border-brand-primary/30 shrink-0">
                   <User className="w-3.5 h-3.5" />
                 </div>
               )}
 
               <div className="hidden sm:block">
                 <span className="text-[10px] font-mono font-bold block text-text-secondary leading-none truncate max-w-[80px]">{profile.username}</span>
-                <span className="text-[10px] text-brand-secondary leading-none">{profile.xp} XP • {profile.level}</span>
+                <span className="text-[10px] text-brand-primary leading-none">{profile.xp} XP • {profile.level}</span>
               </div>
             </button>
 
@@ -795,7 +795,7 @@ export default function App() {
                       }}
                       className="px-4 py-3 flex items-center gap-3 text-sm text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors text-left"
                     >
-                      <Users className="w-4 h-4 text-brand-secondary" />
+                      <Users className="w-4 h-4 text-brand-primary" />
                       Community
                     </button>
                     <button
@@ -912,7 +912,7 @@ export default function App() {
                     <div className="w-full flex justify-end px-6 pt-4 pb-0 z-10 shrink-0">
                       <button
                         onClick={openIntroAgain}
-                        className="flex items-center gap-1.5 text-xs font-medium text-brand-secondary hover:text-brand-secondary transition-colors bg-indigo-500/10 hover:bg-brand-secondary-hover/20 px-3 py-1.5 rounded-full border border-brand-secondary/20"
+                        className="flex items-center gap-1.5 text-xs font-medium text-brand-primary hover:text-brand-primary transition-colors bg-indigo-500/10 hover:bg-brand-primary-hover/20 px-3 py-1.5 rounded-full border border-brand-primary/20"
                       >
                         <Play className="w-3.5 h-3.5 fill-current" />
                         Watch Introduction Again
@@ -1182,7 +1182,7 @@ export default function App() {
                       toast.type === "success"
                         ? "border-emerald-500/35 text-emerald-250 shadow-emerald-950/15"
                         : toast.type === "idea"
-                        ? "border-brand-primary/35 text-amber-250 shadow-amber-950/15"
+                        ? "border-brand-secondary/35 text-amber-250 shadow-amber-950/15"
                         : toast.type === "badge"
                         ? "border-purple-500/50 text-purple-250 shadow-purple-950/20"
                         : "border-border-subtle text-slate-105"
@@ -1191,7 +1191,7 @@ export default function App() {
                       toast.type === "success"
                         ? "border-emerald-500/50 text-emerald-950 shadow-emerald-100/40"
                         : toast.type === "idea"
-                        ? "border-brand-primary/50 text-amber-950 shadow-amber-100/40"
+                        ? "border-brand-secondary/50 text-amber-950 shadow-amber-100/40"
                         : toast.type === "badge"
                         ? "border-purple-500/60 text-purple-950 shadow-purple-100/40"
                         : "border-slate-350 text-slate-900 shadow-slate-200/40"
@@ -1211,8 +1211,8 @@ export default function App() {
                 {toast.type === "idea" && (
                   <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs ${
                     theme === "dark" 
-                      ? "bg-amber-500/10 text-brand-primary" 
-                      : "bg-amber-100 text-amber-805 border border-brand-primary/30"
+                      ? "bg-amber-500/10 text-brand-secondary" 
+                      : "bg-amber-100 text-amber-805 border border-brand-secondary/30"
                   }`}>
                     💡
                   </div>
@@ -1266,20 +1266,20 @@ export default function App() {
               transition={{ delay: 0.05, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className={`text-center space-y-4 max-w-md p-8 rounded-3xl relative max-h-[90vh] overflow-y-auto overflow-x-hidden transition-all duration-300 ${
                 theme === "dark"
-                  ? "bg-surface border border-border/80 shadow-2xl shadow-brand-secondary/20 text-text-primary"
+                  ? "bg-surface border border-border/80 shadow-2xl shadow-brand-primary/20 text-text-primary"
                   : "bg-background border-2 border-slate-300 shadow-2xl shadow-slate-400/40 text-slate-900"
               }`}
             >
               {/* Pulsing futuristic core orb decor */}
               <div className={`absolute top-[10%] left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-2xl pointer-events-none ${
-                theme === "dark" ? "bg-brand-secondary/5" : "bg-indigo-500/5"
+                theme === "dark" ? "bg-brand-primary/5" : "bg-indigo-500/5"
               }`} />
 
               <div className="flex justify-center mb-2">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center animate-spin duration-3000 ${
                   theme === "dark"
-                    ? "bg-gradient-to-br from-brand-secondary/15 to-brand-secondary/80/15 text-brand-secondary border border-brand-secondary/30"
-                    : "bg-brand-secondary/20 text-brand-secondary border border-brand-secondary/30"
+                    ? "bg-gradient-to-br from-brand-primary/15 to-brand-primary/80/15 text-brand-primary border border-brand-primary/30"
+                    : "bg-brand-primary/20 text-brand-primary border border-brand-primary/30"
                 }`}>
                   <Zap className="w-5 h-5 animate-pulse" />
                 </div>
@@ -1299,11 +1299,11 @@ export default function App() {
               <div className="pt-4 flex justify-center">
                 <span className={`text-[9px] font-mono uppercase tracking-widest flex items-center gap-1.5 px-3 py-1 rounded-full border ${
                   theme === "dark"
-                    ? "font-bold text-brand-secondary/60 bg-brand-secondary/25 border-brand-secondary/10"
-                    : "font-black text-brand-secondary bg-brand-secondary/10 border-brand-secondary"
+                    ? "font-bold text-brand-primary/60 bg-brand-primary/25 border-brand-primary/10"
+                    : "font-black text-brand-primary bg-brand-primary/10 border-brand-primary"
                 }`}>
                   <span className={`w-1.5 h-1.5 rounded-full animate-ping ${
-                    theme === "dark" ? "bg-brand-primary" : "bg-brand-secondary"
+                    theme === "dark" ? "bg-brand-secondary" : "bg-brand-primary"
                   }`} /> Loading Journey Frame
                 </span>
               </div>

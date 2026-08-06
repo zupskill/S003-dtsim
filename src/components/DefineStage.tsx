@@ -278,11 +278,11 @@ export default function DefineStage({
       
       {/* Header section - Minimal and focus-oriented */}
       <div className="text-center mb-6 max-w-2xl mx-auto">
-        <span className="text-xs font-mono text-brand-secondary uppercase tracking-[0.2em] px-3 py-1 bg-brand-secondary/35 border border-brand-secondary/20 rounded-full">
+        <span className="text-xs font-mono text-brand-primary uppercase tracking-[0.2em] px-3 py-1 bg-brand-primary/35 border border-brand-primary/20 rounded-full">
           Step 2: Define 🧭
         </span>
         <h2 className="text-3xl font-extrabold text-text-primary mt-4 mb-2 tracking-tight">
-          Refine Your <span className="bg-gradient-to-r from-brand-secondary to-brand-secondary/80 text-transparent bg-clip-text font-black">Design Challenge 🎯</span>
+          Refine Your <span className="bg-gradient-to-r from-brand-primary to-brand-primary/80 text-transparent bg-clip-text font-black">Design Challenge 🎯</span>
         </h2>
         <p className="text-sm text-text-secondary">
           Transform a broad user struggle into a polished, actionable "How Might We" springboard for brainstorming.
@@ -291,12 +291,12 @@ export default function DefineStage({
 
       {/* 🎯 TOP CONTEXT PANEL (continuity dashboard) */}
       {isCommitted && selectedObs && (
-        <div className="bg-background/80 border border-slate-850 p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4.5 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(6,182,212,0.04)] animate-in slide-in-from-top duration-300">
-          <div className="absolute top-0 left-0 w-1 h-full bg-brand-secondary/50" />
+        <div className="bg-background/80 border border-slate-850 p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4.5 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(0,181,230,0.04)] animate-in slide-in-from-top duration-300">
+          <div className="absolute top-0 left-0 w-1 h-full bg-brand-primary/50" />
           
           {/* Left Aspect: Selected Problem */}
           <div className="flex items-start gap-2.5 pl-2">
-            <div className="p-1.5 bg-brand-secondary/45 rounded-xl border border-brand-secondary/20 text-brand-secondary mt-0.5 shrink-0 select-none">
+            <div className="p-1.5 bg-brand-primary/45 rounded-xl border border-brand-primary/20 text-brand-primary mt-0.5 shrink-0 select-none">
               🎯
             </div>
             <div>
@@ -311,11 +311,11 @@ export default function DefineStage({
 
           {/* Right Aspect: Design Challenge (HMW) */}
           <div className="flex items-start gap-2.5 md:border-l md:border-slate-850/85 md:pl-4">
-            <div className="p-1.5 bg-brand-secondary/45 rounded-xl border border-brand-secondary/25 text-brand-secondary mt-0.5 shrink-0 select-none">
+            <div className="p-1.5 bg-brand-primary/45 rounded-xl border border-brand-primary/25 text-brand-primary mt-0.5 shrink-0 select-none">
               ✨
             </div>
             <div>
-              <span className="text-[9px] font-mono font-black text-brand-secondary tracking-widest block uppercase font-bold">
+              <span className="text-[9px] font-mono font-black text-brand-primary tracking-widest block uppercase font-bold">
                 🎯 DESIGN CHALLENGE
               </span>
               <p className="text-xs font-bold text-text-primary mt-0.5 leading-relaxed">
@@ -358,9 +358,9 @@ export default function DefineStage({
                         isDimmed 
                           ? "border-border/40 bg-background/5 text-text-tertiary opacity-45 cursor-not-allowed hover:opacity-60 saturate-50 blur-[0.2px] hover:blur-none"
                           : isLoverActive 
-                          ? "border-brand-secondary bg-brand-secondary/20 text-text-primary shadow-[0_0_18px_rgba(6,182,212,0.15)] scale-[1.02] ring-1 ring-brand-secondary/30 font-semibold"
+                          ? "border-brand-primary bg-brand-primary/20 text-text-primary shadow-[0_0_18px_rgba(0,181,230,0.15)] scale-[1.02] ring-1 ring-brand-primary/30 font-semibold"
                           : isSelected
-                          ? "border-brand-primary/40 bg-amber-950/5 text-text-primary scale-[1.01]"
+                          ? "border-brand-secondary/40 bg-amber-950/5 text-text-primary scale-[1.01]"
                           : "border-border/80 bg-background/40 text-text-secondary hover:text-text-primary hover:border-border-subtle/65"
                       }`}
                     >
@@ -371,8 +371,8 @@ export default function DefineStage({
                             {obs.perspectiveName}
                           </span>
                           {isLoverActive && (
-                            <span className="text-[8px] font-mono font-extrabold text-brand-secondary flex items-center gap-1 uppercase tracking-wider bg-brand-secondary/60 px-1.5 py-0.5 rounded border border-brand-secondary/30">
-                              <CheckCircle className="w-2.5 h-2.5 text-brand-secondary stroke-[3]" /> LOCKED
+                            <span className="text-[8px] font-mono font-extrabold text-brand-primary flex items-center gap-1 uppercase tracking-wider bg-brand-primary/60 px-1.5 py-0.5 rounded border border-brand-primary/30">
+                              <CheckCircle className="w-2.5 h-2.5 text-brand-primary stroke-[3]" /> LOCKED
                             </span>
                           )}
                         </div>
@@ -395,9 +395,9 @@ export default function DefineStage({
             {selectedObs && (
               <div className="mt-5">
                 {isCommitted ? (
-                  <div className="p-4.5 bg-gradient-to-r from-brand-secondary/40 via-brand-secondary/90/20 to-amber-950/30 rounded-2xl border border-brand-secondary shadow-[0_0_20px_rgba(6,182,212,0.12)] relative overflow-hidden transition-all duration-300">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-secondary/10 rounded-full blur-xl pointer-events-none" />
-                    <span className="text-[10px] font-mono font-bold text-brand-secondary uppercase tracking-widest block mb-1.5 flex items-center gap-1">
+                  <div className="p-4.5 bg-gradient-to-r from-brand-primary/40 via-brand-primary/90/20 to-amber-950/30 rounded-2xl border border-brand-primary shadow-[0_0_20px_rgba(0,181,230,0.12)] relative overflow-hidden transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-primary/10 rounded-full blur-xl pointer-events-none" />
+                    <span className="text-[10px] font-mono font-bold text-brand-primary uppercase tracking-widest block mb-1.5 flex items-center gap-1">
                       🎯 SELECTED PROBLEM
                     </span>
                     <p className="text-xs text-text-primary font-black leading-relaxed italic">
@@ -414,7 +414,7 @@ export default function DefineStage({
                           setIsCommitted(false);
                           onShowToast?.("🔓 Choice unlocked. Select another struggle card!", "info");
                         }}
-                        className="text-[9px] font-mono bg-background hover:bg-surface text-brand-primary hover:text-amber-300 px-2.5 py-1.5 rounded-lg border border-slate-850 hover:border-border-subtle transition-colors uppercase font-bold flex items-center gap-1 cursor-pointer"
+                        className="text-[9px] font-mono bg-background hover:bg-surface text-brand-secondary hover:text-amber-300 px-2.5 py-1.5 rounded-lg border border-slate-850 hover:border-border-subtle transition-colors uppercase font-bold flex items-center gap-1 cursor-pointer"
                       >
                         🔄 Choose Different Problem
                       </button>
@@ -440,11 +440,11 @@ export default function DefineStage({
           {!isCommitted ? (
             <div className="bg-background/25 border border-border/60 p-8 rounded-3xl flex flex-col items-center justify-center text-center min-h-[460px] h-full relative overflow-hidden">
               {/* Visual grid blueprint background */}
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(6,182,212,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[size:14px_24px]" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-brand-secondary/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,181,230,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,181,230,0.03)_1px,transparent_1px)] bg-[size:14px_24px]" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-brand-primary/5 rounded-full blur-3xl pointer-events-none" />
               
               <div className="relative z-10 max-w-sm flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-300">
-                <div className="w-14 h-14 bg-surface border border-border rounded-2xl flex items-center justify-center text-brand-secondary shadow-[0_0_20px_rgba(6,182,212,0.1)] select-none">
+                <div className="w-14 h-14 bg-surface border border-border rounded-2xl flex items-center justify-center text-brand-primary shadow-[0_0_20px_rgba(0,181,230,0.1)] select-none">
                   <span className="text-2xl animate-pulse">🔒</span>
                 </div>
                 <div>
@@ -455,7 +455,7 @@ export default function DefineStage({
                     Please select a target struggle on the left and finalize your Problem Commitment to unlock your dynamic thinking challenge workspace!
                   </p>
                 </div>
-                <div className="p-3 bg-brand-secondary/20 rounded-xl border border-brand-secondary/10 text-[10px] font-mono text-brand-secondary">
+                <div className="p-3 bg-brand-primary/20 rounded-xl border border-brand-primary/10 text-[10px] font-mono text-brand-primary">
                   We'll automatically formulate your custom "How Might We" storm once confirmed.
                 </div>
               </div>
@@ -468,15 +468,15 @@ export default function DefineStage({
                   <span className="text-[10px] font-mono font-bold tracking-wider text-text-tertiary block uppercase">
                     ⚡ DESIGN THINKING REFINEMENT
                   </span>
-                  <span className="text-[10px] font-mono text-brand-secondary flex items-center gap-1">
+                  <span className="text-[10px] font-mono text-brand-primary flex items-center gap-1">
                     💡 Zero form-filling, pure context refinement.
                   </span>
                 </div>
 
                 {/* Display Chosen Problem clearly */}
                 {selectedObs && (
-                  <div className="bg-brand-secondary/10 border border-brand-secondary/10 rounded-2xl p-4.5 relative overflow-hidden backdrop-blur-sm animate-in fade-in duration-300">
-                    <span className="text-[10px] font-mono font-bold text-brand-secondary uppercase tracking-widest block mb-1">
+                  <div className="bg-brand-primary/10 border border-brand-primary/10 rounded-2xl p-4.5 relative overflow-hidden backdrop-blur-sm animate-in fade-in duration-300">
+                    <span className="text-[10px] font-mono font-bold text-brand-primary uppercase tracking-widest block mb-1">
                       🎯 Selected Problem
                     </span>
                     <p className="text-sm text-text-primary font-extrabold leading-relaxed italic">
@@ -484,7 +484,7 @@ export default function DefineStage({
                     </p>
                     <div className="mt-2 text-[10px] font-mono text-text-secondary flex items-center gap-2">
                       <span>Stakeholder Group:</span>
-                      <span className="bg-brand-secondary/10 border border-brand-secondary/20 text-brand-secondary px-2 py-0.5 rounded-md font-bold uppercase text-[9px]">
+                      <span className="bg-brand-primary/10 border border-brand-primary/20 text-brand-primary px-2 py-0.5 rounded-md font-bold uppercase text-[9px]">
                         {selectedObs.perspectiveName}
                       </span>
                     </div>
@@ -508,7 +508,7 @@ export default function DefineStage({
                     onChange={setAnythingElse}
                     onSafetyChange={(safe) => setIsAnythingElseSafe(safe)}
                     context="Define Stage - OPTIONAL"
-                    className="w-full bg-background/85 border border-slate-850 text-slate-150 text-xs px-3.5 py-3 rounded-xl focus:outline-none focus:border-brand-secondary/85 focus:ring-1 focus:ring-brand-secondary/20 placeholder:text-text-tertiary font-medium transition-all"
+                    className="w-full bg-background/85 border border-slate-850 text-slate-150 text-xs px-3.5 py-3 rounded-xl focus:outline-none focus:border-brand-primary/85 focus:ring-1 focus:ring-brand-primary/20 placeholder:text-text-tertiary font-medium transition-all"
                   />
                   <p className="text-[10px] text-text-tertiary mt-1.5 leading-snug">
                     Provide extra details, timing observations, or local constraints to sharpen the auto-generated brainstorm.
@@ -517,22 +517,22 @@ export default function DefineStage({
 
                 {/* ✨ AUTO-GENERATED DESIGN CHALLENGE */}
                 {selectedObs && (
-                  <div className="bg-background/95 border border-brand-secondary/25 p-5 rounded-3xl space-y-4 mt-2 transition-all duration-300 relative overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.06)]">
+                  <div className="bg-background/95 border border-brand-primary/25 p-5 rounded-3xl space-y-4 mt-2 transition-all duration-300 relative overflow-hidden shadow-[0_0_20px_rgba(0,181,230,0.06)]">
                     {/* Visual Accent Glow */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/5 rounded-full blur-2xl pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-full blur-2xl pointer-events-none" />
                     
                     <div className="flex items-center justify-between relative z-10">
-                      <span className="text-[10px] font-mono font-bold text-brand-secondary uppercase tracking-wider flex items-center gap-1.5 bg-brand-secondary/40 border border-brand-secondary/10 px-2.5 py-1 rounded-full">
-                        <Sparkles className={`w-3.5 h-3.5 text-brand-secondary ${isAiLoading ? "animate-spin" : ""}`} />
+                      <span className="text-[10px] font-mono font-bold text-brand-primary uppercase tracking-wider flex items-center gap-1.5 bg-brand-primary/40 border border-brand-primary/10 px-2.5 py-1 rounded-full">
+                        <Sparkles className={`w-3.5 h-3.5 text-brand-primary ${isAiLoading ? "animate-spin" : ""}`} />
                         🎯 Your Design Challenge
                       </span>
                       
                       {isAiLoading ? (
-                        <span className="text-[9px] bg-brand-secondary/10 text-brand-secondary px-2.5 py-1 rounded-full border border-brand-secondary/20 font-mono font-bold flex items-center gap-1">
+                        <span className="text-[9px] bg-brand-primary/10 text-brand-primary px-2.5 py-1 rounded-full border border-brand-primary/20 font-mono font-bold flex items-center gap-1">
                           <Loader2 className="w-3 h-3 animate-spin" /> AI is crafting...
                         </span>
                       ) : aiError ? (
-                        <span className="text-[9px] bg-amber-500/15 text-brand-primary px-2.5 py-1 rounded-full border border-brand-primary/30 font-mono font-bold flex items-center gap-1">
+                        <span className="text-[9px] bg-amber-500/15 text-brand-secondary px-2.5 py-1 rounded-full border border-brand-secondary/30 font-mono font-bold flex items-center gap-1">
                           <AlertTriangle className="w-3 h-3" /> Fallback Active
                         </span>
                       ) : aiStatement ? (
@@ -562,11 +562,11 @@ export default function DefineStage({
                       {aiStatement && !isAiLoading && (
                         <div className="pt-3 border-t border-border/60 flex flex-col sm:flex-row sm:items-center gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
                           {precisionScore !== null && (
-                            <div className="flex items-center gap-2 bg-brand-secondary/20 border border-brand-secondary/10 px-3 py-1 rounded-xl shrink-0">
+                            <div className="flex items-center gap-2 bg-brand-primary/20 border border-brand-primary/10 px-3 py-1 rounded-xl shrink-0">
                               <div className="text-[10px] font-mono font-bold text-text-secondary uppercase tracking-widest">
                                 Empathy Score:
                               </div>
-                              <div className="text-sm font-black text-brand-secondary">
+                              <div className="text-sm font-black text-brand-primary">
                                 {precisionScore}%
                               </div>
                             </div>
@@ -603,7 +603,7 @@ export default function DefineStage({
         <button
           disabled={!canProgress}
           onClick={onNext}
-          className="px-10 py-3.5 bg-brand-secondary hover:bg-brand-secondary-hover text-text-primary font-extrabold text-xs uppercase tracking-widest rounded-full cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] disabled:opacity-35 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+          className="px-10 py-3.5 bg-brand-primary hover:bg-brand-primary-hover text-text-primary font-extrabold text-xs uppercase tracking-widest rounded-full cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] disabled:opacity-35 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
         >
           Let's Brainstorm →
         </button>
@@ -613,10 +613,10 @@ export default function DefineStage({
       {showConfirmModal && pendingSelectedObs && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-surface border border-border rounded-3xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl relative animate-in zoom-in-95 duration-200">
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-secondary to-brand-secondary/80" />
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-primary to-brand-primary/80" />
             
             <div className="flex items-start gap-4 mb-4">
-              <div className="p-2.5 bg-brand-secondary/45 rounded-2xl border border-brand-secondary/20 text-brand-secondary shrink-0">
+              <div className="p-2.5 bg-brand-primary/45 rounded-2xl border border-brand-primary/20 text-brand-primary shrink-0">
                 🎯
               </div>
               <div>
@@ -659,7 +659,7 @@ export default function DefineStage({
                   onAddXP(30);
                   setHasAddedXPValue(true);
                 }}
-                className="px-5 py-2.5 bg-brand-secondary hover:bg-brand-primary text-slate-950 rounded-xl text-xs font-black transition-all uppercase font-mono tracking-wider flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.25)] hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]"
+                className="px-5 py-2.5 bg-brand-primary hover:bg-brand-primary text-slate-950 rounded-xl text-xs font-black transition-all uppercase font-mono tracking-wider flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(0,181,230,0.25)] hover:shadow-[0_0_25px_rgba(0,181,230,0.4)]"
               >
                 <Check className="w-4 h-4 text-slate-950 stroke-[3]" /> Focus On This Problem
               </button>

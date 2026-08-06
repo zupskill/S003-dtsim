@@ -88,13 +88,13 @@ export default function ProfileSetupScreen({
     <div className="min-h-screen cyber-grid flex flex-col justify-between py-12 px-6 relative overflow-hidden select-none">
       
       {/* Decorative Glow Elements */}
-      <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-brand-secondary/10 blur-[120px] pointer-events-none animate-pulse" />
+      <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-brand-primary/10 blur-[120px] pointer-events-none animate-pulse" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-purple-500/10 blur-[130px] pointer-events-none" />
 
       {/* Header Logotype */}
       <div className="w-full max-w-5xl mx-auto flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-brand-secondary to-brand-secondary/80 rounded-lg flex items-center justify-center font-black text-black text-lg shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+          <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-primary/80 rounded-lg flex items-center justify-center font-black text-black text-lg shadow-[0_0_15px_rgba(0,181,230,0.4)]">
             ZS
           </div>
           <div>
@@ -120,7 +120,7 @@ export default function ProfileSetupScreen({
         >
           {/* Header Area */}
           <div className="flex items-center gap-4 mb-8 border-b border-border/80 pb-5">
-            <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-brand-primary/25 flex items-center justify-center text-amber-505 shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-brand-secondary/25 flex items-center justify-center text-amber-505 shrink-0 shadow-[0_0_15px_rgba(255,200,61,0.15)]">
               <User className="w-6 h-6" />
             </div>
             <div>
@@ -146,7 +146,7 @@ export default function ProfileSetupScreen({
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-secondary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
 
@@ -160,7 +160,7 @@ export default function ProfileSetupScreen({
                   required
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-secondary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function ProfileSetupScreen({
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-secondary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
 
@@ -191,7 +191,7 @@ export default function ProfileSetupScreen({
                   required
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-secondary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -208,7 +208,7 @@ export default function ProfileSetupScreen({
                   required
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-secondary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
 
@@ -222,7 +222,7 @@ export default function ProfileSetupScreen({
                   required
                   value={yearOfBirth}
                   onChange={(e) => setYearOfBirth(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-secondary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -239,7 +239,7 @@ export default function ProfileSetupScreen({
                   required
                   value={college}
                   onChange={(e) => setCollege(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-secondary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
 
@@ -253,7 +253,7 @@ export default function ProfileSetupScreen({
                   required
                   value={branch}
                   onChange={(e) => setBranch(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-secondary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -270,7 +270,7 @@ export default function ProfileSetupScreen({
                   required
                   value={yearOfGraduation}
                   onChange={(e) => setYearOfGraduation(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-secondary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -280,7 +280,7 @@ export default function ProfileSetupScreen({
                 id="submit-onboarding-btn"
                 type="submit"
                 disabled={!isFormValid || isSubmitting}
-                className="px-8 py-3.5 bg-brand-primary hover:bg-brand-primary-hover disabled:bg-surface-hover text-text-primary font-extrabold uppercase tracking-widest rounded-full text-xs shadow-[0_8px_24px_rgba(37,99,235,0.25)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
+                className="px-8 py-3.5 bg-brand-primary hover:bg-brand-primary-hover disabled:bg-surface-hover text-text-primary font-extrabold uppercase tracking-widest rounded-full text-xs shadow-[0_8px_24px_rgba(0,181,230,0.25)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <>Saving Profile...</>

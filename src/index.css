@@ -2,10 +2,10 @@
 
 
 @theme {
-  --color-brand-primary: var(--brand-primary);
-  --color-brand-primary-hover: var(--brand-primary-hover);
   --color-brand-secondary: var(--brand-secondary);
   --color-brand-secondary-hover: var(--brand-secondary-hover);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-hover: var(--brand-primary-hover);
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-hover: var(--surface-hover);
@@ -18,17 +18,17 @@
 
 :root {
   /* DARK MODE DEFAULTS */
-  --brand-primary: #eab308; /* Golden Yellow */
-  --brand-primary-hover: #facc15;
-  --brand-secondary: #0d9488; /* Teal Blue */
-  --brand-secondary-hover: #14b8a6;
+  --brand-secondary: #ffc83d; /* Golden Yellow */
+  --brand-secondary-hover: #ffd760;
+  --brand-primary: #00b5e6; /* Azure Blue */
+  --brand-primary-hover: #19c5f2;
   
-  --background: #05070a; /* Deep Navy with teal gradient overlay handled separately */
+  --background: #05070a; /* Deep Navy with azure gradient overlay handled separately */
   --surface: #0f172a; 
   --surface-hover: #1e293b;
   
-  --border: rgba(13, 148, 136, 0.3); /* Soft teal border */
-  --border-subtle: rgba(13, 148, 136, 0.15);
+  --border: rgba(0, 181, 230, 0.3); /* Soft azure border */
+  --border-subtle: rgba(0, 181, 230, 0.15);
   
   --text-primary: #ffffff;
   --text-secondary: #94a3b8; /* Cool Gray */
@@ -37,12 +37,12 @@
 
 .light, .light body {
   /* LIGHT MODE OVERRIDES */
-  --background: #f8fafc; /* Soft White */
+  --background: #f7fafc; /* Soft White */
   --surface: #ffffff;
   --surface-hover: #f1f5f9;
   
-  --border: rgba(13, 148, 136, 0.2); /* Soft blue/teal border */
-  --border-subtle: rgba(13, 148, 136, 0.1);
+  --border: rgba(0, 181, 230, 0.2); /* Soft blue/azure border */
+  --border-subtle: rgba(0, 181, 230, 0.1);
   
   --text-primary: #0f172a; /* Dark Navy */
   --text-secondary: #64748b; /* Gray */
@@ -54,14 +54,14 @@
   .cyber-grid {
     background-color: #05070A;
     background-image: 
-      linear-gradient(rgba(13, 148, 136, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(13, 148, 136, 0.08) 1px, transparent 1px);
+      linear-gradient(rgba(0, 181, 230, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 181, 230, 0.08) 1px, transparent 1px);
     background-size: 40px 40px;
   }
   
   .glow-cyan {
-    box-shadow: 0 0 20px rgba(13, 148, 136, 0.25);
-    border: 1px solid rgba(13, 148, 136, 0.4);
+    box-shadow: 0 0 20px rgba(0, 181, 230, 0.25);
+    border: 1px solid rgba(0, 181, 230, 0.4);
   }
   
   .glow-purple {
@@ -118,12 +118,12 @@ body {
 
 /* Core page wrappers and main backgrounds */
 .light, .light body {
-  background-color: #f8fafc !important;
+  background-color: #f7fafc !important;
   color: #0f172a !important;
 }
 
 .light main {
-  background-color: #f8fafc !important;
+  background-color: #f7fafc !important;
 }
 
 .light header {
@@ -142,7 +142,7 @@ body {
 .light .bg-slate-950\/60,
 .light .bg-slate-955,
 .light .bg-slate-905\/60 {
-  background-color: #f8fafc !important;
+  background-color: #f7fafc !important;
 }
 
 .light .bg-slate-950\/70,
@@ -187,10 +187,10 @@ body {
 }
 
 .light .cyber-grid {
-  background-color: #f8fafc !important;
+  background-color: #f7fafc !important;
   background-image: 
-    linear-gradient(rgba(13, 148, 136, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(13, 148, 136, 0.06) 1px, transparent 1px) !important;
+    linear-gradient(rgba(0, 181, 230, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 181, 230, 0.06) 1px, transparent 1px) !important;
   background-size: 44px 44px;
 }
 

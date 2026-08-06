@@ -61,7 +61,7 @@ export const generateRecapReport = async (
     doc.addImage(logoImg, "PNG", pageWidth - margin - logoWidth, margin, logoWidth, logoHeight);
   } catch (err) {
     // Fallback to fake logo box if image fails to load
-    doc.setFillColor(6, 182, 212);
+    doc.setFillColor(0, 181, 230);
     doc.roundedRect(pageWidth - margin - 20, margin - 5, 20, 20, 3, 3, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
@@ -112,7 +112,7 @@ export const generateRecapReport = async (
     doc.setFontSize(14);
     doc.setTextColor(30, 41, 59);
     doc.text(title.toUpperCase(), margin, yPos);
-    doc.setDrawColor(6, 182, 212);
+    doc.setDrawColor(0, 181, 230);
     doc.line(margin, yPos + 2, margin + 30, yPos + 2);
     return yPos + 10;
   };
@@ -409,7 +409,7 @@ export const generateDesignThinkingReport = async (
     doc.addImage(logoImg, "PNG", pageWidth - margin - logoWidth, margin, logoWidth, logoHeight);
   } catch (err) {
     // Fallback to fake logo box if image fails to load
-    doc.setFillColor(6, 182, 212);
+    doc.setFillColor(0, 181, 230);
     doc.roundedRect(pageWidth - margin - 20, margin - 5, 20, 20, 3, 3, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
@@ -461,7 +461,7 @@ export const generateDesignThinkingReport = async (
     doc.setFontSize(14);
     doc.setTextColor(30, 41, 59);
     doc.text(title.toUpperCase(), margin, yPos);
-    doc.setDrawColor(6, 182, 212);
+    doc.setDrawColor(0, 181, 230);
     doc.line(margin, yPos + 2, margin + 30, yPos + 2);
     return yPos + 10;
   };
@@ -612,14 +612,14 @@ export const generateDesignThinkingReport = async (
     currentY = margin;
   }
   
-  doc.setFillColor(240, 253, 250); // Light teal bg
-  doc.setDrawColor(20, 184, 166);
+  doc.setFillColor(230, 247, 253); // Light teal bg
+  doc.setDrawColor(0, 181, 230);
   doc.setLineWidth(0.5);
   doc.roundedRect(margin, currentY, pageWidth - margin * 2, boxHeight, 3, 3, "FD");
   
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.setTextColor(15, 118, 110);
+  doc.setTextColor(0, 158, 209);
   doc.text("Final Solution", margin + 5, currentY + 8);
   
   doc.setFont("helvetica", "normal");

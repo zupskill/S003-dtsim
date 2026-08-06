@@ -280,7 +280,7 @@ export default function TestingStage({
     <div className="w-full max-w-6xl mx-auto py-6 px-4">
       {/* Header */}
       <div className="text-center mb-8 max-w-2xl mx-auto">
-        <span className="text-xs font-mono text-brand-secondary uppercase tracking-[0.2em] px-3 py-1 bg-brand-secondary/35 border border-brand-secondary/20 rounded-full">
+        <span className="text-xs font-mono text-brand-primary uppercase tracking-[0.2em] px-3 py-1 bg-brand-primary/35 border border-brand-primary/20 rounded-full">
           Step 5: Evaluate & Test your Prototype 🧪
         </span>
         <h2 className="text-3xl font-extrabold text-text-primary mt-4 mb-2 tracking-tight">
@@ -292,14 +292,14 @@ export default function TestingStage({
       </div>
 
       {/* 🎯 CONTEXT PAIRING: SELECTED CHALLENGE & EXPERIMENTAL SOLUTION */}
-      <div className="bg-background/80 border border-slate-850 p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(245,158,11,0.04)]">
+      <div className="bg-background/80 border border-slate-850 p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(255,200,61,0.04)]">
         <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500/50" />
         
         {/* Left aspect: Pinned Struggle & Design Challenge */}
         <div className="flex flex-col gap-3 pl-2">
           {/* Target Problem */}
           <div className="flex items-start gap-2.5">
-            <div className="p-1.5 bg-brand-secondary/45 rounded-xl border border-brand-secondary/20 text-brand-secondary text-xs mt-0.5 shrink-0 select-none">
+            <div className="p-1.5 bg-brand-primary/45 rounded-xl border border-brand-primary/20 text-brand-primary text-xs mt-0.5 shrink-0 select-none">
               🎯
             </div>
             <div>
@@ -314,11 +314,11 @@ export default function TestingStage({
           
           {/* Design Challenge (HMW) */}
           <div className="flex items-start gap-2.5 pt-2 border-t border-border/60">
-            <div className="p-1.5 bg-brand-secondary/45 rounded-xl border border-brand-secondary/20 text-brand-secondary mt-0.5 shrink-0 select-none">
+            <div className="p-1.5 bg-brand-primary/45 rounded-xl border border-brand-primary/20 text-brand-primary mt-0.5 shrink-0 select-none">
               ✨
             </div>
             <div>
-              <span className="text-[9px] font-mono font-black text-brand-secondary tracking-widest block uppercase font-bold text-brand-secondary">
+              <span className="text-[9px] font-mono font-black text-brand-primary tracking-widest block uppercase font-bold text-brand-primary">
                 🎯 DESIGN CHALLENGE (HMW)
               </span>
               <p className="text-xs font-bold text-text-primary mt-0.5 leading-relaxed">
@@ -330,7 +330,7 @@ export default function TestingStage({
 
         {/* Aspect 2: Solution */}
         <div className="flex items-start gap-2.5 md:border-l md:border-slate-850/80 md:pl-4">
-          <div className="p-1.5 bg-amber-950/45 rounded-xl border border-brand-primary/25 text-brand-primary text-xs mt-0.5 shrink-0 select-none">
+          <div className="p-1.5 bg-amber-950/45 rounded-xl border border-brand-secondary/25 text-brand-secondary text-xs mt-0.5 shrink-0 select-none">
             💡
           </div>
           <div>
@@ -356,7 +356,7 @@ export default function TestingStage({
                 {prototype.format.toUpperCase()} MODEL PROTOTYPE
               </span>
               {classifiedCategory ? (
-                <span className="text-[10px] bg-brand-secondary text-brand-secondary px-2 py-0.5 rounded border border-brand-secondary/30 font-bold uppercase">
+                <span className="text-[10px] bg-brand-primary text-brand-primary px-2 py-0.5 rounded border border-brand-primary/30 font-bold uppercase">
                   CLASSIFIED: {classifiedCategory}
                 </span>
               ) : (
@@ -435,15 +435,15 @@ export default function TestingStage({
 
         {/* I-LIKE PANEL */}
         <div className="flex flex-col">
-          <div className={`glass-panel p-5 rounded-2xl flex-1 flex flex-col justify-between border-l-4 border-brand-secondary h-full ${loadingILike ? "animate-pulse" : "glow-cyan"}`}>
+          <div className={`glass-panel p-5 rounded-2xl flex-1 flex flex-col justify-between border-l-4 border-brand-primary h-full ${loadingILike ? "animate-pulse" : "glow-cyan"}`}>
             <div>
               <div className="flex items-center justify-between mb-4 border-b border-slate-850 pb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-brand-secondary font-mono flex items-center gap-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-primary font-mono flex items-center gap-1">
                   💖 I LIKE (HIGHLIGHTS)
                 </span>
                 
                 {!loadingILike && iLikeScore !== null && (
-                  <span className="text-[10px] font-mono bg-brand-secondary/40 text-brand-secondary border border-brand-secondary/30 px-2 py-0.5 rounded font-black">
+                  <span className="text-[10px] font-mono bg-brand-primary/40 text-brand-primary border border-brand-primary/30 px-2 py-0.5 rounded font-black">
                     USER DELIGHT: {iLikeScore}/100
                   </span>
                 )}
@@ -452,9 +452,9 @@ export default function TestingStage({
               {loadingILike ? (
                 /* Skeleton Loader */
                 <div className="space-y-4">
-                  <div className="h-3 bg-brand-secondary/10 rounded w-5/6" />
+                  <div className="h-3 bg-brand-primary/10 rounded w-5/6" />
                   <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
-                  <div className="h-3 bg-brand-secondary/10 rounded w-2/3" />
+                  <div className="h-3 bg-brand-primary/10 rounded w-2/3" />
                   <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
                 </div>
               ) : (
@@ -464,8 +464,8 @@ export default function TestingStage({
                   </p>
                   
                   {iLikeHighlights.map((highlight, idx) => (
-                    <div key={idx} className="p-3 bg-background border border-brand-secondary/10 rounded-xl relative overflow-hidden">
-                      <span className="absolute top-0 left-0 h-full w-1 bg-brand-primary/60" />
+                    <div key={idx} className="p-3 bg-background border border-brand-primary/10 rounded-xl relative overflow-hidden">
+                      <span className="absolute top-0 left-0 h-full w-1 bg-brand-secondary/60" />
                       <p className="text-xs text-text-primary leading-relaxed font-medium">
                         "{highlight}"
                       </p>
@@ -476,7 +476,7 @@ export default function TestingStage({
             </div>
 
             <div className="text-[10px] text-text-tertiary font-mono mt-6 border-t border-slate-855 pt-2 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-brand-primary rounded-full animate-pulse" /> Delight verified! ✨
+              <span className="w-1.5 h-1.5 bg-brand-secondary rounded-full animate-pulse" /> Delight verified! ✨
             </div>
           </div>
         </div>

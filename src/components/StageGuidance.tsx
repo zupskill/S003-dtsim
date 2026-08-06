@@ -139,10 +139,10 @@ export default function StageGuidance({ stageKey, theme }: StageGuidanceProps) {
             <div className="flex items-center justify-between pointer-events-auto">
               <div className="flex items-center gap-1.5 pointer-events-none">
                 <Sparkles className={`w-4 h-4 shrink-0 ${
-                  isDark ? "text-brand-secondary" : "text-brand-secondary"
+                  isDark ? "text-brand-primary" : "text-brand-primary"
                 }`} />
                 <span className={`text-[11px] font-mono font-black tracking-widest uppercase ${
-                  isDark ? "text-brand-secondary" : "text-brand-secondary"
+                  isDark ? "text-brand-primary" : "text-brand-primary"
                 }`}>
                   👋 Need help?
                 </span>
@@ -172,8 +172,8 @@ export default function StageGuidance({ stageKey, theme }: StageGuidanceProps) {
               onClick={handleOpenFullGuide}
               className={`w-full text-center py-2 px-3 text-xs leading-none font-sans font-black uppercase tracking-wider rounded-xl transition-all hover:scale-[1.01] active:scale-95 cursor-pointer pointer-events-auto ${
                 isDark
-                  ? "bg-brand-secondary/10 border border-brand-secondary/30 text-brand-secondary hover:bg-brand-secondary/20"
-                  : "bg-brand-secondary/10 border border-brand-secondary text-brand-secondary hover:bg-brand-secondary/20 hover:border-brand-secondary shadow-sm"
+                  ? "bg-brand-primary/10 border border-brand-primary/30 text-brand-primary hover:bg-brand-primary/20"
+                  : "bg-brand-primary/10 border border-brand-primary text-brand-primary hover:bg-brand-primary/20 hover:border-brand-primary shadow-sm"
               }`}
             >
               Learn More
@@ -192,15 +192,15 @@ export default function StageGuidance({ stageKey, theme }: StageGuidanceProps) {
             onClick={handleToggleFullManual}
             className={`fixed bottom-36 right-6 md:right-8 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-xl backdrop-blur transition-all hover:scale-105 active:scale-95 cursor-pointer group pointer-events-auto ${
               isDark
-                ? "bg-surface border border-border text-brand-secondary hover:text-brand-secondary hover:border-brand-secondary/35"
-                : "bg-background border-2 border-slate-350 text-brand-secondary hover:text-brand-secondary hover:border-brand-secondary shadow-slate-350/40"
+                ? "bg-surface border border-border text-brand-primary hover:text-brand-primary hover:border-brand-primary/35"
+                : "bg-background border-2 border-slate-350 text-brand-primary hover:text-brand-primary hover:border-brand-primary shadow-slate-350/40"
             }`}
             title="Toggle Stage Mentor System"
           >
             {/* Ambient animation indicators */}
             {showSubtleHint && (
               <span className={`absolute inset-0 rounded-full animate-ping opacity-20 scale-105 pointer-events-none ${
-                isDark ? "bg-brand-primary" : "bg-indigo-650"
+                isDark ? "bg-brand-secondary" : "bg-indigo-650"
               }`} />
             )}
             <HelpCircle className="w-5.5 h-5.5 group-hover:scale-110 transition-transform stroke-[2.2]" />
@@ -216,7 +216,7 @@ export default function StageGuidance({ stageKey, theme }: StageGuidanceProps) {
             animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, scale: 0.95, y: 20, filter: "blur(3px)" }}
             transition={{ type: "spring", stiffness: 350, damping: 28 }}
-            className={`fixed bottom-36 right-6 md:right-8 z-50 w-full max-w-[340px] p-5 rounded-2xl shadow-2xl backdrop-blur-md selection:bg-brand-secondary selection:text-black transition-all border-2 pointer-events-auto ${
+            className={`fixed bottom-36 right-6 md:right-8 z-50 w-full max-w-[340px] p-5 rounded-2xl shadow-2xl backdrop-blur-md selection:bg-brand-primary selection:text-black transition-all border-2 pointer-events-auto ${
               isDark
                 ? "bg-surface/98 border-slate-850 text-text-primary shadow-slate-950/60"
                 : "bg-background border-slate-350 text-slate-950 shadow-slate-400/35"
@@ -228,17 +228,17 @@ export default function StageGuidance({ stageKey, theme }: StageGuidanceProps) {
             }`}>
               <div className="flex items-center gap-2 pointer-events-none">
                 <span className={`w-2 h-2 rounded-full animate-pulse shrink-0 ${
-                  isDark ? "bg-brand-primary" : "bg-indigo-650"
+                  isDark ? "bg-brand-secondary" : "bg-indigo-650"
                 }`} />
                 <span className={`text-[10px] font-black font-sans tracking-widest uppercase ${
-                  isDark ? "text-brand-secondary/90" : "text-brand-secondary"
+                  isDark ? "text-brand-primary/90" : "text-brand-primary"
                 }`}>
                   STAGE MENTOR
                 </span>
                 <span className={`text-[9px] font-mono font-black px-1.5 py-0.5 rounded uppercase border ${
                   isDark 
-                    ? "bg-background border-slate-850 text-brand-secondary" 
-                    : "bg-brand-secondary/10 border-brand-secondary text-brand-secondary"
+                    ? "bg-background border-slate-850 text-brand-primary" 
+                    : "bg-brand-primary/10 border-brand-primary text-brand-primary"
                 }`}>
                   ACTIVE
                 </span>
@@ -275,12 +275,12 @@ export default function StageGuidance({ stageKey, theme }: StageGuidanceProps) {
               <button
                 onClick={() => setShowWhy(!showWhy)}
                 className={`text-[10px] uppercase font-mono font-black tracking-wider flex items-center gap-1 cursor-pointer transition-colors hover:scale-[1.01] active:scale-98 ${
-                  isDark ? "text-brand-secondary hover:text-brand-secondary" : "text-brand-secondary hover:text-brand-secondary"
+                  isDark ? "text-brand-primary hover:text-brand-primary" : "text-brand-primary hover:text-brand-primary"
                 }`}
               >
                 <ChevronRight className={`w-3.5 h-3.5 transform transition-transform duration-250 ${
                   showWhy 
-                    ? (isDark ? 'rotate-90 text-brand-secondary' : 'rotate-90 text-brand-secondary') 
+                    ? (isDark ? 'rotate-90 text-brand-primary' : 'rotate-90 text-brand-primary') 
                     : ''
                 }`} />
                 Why am I doing this?

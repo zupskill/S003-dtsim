@@ -107,7 +107,7 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-2 text-brand-secondary font-semibold uppercase tracking-wider text-xs sm:text-sm mb-1 sm:mb-2">
+          <div className="flex items-center gap-2 text-brand-primary font-semibold uppercase tracking-wider text-xs sm:text-sm mb-1 sm:mb-2">
             <span>🎓</span> Design Thinking Briefing
           </div>
           <h2 className="text-xl sm:text-3xl font-bold text-text-primary mb-1 sm:mb-2">{stageConfig.title}</h2>
@@ -131,7 +131,7 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
           <ul className="space-y-1.5 sm:space-y-2">
             {stageConfig.bulletPoints.map((point, index) => (
               <li key={index} className="flex items-start gap-2 text-xs sm:text-sm text-text-secondary">
-                <span className="text-brand-secondary mt-0.5 sm:mt-1">•</span>
+                <span className="text-brand-primary mt-0.5 sm:mt-1">•</span>
                 <span>{point}</span>
               </li>
             ))}
@@ -143,7 +143,7 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
           <div className="flex items-center justify-end">
             <button
               onClick={() => onContinue(dontShowAgain)}
-              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-text-primary bg-brand-secondary hover:bg-brand-secondary-hover transition-colors flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-text-primary bg-brand-primary hover:bg-brand-primary-hover transition-colors flex items-center justify-center gap-2"
             >
               Continue to {stageConfig.title}
               <Play className="w-4 h-4" />
@@ -156,7 +156,7 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
               id="dontShowAgain"
               checked={dontShowAgain}
               onChange={(e) => setDontShowAgain(e.target.checked)}
-              className="w-4 h-4 rounded border-border-subtle bg-surface-hover text-brand-secondary focus:ring-brand-secondary focus:ring-offset-slate-900 cursor-pointer shrink-0"
+              className="w-4 h-4 rounded border-border-subtle bg-surface-hover text-brand-primary focus:ring-brand-primary focus:ring-offset-slate-900 cursor-pointer shrink-0"
             />
             <label htmlFor="dontShowAgain" className="text-xs sm:text-sm text-text-secondary cursor-pointer select-none">
               Don't show this introduction again

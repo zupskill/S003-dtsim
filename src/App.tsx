@@ -48,6 +48,8 @@ import {
 import { Award, Compass, Eye, ShieldAlert, Zap, PenTool, Flame, User, MessageSquare, Users, RotateCcw, RefreshCw, Sparkles, Play, MoreVertical } from "lucide-react";
 
 import { useRuntime } from "./contexts/RuntimeContext";
+import zupskillLogo from "./assets/zupskill-logo.png";
+
 
 export default function App() {
   // Theme state: default is 'dark'
@@ -689,7 +691,7 @@ export default function App() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-brand-primary/10 blur-[100px] pointer-events-none animate-pulse" />
         <div className="space-y-4 animate-pulse">
           <img
-            src="/zupskill-logo.png"
+            src={zupskillLogo}
             alt="ZupSkill"
             className="h-16 w-auto object-contain mx-auto select-none"
           />
@@ -721,7 +723,7 @@ export default function App() {
         <header className="bg-background border-b border-slate-850 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-40 sticky top-0 overflow-hidden">
           <div className="flex items-center justify-start shrink-0">
           <img
-            src="/zupskill-logo.png"
+            src={zupskillLogo}
             alt="ZupSkill"
             className="h-10 w-auto object-contain select-none"
           />

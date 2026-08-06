@@ -1,6 +1,7 @@
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Topic, PrototypeData, UserProfile, CompletedSimulationRecap } from "../types";
+import zupskillLogo from "../assets/zupskill-logo.png";
 
 const sanitizeText = (text: string | undefined | null) => {
   if (!text) return "";
@@ -51,7 +52,7 @@ export const generateRecapReport = async (
   try {
     const logoImg = new Image();
     logoImg.crossOrigin = "Anonymous";
-    logoImg.src = "/zupskill-logo.png";
+    logoImg.src = zupskillLogo;
     await new Promise((resolve, reject) => {
       logoImg.onload = resolve;
       logoImg.onerror = reject;
@@ -399,7 +400,7 @@ export const generateDesignThinkingReport = async (
   try {
     const logoImg = new Image();
     logoImg.crossOrigin = "Anonymous";
-    logoImg.src = "/zupskill-logo.png";
+    logoImg.src = zupskillLogo;
     await new Promise((resolve, reject) => {
       logoImg.onload = resolve;
       logoImg.onerror = reject;

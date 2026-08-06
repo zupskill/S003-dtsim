@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "motion/react";
 import ThemeToggle from "./ThemeToggle";
 import SignOutButton from "./SignOutButton";
 import { UserProfile } from "../types";
+import zupskillLogo from "../assets/zupskill-logo.png";
+
 
 interface LandingScreenProps {
   onStart: () => void;
@@ -102,7 +104,7 @@ export default function LandingScreen({
       >
         <div className="flex items-center justify-start shrink-0">
           <img
-            src="/zupskill-logo.png"
+            src={zupskillLogo}
             alt="ZupSkill"
             className="h-10 w-auto object-contain select-none"
           />

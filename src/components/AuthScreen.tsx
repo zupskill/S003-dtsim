@@ -2,6 +2,8 @@ import React from "react";
 import { Sparkles, CheckCircle } from "lucide-react";
 import { motion } from "motion/react";
 import ThemeToggle from "./ThemeToggle";
+import zupskillLogo from "../assets/zupskill-logo.png";
+
 
 interface AuthScreenProps {
   theme: "dark" | "light";
@@ -25,7 +27,7 @@ export default function AuthScreen({
       <div className="w-full max-w-5xl mx-auto flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
           <img
-            src="/zupskill-logo.png"
+            src={zupskillLogo}
             alt="ZupSkill"
             className="h-10 w-auto object-contain select-none"
           />

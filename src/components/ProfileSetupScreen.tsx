@@ -3,6 +3,8 @@ import { User, ChevronRight } from "lucide-react";
 import { motion } from "motion/react";
 import ThemeToggle from "./ThemeToggle";
 import SignOutButton from "./SignOutButton";
+import zupskillLogo from "../assets/zupskill-logo.png";
+
 
 interface ProfileSetupScreenProps {
   theme: "dark" | "light";
@@ -95,7 +97,7 @@ export default function ProfileSetupScreen({
       <div className="w-full max-w-5xl mx-auto flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
           <img
-            src="/zupskill-logo.png"
+            src={zupskillLogo}
             alt="ZupSkill"
             className="h-10 w-auto object-contain select-none"
           />

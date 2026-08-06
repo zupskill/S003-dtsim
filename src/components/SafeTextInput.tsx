@@ -112,6 +112,13 @@ export default function SafeTextInput({
     outlineColorClass = "border-red-500/50 focus:border-red-500/80 focus:ring-1 focus:ring-red-500/20 bg-red-950/5";
   }
 
+  const effectiveMaxLength = type === "textarea" ? (maxLength && maxLength < 512 ? maxLength : 512) : (maxLength && maxLength < 126 ? maxLength : 126);
+  if (type === "textarea") {
+    console.log("[INPUT] Textarea limit: 512");
+  } else {
+    console.log("[INPUT] Text input limit: 126");
+  }
+
   return (
     <div className="w-full space-y-1 text-left relative">
       {type === "textarea" ? (
@@ -119,7 +126,7 @@ export default function SafeTextInput({
           ref={textareaRef}
           id={id}
           required={required}
-          maxLength={maxLength}
+          maxLength={effectiveMaxLength}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -132,7 +139,7 @@ export default function SafeTextInput({
           id={id}
           type="text"
           required={required}
-          maxLength={maxLength}
+          maxLength={effectiveMaxLength}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}

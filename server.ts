@@ -70,11 +70,12 @@ function logApiError(message: string, err: any) {
 // Helper to execute generating with optional retries
 async function generateContentWithRetry(prompt: string, config: any, retries = 2): Promise<string> {
   const ai = getAiClient();
+  console.log("[AI] Initializing Gemini model: gemini-2.5-flash-lite");
   let attempt = 0;
   while (attempt <= retries) {
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: "gemini-2.5-flash-lite",
         contents: prompt,
         config: config,
       });

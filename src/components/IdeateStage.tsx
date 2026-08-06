@@ -541,6 +541,7 @@ export default function IdeateStage({
                     <div className="relative">
                       <input
                         type="text"
+                        maxLength={126}
                         placeholder="e.g. Provide a specialized shuttle vehicle..."
                         value={singleInput}
                         onChange={(e) => handleInputChange(e.target.value)}

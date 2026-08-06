@@ -1568,6 +1568,7 @@ export default function EmpathizeStage({
                   <div className="flex-1">
                     <textarea
                       rows={3}
+                      maxLength={512}
                       placeholder="Example: Elderly passengers often struggle to board buses safely before they depart."
                       value={newStickyText}
                       disabled={isCheckingDuplicate || showDuplicateWarning}

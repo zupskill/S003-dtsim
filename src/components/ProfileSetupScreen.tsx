@@ -142,6 +142,7 @@ export default function ProfileSetupScreen({
                 </label>
                 <input
                   type="text"
+                  maxLength={126}
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -155,6 +156,7 @@ export default function ProfileSetupScreen({
                 </label>
                 <input
                   type="email"
+                  maxLength={126}
                   required
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
@@ -171,6 +173,7 @@ export default function ProfileSetupScreen({
                 </label>
                 <input
                   type="tel"
+                  maxLength={126}
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -184,6 +187,7 @@ export default function ProfileSetupScreen({
                 </label>
                 <input
                   type="text"
+                  maxLength={126}
                   required
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
@@ -200,6 +204,7 @@ export default function ProfileSetupScreen({
                 </label>
                 <input
                   type="text"
+                  maxLength={126}
                   required
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
@@ -213,6 +218,7 @@ export default function ProfileSetupScreen({
                 </label>
                 <input
                   type="text"
+                  maxLength={126}
                   required
                   value={yearOfBirth}
                   onChange={(e) => setYearOfBirth(e.target.value)}
@@ -229,6 +235,7 @@ export default function ProfileSetupScreen({
                 </label>
                 <input
                   type="text"
+                  maxLength={126}
                   required
                   value={college}
                   onChange={(e) => setCollege(e.target.value)}
@@ -242,6 +249,7 @@ export default function ProfileSetupScreen({
                 </label>
                 <input
                   type="text"
+                  maxLength={126}
                   required
                   value={branch}
                   onChange={(e) => setBranch(e.target.value)}
@@ -258,6 +266,7 @@ export default function ProfileSetupScreen({
                 </label>
                 <input
                   type="text"
+                  maxLength={126}
                   required
                   value={yearOfGraduation}
                   onChange={(e) => setYearOfGraduation(e.target.value)}

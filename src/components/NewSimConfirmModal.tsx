@@ -105,16 +105,16 @@ export default function NewSimConfirmModal({
                       {recap ? 'Completed' : `In Progress (Stage ${currentStage})`}
                     </span>
                   </div>
-                  {(recap?.topicTitle || topic?.title) && (
+                  {(recap?.challenge || topic?.title) && (
                     <div className="flex flex-col">
                       <span className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Challenge</span>
-                      <span className={`text-sm font-semibold truncate ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{recap?.topicTitle || topic?.title}</span>
+                      <span className={`text-sm font-semibold truncate ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{recap?.challenge || topic?.title}</span>
                     </div>
                   )}
-                  {recap?.prototypeTitle && (
+                  {recap?.prototypeSummary && (
                     <div className="flex flex-col">
                       <span className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Prototype</span>
-                      <span className={`text-sm font-semibold truncate ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{recap.prototypeTitle}</span>
+                      <span className={`text-sm font-semibold truncate ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{recap.prototypeSummary}</span>
                     </div>
                   )}
                 </div>

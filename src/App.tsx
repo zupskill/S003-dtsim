@@ -39,13 +39,15 @@ import StageGuidance from "./components/StageGuidance";
 import { 
   supabase,
   isSupabaseConfigured,
-  getSupabaseProfile,
+
   saveSupabaseProfile,
   unlockSupabaseBadge,
 } from "./supabase";
 
 // Lucide icon imports for general App use
 import { Award, Compass, Eye, ShieldAlert, Zap, PenTool, Flame, User, MessageSquare, Users, RotateCcw, RefreshCw, Sparkles, Play, MoreVertical } from "lucide-react";
+
+import { useRuntime } from "./contexts/RuntimeContext";
 
 export default function App() {
   // Theme state: default is 'dark'
@@ -213,116 +215,14 @@ export default function App() {
   };
 
   // Google Auth User states
-  const [user, setUser] = useState<any>(null);
-  const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
+  const { 
+    user, profile, setProfile, isLoading: loadingAuth, 
+    saveStageLocally, syncCompletion, signOut, signInWithGoogle 
+  } = useRuntime();
+
   const [showAccountChooser, setShowAccountChooser] = useState<boolean>(false);
   const [showNewSimConfirm, setShowNewSimConfirm] = useState<boolean>(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
-
-  // User Profile with dynamic gamified updates
-  const [profile, setProfile] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem("zupskill_sim_profile");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed) return parsed;
-      } catch (e) {}
-    }
-    return {
-      username: "Beta_Innovator_9",
-      college: "Stanford Design Lab",
-      level: "Explorer",
-      xp: 60,
-      unlockedBadgeIds: ["problem-hunter"],
-      problemsSolved: 0,
-      ideasGenerated: 0,
-      prototypesBuilt: 0,
-      isOnboarded: false
-    };
-  });
-
-              // Handle Supabase Sign-In auth state changes
-  useEffect(() => {
-    setLoadingAuth(true);
-    
-    const initializeAuth = async () => {
-      try {
-        const searchParams = new URLSearchParams(window.location.search);
-        const code = searchParams.get('code');
-        if (code) {
-          console.log("Exchanging code for session...");
-          await supabase.auth.exchangeCodeForSession(code);
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
-      } catch (e) {
-        console.error("Code exchange failed:", e);
-      }
-      
-      supabase.auth.getSession().then(({ data }) => {
-        console.log("Loaded Supabase session:", data.session);
-        setUser(data.session?.user ?? null);
-        if (data.session?.user) {
-          loadUserProfile(data.session.user).finally(() => setLoadingAuth(false));
-        } else {
-          setLoadingAuth(false);
-        }
-      });
-    };
-    
-    initializeAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("AUTH EVENT:", event, session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        setLoadingAuth(true);
-        loadUserProfile(session.user).finally(() => setLoadingAuth(false));
-      } else {
-        setLoadingAuth(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const loadUserProfile = async (authUser: any) => {
-    try {
-      const { getOrCreateUser } = await import('./utils/auth');
-      const currentUser = await getOrCreateUser();
-      
-      if (!currentUser) {
-        console.error("Failed to initialize central user record.");
-        return;
-      }
-      
-      const cloudProfile = await getSupabaseProfile(currentUser.id);
-      if (cloudProfile) {
-        setProfile(prev => ({
-          ...prev,
-          ...cloudProfile,
-          username: cloudProfile.username || currentUser.full_name || currentUser.email?.split("@")[0] || "Innovator",
-          email: currentUser.email || "",
-          photoURL: currentUser.avatar_url || "",
-          lastCompletedSimulation: cloudProfile.lastCompletedSimulation || prev.lastCompletedSimulation
-        }));
-      } else {
-        setProfile(prev => ({
-          ...prev,
-          uid: currentUser.id,
-          username: currentUser.full_name || currentUser.email?.split("@")[0] || "Innovator",
-          email: currentUser.email || "",
-          photoURL: currentUser.avatar_url || "",
-          level: "Explorer",
-          xp: 60,
-          unlockedBadgeIds: ["problem-hunter"],
-          isOnboarded: false
-        }));
-      }
-    } catch (err) {
-      console.error("Profile load error:", err);
-    }
-  };
-
   // Redirect to Auth or Onboarding based on session status
   useEffect(() => {
     if (loadingAuth) return;
@@ -366,51 +266,9 @@ export default function App() {
     return () => clearTimeout(tid);
   }, [profile, user]);
 
-  const handleSignInWithGoogle = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: window.location.origin
-        }
-      });
-      if (error) {
-        console.error("Google login failed:", error);
-      }
-    } catch (err) {
-      console.error("Google login failed:", err);
-    }
-  };
 
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
-    
-    setUser(null);
-    
-    
-    // Clear simulation-level keys to clear temporary session state
-    handleResetSim();
-    
-    setProfile({
-      uid: "",
-      username: "Innovator",
-      level: "Explorer",
-      xp: 0,
-      unlockedBadgeIds: [],
-      problemsSolved: 0,
-      ideasGenerated: 0,
-      prototypesBuilt: 0,
-    });
-    
-    // Return the user to the authentication screen
-    setActiveScreen("auth");
-    
-    showToast("Signed out successfully.", "info");
-  };
+
+
 
   const handleSaveOnboarding = async (data: {
     username: string;
@@ -888,7 +746,7 @@ export default function App() {
               </div>
             </button>
 
-            <SignOutButton onSignOut={handleSignOut} />
+            <SignOutButton onSignOut={signOut} />
 
             {/* Mobile More Menu Toggle */}
             <div className="relative sm:hidden ml-0.5">
@@ -950,7 +808,7 @@ export default function App() {
               <AuthScreen
                 theme={theme}
                 onToggleTheme={toggleTheme}
-                onSignInWithGoogle={handleSignInWithGoogle}
+                onSignInWithGoogle={signInWithGoogle}
               />
             )}
 
@@ -979,8 +837,8 @@ export default function App() {
                 onToggleTheme={toggleTheme}
                 user={user}
                 profile={profile}
-                onSignInWithGoogle={handleSignInWithGoogle}
-                onSignOut={handleSignOut}
+                onSignInWithGoogle={signInWithGoogle}
+                onSignOut={signOut}
               />
             )}
 
@@ -1043,7 +901,7 @@ export default function App() {
                       onSelect={(topic) => {
                         setSelectedTopic(topic);
                         
-                        import("./supabase").then(mod => mod.saveStageProgress({
+                        saveStageLocally({
                           activity_id: "S003",
                           task_id: "1.0",
                           task_name: "Topic Selection",
@@ -1051,7 +909,7 @@ export default function App() {
                           value1: topic.id,
                           value2: topic.title,
                           completed: true
-                        }));
+                        });
 
                         handleAddXP(30);
                         triggerTransition("simulation", 2, `Topic Locked: ${topic.title} ✨`);
@@ -1072,14 +930,14 @@ export default function App() {
                       onNext={() => {
                         setProfile((prev) => ({ ...prev, problemsSolved: prev.problemsSolved + 1 }));
                         
-                        import("./supabase").then(mod => mod.saveStageProgress({
+                        saveStageLocally({
                             activity_id: "S003",
                             task_id: "2.0",
                             task_name: "Empathize",
                             task_description: "Gathered problem observations",
                             value1: JSON.stringify(problemObservations),
                             completed: true
-                          }));
+                          });
 
                         triggerTransition("simulation", 3, "Observations collected! Let's focus. 📌");
                       }}
@@ -1096,14 +954,14 @@ export default function App() {
                       setRefinedHowMightWe={setRefinedHowMightWe}
                       onShowToast={showToast}
                       onNext={() => {
-                        import("./supabase").then(mod => mod.saveStageProgress({
+                        saveStageLocally({
                             activity_id: "S003",
                             task_id: "3.0",
                             task_name: "Define",
                             task_description: "Refined problem into How Might We question",
                             value1: refinedHowMightWe,
                             completed: true
-                          }));
+                          });
 
                         triggerTransition("simulation", 4, "Problem defined. Challenge statement saved! 🎯");
                       }}
@@ -1123,14 +981,14 @@ export default function App() {
                       onNext={() => {
                         setProfile((prev) => ({ ...prev, ideasGenerated: prev.ideasGenerated + ideas.length }));
                         
-                        import("./supabase").then(mod => mod.saveStageProgress({
+                        saveStageLocally({
                             activity_id: "S003",
                             task_id: "4.0",
                             task_name: "Ideate",
                             task_description: "Generated solution ideas",
                             value1: JSON.stringify(ideas),
                             completed: true
-                          }));
+                          });
 
                         triggerTransition("simulation", 5, "Ideas captured! Pick your favorite. 💡");
                       }}
@@ -1149,7 +1007,7 @@ export default function App() {
                       setPrototype={setSelectedPrototype}
                       onShowToast={showToast}
                       onNext={() => {
-                        import("./supabase").then(mod => mod.saveStageProgress({
+                        saveStageLocally({
                             activity_id: "S003",
                             task_id: "5.0",
                             task_name: "Prototype",
@@ -1157,7 +1015,7 @@ export default function App() {
                             value1: selectedPrototype?.title || "",
                             value2: selectedPrototype?.description || "",
                             completed: true
-                          }));
+                          });
 
                         triggerTransition("simulation", 6, "Prototype ready. Initiating stress tests! 🚀");
                       }}
@@ -1208,9 +1066,7 @@ export default function App() {
 
                         setProfile(prev => ({ ...prev, lastCompletedSimulation: recap }));
 
-                        try {
-                          const { saveStageProgress } = await import("./supabase");
-                          await saveStageProgress({
+                        saveStageLocally({
                             activity_id: "S003",
                             task_id: "5.0",
                             task_name: "Test",
@@ -1221,22 +1077,7 @@ export default function App() {
                             score: overallScore,
                             completed: true
                           });
-                        } catch (err) {
-                          console.error("Failed to save stage progress", err);
-                        }
-
-                        try {
-                          await supabase.functions.invoke("progress-engine", {
-                            body: {
-                              action: "complete_simulator",
-                              activity_id: "S003",
-                              activity_name: "Design Thinking",
-                              final_score: overallScore
-                            }
-                          });
-                        } catch (err) {
-                          console.error("Failed to update achievements", err);
-                        }
+                        await syncCompletion(overallScore);
 
                         triggerTransition("report", undefined, "Testing complete. Let's inspect final scores! 🧪");
                       }}

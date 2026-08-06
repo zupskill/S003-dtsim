@@ -717,15 +717,12 @@ export default function App() {
       {/* PERSISTENT HEADER BAR (Rendered for in-sim / feed views) */}
       {(activeScreen === "simulation" || activeScreen === "report" || activeScreen === "recap") && (
         <header className="bg-background border-b border-slate-850 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-40 sticky top-0 overflow-hidden">
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-tr from-brand-primary via-brand-primary/90 to-brand-primary/60 rounded-xl flex items-center justify-center border border-brand-primary/20 shadow-[0_0_15px_rgba(0,181,230,0.15)] shrink-0">
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-text-primary animate-pulse" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[9px] sm:text-xs font-black tracking-[0.12em] text-text-primary uppercase font-sans leading-none truncate max-w-[80px] sm:max-w-none">
-                DT LAB
-              </span>
-            </div>
+          <div className="flex items-center shrink-0">
+            <img 
+              src="/zupskill-logo.png" 
+              alt="ZupSkill" 
+              className="h-8 sm:h-10 w-auto object-contain" 
+            />
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">

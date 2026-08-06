@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Speed lines -->
+  <line x1="45" y1="155" x2="100" y2="105" stroke="#000" stroke-width="8" stroke-linecap="round"/>
+  <line x1="58" y1="205" x2="110" y2="160" stroke="#000" stroke-width="8" stroke-linecap="round"/>
+  <line x1="112" y1="208" x2="165" y2="162" stroke="#000" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Left Wing -->
+  <polygon points="65,110 215,45 105,115" fill="#ccebf9" stroke="#000" stroke-width="8" stroke-linejoin="round"/>
+  
+  <!-- Fuselage -->
+  <polygon points="105,115 215,45 105,160" fill="#4fb2d9" stroke="#000" stroke-width="8" stroke-linejoin="round"/>
+  
+  <!-- Right Wing -->
+  <polygon points="105,115 215,45 160,155" fill="#a4d8ef" stroke="#000" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- Left Wing Highlight -->
+  <polygon points="80,105 190,55 105,110" fill="#ffffff" opacity="0.6" />
+</svg>

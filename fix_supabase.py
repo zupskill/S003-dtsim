@@ -3,65 +3,87 @@ import re
 with open('src/supabase.ts', 'r') as f:
     content = f.read()
 
-def replace_save_stage(match):
-    return """export async function saveStageProgress(payloadDetails: {
-  activity_id: string;
-  task_id: string;
-  task_name: string;
-  task_description: string;
-  value1?: string;
-  value2?: string;
-  value3?: string;
-  score?: number;
-  completed: boolean;
-}): Promise<boolean> {
-  if (!isSupabaseConfigured) return false;
-  try {
-    console.log("🔥 DESIGN THINKING SAVE FUNCTION CALLED");
-    console.log("Supabase Client:", supabase);
-    console.log("Saving Design Thinking activity...");
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    console.log("CURRENT USER:", user);
+target = """    const testStage = activities.find(a => a.task_id === 5);
+    const completedCount = testStage ? 1 : 0;
     
-    if (!user) {
-      console.warn("User not found for saving stage progress.", authError);
-      return false;
-    }
+    let lastCompletedSimulation = null;
+    if (testStage) {
+      const stage1 = activities.find(a => a.task_id === 1);
+      const stage2 = activities.find(a => a.task_id === 2);
 
-    const payload = {
-      user_id: user.id,
-      activity_id: "S003",
-      task_id: parseFloat(payloadDetails.task_id), // Cast to float/int
-      task_name: payloadDetails.task_name,
-      task_description: payloadDetails.task_description,
-      value1: payloadDetails.value1 || null,
-      value2: payloadDetails.value2 || null,
-      value3: payloadDetails.value3 || null,
-      score: payloadDetails.score || 0,
-      completed: payloadDetails.completed,
-      updated_at: new Date().toISOString()
-    };
+      let parsedScores = { overallScore: testStage.score || 0, creativity: 0, understanding: 0, innovation: 0 };
+      try {
+        if (testStage.value3) {
+          parsedScores = JSON.parse(testStage.value3);
+        }
+      } catch (e) {}
 
-    const { data, error } = await supabase
-      .from("activity_designthinking")
-      .upsert(payload, { onConflict: "user_id,activity_id,task_id" })
-      .select();
+      lastCompletedSimulation = {
+        date: testStage.updated_at,
+        topicId: stage1?.value1 || "custom",
+        topicTitle: stage1?.value2 || "Custom Challenge",
+        refinedProblem: stage2?.value1 || "Problem definition not found",
+        prototypeTitle: testStage.value1 || "Untitled Prototype",
+        prototypeDescription: testStage.value2 || "Prototype description not found",
+        scores: parsedScores
+      };
+    }"""
 
-    if (error) {
-      console.error("SUPABASE INSERT FAILED:", error);
-      throw error;
-    }
+replacement = """    const testStage = activities.find(a => a.task_id === 5 && a.task_name === "Test") || activities.find(a => a.task_id === 5);
+    const completedCount = testStage ? 1 : 0;
+    
+    let lastCompletedSimulation = null;
+    if (testStage && testStage.task_name === "Test") {
+      const stage1 = activities.find(a => a.task_id === 1);
+      const stage2 = activities.find(a => a.task_id === 2);
+      const stage3 = activities.find(a => a.task_id === 3);
+      const stage4 = activities.find(a => a.task_id === 4);
 
-    console.log("Design Thinking saved:", data);
-    return true;
-  } catch (err) {
-    console.error("Error saving stage progress:", err);
-    return false;
-  }
-}"""
+      let parsedScores = { overallScore: testStage.score || 0, creativity: 0, understanding: 0, innovation: 0 };
+      try {
+        if (testStage.value3) {
+          parsedScores = JSON.parse(testStage.value3);
+        }
+      } catch (e) {}
 
-pattern = re.compile(r"export async function saveStageProgress.*?return false;\n  }\n}", re.DOTALL)
-content = pattern.sub(replace_save_stage, content)
+      let empathizeSummary = "";
+      try {
+         if (stage2?.value1) {
+            const obs = JSON.parse(stage2.value1);
+            if (obs.length > 0) empathizeSummary = obs[0].text;
+         }
+      } catch(e) {}
+      
+      let topIdeas: string[] = [];
+      try {
+         if (stage4?.value1) {
+            const ideas = JSON.parse(stage4.value1);
+            topIdeas = ideas.slice(0, 3).map((i: any) => i.text);
+         }
+      } catch(e) {}
+
+      let overallScore = parsedScores.overallScore;
+      let title = "Explorer";
+      if (overallScore >= 91) title = "DT Innovation Master";
+      else if (overallScore >= 76) title = "Innovation Builder";
+      else if (overallScore >= 61) title = "Creative Thinker";
+      else if (overallScore >= 41) title = "Problem Solver";
+
+      lastCompletedSimulation = {
+        simulationName: "DT Innovation Lab",
+        completionDate: new Date(testStage.updated_at).toLocaleDateString(),
+        challenge: stage1?.value2 || "Custom Challenge",
+        empathizeSummary: empathizeSummary,
+        problemStatement: stage3?.value1 || "Problem definition not found",
+        topIdeas: topIdeas,
+        prototypeSummary: testStage.value2 || "Prototype description not found",
+        achievements: [title],
+        overallScore: overallScore,
+        completionTime: new Date(testStage.updated_at).getTime()
+      };
+    }"""
+
+content = content.replace(target, replacement)
 
 with open('src/supabase.ts', 'w') as f:
     f.write(content)

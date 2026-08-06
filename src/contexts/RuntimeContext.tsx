@@ -20,10 +20,6 @@ const RuntimeContext = createContext<RuntimeState | null>(null);
 export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem("zupskill_sim_profile");
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
-    }
     return {
       username: "Beta_Innovator_9", college: "Stanford Design Lab", level: "Explorer",
       xp: 60, unlockedBadgeIds: ["problem-hunter"], problemsSolved: 0, ideasGenerated: 0, prototypesBuilt: 0, isOnboarded: false
@@ -46,22 +42,43 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
       
+      const cacheKey = `zupskill_sim_profile_${currentUser.id}`;
+      const cached = localStorage.getItem(cacheKey);
+      
+      let localProfile = null;
+      if (cached) {
+         try { localProfile = JSON.parse(cached); } catch(e) {}
+      }
+
+      if (localProfile) {
+        // Use local cache to prevent Supabase egress
+        setProfile({
+          ...localProfile,
+          uid: currentUser.id,
+          username: localProfile.username || currentUser.full_name || currentUser.email?.split("@")[0] || "Innovator",
+          email: currentUser.email || "",
+          photoURL: currentUser.avatar_url || ""
+        });
+        return;
+      }
+
       const cloudProfile = await getSupabaseProfile(currentUser.id);
       if (cloudProfile) {
-        setProfile((prev: any) => ({
-          ...prev, ...cloudProfile,
+        setProfile({
+          ...cloudProfile,
+          uid: currentUser.id,
           username: cloudProfile.username || currentUser.full_name || currentUser.email?.split("@")[0] || "Innovator",
           email: currentUser.email || "",
-          photoURL: currentUser.avatar_url || "",
-          lastCompletedSimulation: cloudProfile.lastCompletedSimulation || prev?.lastCompletedSimulation
-        }));
+          photoURL: currentUser.avatar_url || ""
+        });
       } else {
-        setProfile((prev: any) => ({
-          ...prev, uid: currentUser.id,
+        setProfile({
+          uid: currentUser.id,
           username: currentUser.full_name || currentUser.email?.split("@")[0] || "Innovator",
           email: currentUser.email || "", photoURL: currentUser.avatar_url || "",
-          level: "Explorer", xp: 60, unlockedBadgeIds: ["problem-hunter"], isOnboarded: false
-        }));
+          level: "Explorer", xp: 60, unlockedBadgeIds: ["problem-hunter"], isOnboarded: false,
+          problemsSolved: 0, ideasGenerated: 0, prototypesBuilt: 0
+        });
       }
     } catch (err) {
       console.error("Profile load error:", err);
@@ -176,8 +193,8 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (profile) {
-      localStorage.setItem("zupskill_sim_profile", JSON.stringify(profile));
+    if (profile && profile.uid) {
+      localStorage.setItem(`zupskill_sim_profile_${profile.uid}`, JSON.stringify(profile));
     }
   }, [profile]);
 

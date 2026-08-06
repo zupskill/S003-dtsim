@@ -280,48 +280,48 @@ export default function TestingStage({
     <div className="w-full max-w-6xl mx-auto py-6 px-4">
       {/* Header */}
       <div className="text-center mb-8 max-w-2xl mx-auto">
-        <span className="text-xs font-mono text-cyan-400 uppercase tracking-[0.2em] px-3 py-1 bg-cyan-950/35 border border-cyan-500/20 rounded-full">
+        <span className="text-xs font-mono text-brand-secondary uppercase tracking-[0.2em] px-3 py-1 bg-brand-secondary/35 border border-brand-secondary/20 rounded-full">
           Step 5: Evaluate & Test your Prototype 🧪
         </span>
-        <h2 className="text-3xl font-extrabold text-white mt-4 mb-2 tracking-tight">
+        <h2 className="text-3xl font-extrabold text-text-primary mt-4 mb-2 tracking-tight">
           Let's test your <span className="bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 text-transparent bg-clip-text">prototype! ✨</span>
         </h2>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-text-secondary">
           Time for a friendly review! Our supportive AI teammate will evaluate how resilient your prototype is (What If), celebrate what's awesome about it (I Like), and suggest some cool ways we could make it even better (I Wish).
         </p>
       </div>
 
       {/* 🎯 CONTEXT PAIRING: SELECTED CHALLENGE & EXPERIMENTAL SOLUTION */}
-      <div className="bg-slate-950/80 border border-slate-850 p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(245,158,11,0.04)]">
+      <div className="bg-background/80 border border-slate-850 p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(245,158,11,0.04)]">
         <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500/50" />
         
         {/* Left aspect: Pinned Struggle & Design Challenge */}
         <div className="flex flex-col gap-3 pl-2">
           {/* Target Problem */}
           <div className="flex items-start gap-2.5">
-            <div className="p-1.5 bg-cyan-950/45 rounded-xl border border-cyan-500/20 text-cyan-400 text-xs mt-0.5 shrink-0 select-none">
+            <div className="p-1.5 bg-brand-secondary/45 rounded-xl border border-brand-secondary/20 text-brand-secondary text-xs mt-0.5 shrink-0 select-none">
               🎯
             </div>
             <div>
-              <span className="text-[9px] font-mono font-black text-slate-400 tracking-widest block uppercase">
+              <span className="text-[9px] font-mono font-black text-text-secondary tracking-widest block uppercase">
                 TARGET PROBLEM
               </span>
-              <p className="text-xs font-semibold text-slate-200 mt-0.5 leading-relaxed italic">
+              <p className="text-xs font-semibold text-text-primary mt-0.5 leading-relaxed italic">
                 "{originalProblemText || "..."}"
               </p>
             </div>
           </div>
           
           {/* Design Challenge (HMW) */}
-          <div className="flex items-start gap-2.5 pt-2 border-t border-slate-900/60">
-            <div className="p-1.5 bg-indigo-950/45 rounded-xl border border-indigo-505/20 text-indigo-450 mt-0.5 shrink-0 select-none">
+          <div className="flex items-start gap-2.5 pt-2 border-t border-border/60">
+            <div className="p-1.5 bg-brand-secondary/45 rounded-xl border border-brand-secondary/20 text-brand-secondary mt-0.5 shrink-0 select-none">
               ✨
             </div>
             <div>
-              <span className="text-[9px] font-mono font-black text-indigo-300 tracking-widest block uppercase font-bold text-indigo-400">
+              <span className="text-[9px] font-mono font-black text-brand-secondary tracking-widest block uppercase font-bold text-brand-secondary">
                 🎯 DESIGN CHALLENGE (HMW)
               </span>
-              <p className="text-xs font-bold text-white mt-0.5 leading-relaxed">
+              <p className="text-xs font-bold text-text-primary mt-0.5 leading-relaxed">
                 "{refinedProblem || "..."}"
               </p>
             </div>
@@ -330,17 +330,17 @@ export default function TestingStage({
 
         {/* Aspect 2: Solution */}
         <div className="flex items-start gap-2.5 md:border-l md:border-slate-850/80 md:pl-4">
-          <div className="p-1.5 bg-amber-950/45 rounded-xl border border-amber-500/25 text-amber-400 text-xs mt-0.5 shrink-0 select-none">
+          <div className="p-1.5 bg-amber-950/45 rounded-xl border border-brand-primary/25 text-brand-primary text-xs mt-0.5 shrink-0 select-none">
             💡
           </div>
           <div>
             <span className="text-[9px] font-mono font-black text-amber-300 uppercase tracking-widest block">
               FINAL SOLUTION
             </span>
-            <p className="text-xs font-bold text-white mt-0.5 leading-relaxed">
+            <p className="text-xs font-bold text-text-primary mt-0.5 leading-relaxed">
               {prototype?.title || "Your Selected Idea"}
             </p>
-            <p className="text-[10px] text-slate-400 leading-relaxed font-sans mt-0.5">
+            <p className="text-[10px] text-text-secondary leading-relaxed font-sans mt-0.5">
               {prototype?.description || "A custom formulated prototype blueprint undergoing evaluation."}
             </p>
           </div>
@@ -349,21 +349,21 @@ export default function TestingStage({
 
       {/* PROTOTYPE SPOTLIGHT INFO */}
       {prototype && (
-        <div className="glass-panel p-5 rounded-xl border-slate-800 mb-8 flex flex-col md:flex-row items-start justify-between gap-6 bg-slate-900/10">
+        <div className="glass-panel p-5 rounded-xl border-border mb-8 flex flex-col md:flex-row items-start justify-between gap-6 bg-surface/10">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <span className="text-[10px] bg-purple-950 text-purple-400 px-2 py-0.5 rounded border border-purple-500/20 font-bold uppercase">
                 {prototype.format.toUpperCase()} MODEL PROTOTYPE
               </span>
               {classifiedCategory ? (
-                <span className="text-[10px] bg-cyan-950 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30 font-bold uppercase">
+                <span className="text-[10px] bg-brand-secondary text-brand-secondary px-2 py-0.5 rounded border border-brand-secondary/30 font-bold uppercase">
                   CLASSIFIED: {classifiedCategory}
                 </span>
               ) : (
-                <span className="text-[10px] text-slate-500 font-mono">STATUS: CLASSIFYING & EVALUATING... ⚙️</span>
+                <span className="text-[10px] text-text-tertiary font-mono">STATUS: CLASSIFYING & EVALUATING... ⚙️</span>
               )}
             </div>
-            <h3 className="text-lg font-bold text-white mb-1">
+            <h3 className="text-lg font-bold text-text-primary mb-1">
               {prototype.title}
             </h3>
             <p className="text-xs text-slate-450 leading-relaxed font-mono">
@@ -374,7 +374,7 @@ export default function TestingStage({
           <button
             onClick={runTestingSimulation}
             disabled={loadingWhatIf || loadingILike || loadingIWish}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 hover:text-white rounded-lg border border-slate-700 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 self-center disabled:opacity-40"
+            className="px-4 py-2 bg-surface-hover hover:bg-slate-750 text-text-primary hover:text-text-primary rounded-lg border border-border-subtle text-xs font-bold uppercase tracking-wider transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 self-center disabled:opacity-40"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${(loadingWhatIf || loadingILike || loadingIWish) ? "animate-spin" : ""}`} /> 
             Refresh Evaluation 🔄
@@ -405,20 +405,20 @@ export default function TestingStage({
                 /* Skeleton Loader */
                 <div className="space-y-4">
                   <div className="h-3 bg-red-500/10 rounded w-5/6" />
-                  <div className="h-20 bg-slate-900 border border-slate-850 rounded-lg animate-pulse" />
+                  <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
                   <div className="h-3 bg-red-500/10 rounded w-2/3" />
-                  <div className="h-20 bg-slate-900 border border-slate-850 rounded-lg animate-pulse" />
+                  <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <p className="text-xs text-slate-400 leading-relaxed font-semibold">
+                  <p className="text-xs text-text-secondary leading-relaxed font-semibold">
                     How will your idea handle these unexpected situations?
                   </p>
                   
                   {whatIfChallenges.map((challenge, idx) => (
-                    <div key={idx} className="p-3 bg-slate-950 border border-red-500/10 rounded-xl relative overflow-hidden">
+                    <div key={idx} className="p-3 bg-background border border-red-500/10 rounded-xl relative overflow-hidden">
                       <span className="absolute top-0 left-0 h-full w-1 bg-red-500/60" />
-                      <p className="text-xs text-slate-200 leading-relaxed font-medium">
+                      <p className="text-xs text-text-primary leading-relaxed font-medium">
                         "{challenge}"
                       </p>
                     </div>
@@ -427,7 +427,7 @@ export default function TestingStage({
               )}
             </div>
 
-            <div className="text-[10px] text-slate-500 font-mono mt-6 border-t border-slate-855 pt-2 flex items-center gap-1">
+            <div className="text-[10px] text-text-tertiary font-mono mt-6 border-t border-slate-855 pt-2 flex items-center gap-1">
               <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" /> Review loaded! ✨
             </div>
           </div>
@@ -435,15 +435,15 @@ export default function TestingStage({
 
         {/* I-LIKE PANEL */}
         <div className="flex flex-col">
-          <div className={`glass-panel p-5 rounded-2xl flex-1 flex flex-col justify-between border-l-4 border-cyan-400 h-full ${loadingILike ? "animate-pulse" : "glow-cyan"}`}>
+          <div className={`glass-panel p-5 rounded-2xl flex-1 flex flex-col justify-between border-l-4 border-brand-secondary h-full ${loadingILike ? "animate-pulse" : "glow-cyan"}`}>
             <div>
               <div className="flex items-center justify-between mb-4 border-b border-slate-850 pb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-cyan-455 font-mono flex items-center gap-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-secondary font-mono flex items-center gap-1">
                   💖 I LIKE (HIGHLIGHTS)
                 </span>
                 
                 {!loadingILike && iLikeScore !== null && (
-                  <span className="text-[10px] font-mono bg-cyan-950/40 text-cyan-400 border border-cyan-500/30 px-2 py-0.5 rounded font-black">
+                  <span className="text-[10px] font-mono bg-brand-secondary/40 text-brand-secondary border border-brand-secondary/30 px-2 py-0.5 rounded font-black">
                     USER DELIGHT: {iLikeScore}/100
                   </span>
                 )}
@@ -452,21 +452,21 @@ export default function TestingStage({
               {loadingILike ? (
                 /* Skeleton Loader */
                 <div className="space-y-4">
-                  <div className="h-3 bg-cyan-500/10 rounded w-5/6" />
-                  <div className="h-20 bg-slate-900 border border-slate-850 rounded-lg animate-pulse" />
-                  <div className="h-3 bg-cyan-500/10 rounded w-2/3" />
-                  <div className="h-20 bg-slate-900 border border-slate-850 rounded-lg animate-pulse" />
+                  <div className="h-3 bg-brand-secondary/10 rounded w-5/6" />
+                  <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
+                  <div className="h-3 bg-brand-secondary/10 rounded w-2/3" />
+                  <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <p className="text-xs text-slate-400 leading-relaxed font-semibold">
+                  <p className="text-xs text-text-secondary leading-relaxed font-semibold">
                     Here is what makes your idea super useful and awesome:
                   </p>
                   
                   {iLikeHighlights.map((highlight, idx) => (
-                    <div key={idx} className="p-3 bg-slate-950 border border-cyan-500/10 rounded-xl relative overflow-hidden">
-                      <span className="absolute top-0 left-0 h-full w-1 bg-cyan-400/60" />
-                      <p className="text-xs text-slate-200 leading-relaxed font-medium">
+                    <div key={idx} className="p-3 bg-background border border-brand-secondary/10 rounded-xl relative overflow-hidden">
+                      <span className="absolute top-0 left-0 h-full w-1 bg-brand-primary/60" />
+                      <p className="text-xs text-text-primary leading-relaxed font-medium">
                         "{highlight}"
                       </p>
                     </div>
@@ -475,8 +475,8 @@ export default function TestingStage({
               )}
             </div>
 
-            <div className="text-[10px] text-slate-500 font-mono mt-6 border-t border-slate-855 pt-2 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse" /> Delight verified! ✨
+            <div className="text-[10px] text-text-tertiary font-mono mt-6 border-t border-slate-855 pt-2 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-brand-primary rounded-full animate-pulse" /> Delight verified! ✨
             </div>
           </div>
         </div>
@@ -501,20 +501,20 @@ export default function TestingStage({
                 /* Skeleton Loader */
                 <div className="space-y-4">
                   <div className="h-3 bg-purple-500/10 rounded w-5/6" />
-                  <div className="h-20 bg-slate-900 border border-slate-850 rounded-lg animate-pulse" />
+                  <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
                   <div className="h-3 bg-purple-500/10 rounded w-2/3" />
-                  <div className="h-20 bg-slate-900 border border-slate-850 rounded-lg animate-pulse" />
+                  <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <p className="text-xs text-slate-400 leading-relaxed font-semibold">
+                  <p className="text-xs text-text-secondary leading-relaxed font-semibold">
                     Ooh, want to dream even bigger? Here are some fun ways we could expand your idea:
                   </p>
                   
                   {iWishImprovements.map((imp, idx) => (
-                    <div key={idx} className="p-3 bg-slate-950 border border-purple-500/10 rounded-xl relative overflow-hidden">
+                    <div key={idx} className="p-3 bg-background border border-purple-500/10 rounded-xl relative overflow-hidden">
                       <span className="absolute top-0 left-0 h-full w-1 bg-purple-550/60" />
-                      <p className="text-xs text-slate-200 leading-relaxed font-medium">
+                      <p className="text-xs text-text-primary leading-relaxed font-medium">
                         "{imp}"
                       </p>
                     </div>
@@ -523,7 +523,7 @@ export default function TestingStage({
               )}
             </div>
 
-            <div className="text-[10px] text-slate-500 font-mono mt-6 border-t border-slate-855 pt-2 flex items-center gap-1">
+            <div className="text-[10px] text-text-tertiary font-mono mt-6 border-t border-slate-855 pt-2 flex items-center gap-1">
               <span className="w-1.5 h-1.5 bg-purple-500 rounded-full" /> Ready to grow! ✨
             </div>
           </div>
@@ -532,15 +532,15 @@ export default function TestingStage({
       </div>
 
       {/* CONTINUOUS NAVIGATION */}
-      <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-800/80">
-        <span className="text-slate-500 text-xs">
+      <div className="flex justify-between items-center mt-6 pt-4 border-t border-border/80">
+        <span className="text-text-tertiary text-xs">
           Stage 6: Testing Complete
         </span>
 
         <button
           disabled={loadingWhatIf || loadingILike || loadingIWish}
           onClick={onNext}
-          className="px-10 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold uppercase tracking-widest text-xs rounded-full cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] disabled:opacity-40 disabled:transform-none disabled:hover:shadow-none inline-flex items-center gap-2"
+          className="px-10 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-text-primary font-extrabold uppercase tracking-widest text-xs rounded-full cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] disabled:opacity-40 disabled:transform-none disabled:hover:shadow-none inline-flex items-center gap-2"
         >
           View My Results <Award className="w-4 h-4" />
         </button>

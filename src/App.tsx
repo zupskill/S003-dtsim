@@ -685,21 +685,21 @@ export default function App() {
 
   if (loadingAuth) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-center p-6 select-none relative overflow-hidden cyber-grid">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-cyan-500/10 blur-[100px] pointer-events-none animate-pulse" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center text-center p-6 select-none relative overflow-hidden cyber-grid">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-brand-secondary/10 blur-[100px] pointer-events-none animate-pulse" />
         <div className="space-y-4 animate-pulse">
-          <div className="w-16 h-16 bg-gradient-to-tr from-cyan-400 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto text-xl font-mono text-black font-black shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+          <div className="w-16 h-16 bg-gradient-to-tr from-brand-secondary to-brand-secondary/80 rounded-2xl flex items-center justify-center mx-auto text-xl font-mono text-black font-black shadow-[0_0_20px_rgba(6,182,212,0.3)]">
             ZS
           </div>
-          <h2 className="text-sm font-black text-white font-mono uppercase tracking-[0.25em]">Syncing Neural Coordinates</h2>
-          <span className="text-[10px] uppercase font-bold text-slate-500">Connecting to DT Innovation Network...</span>
+          <h2 className="text-sm font-black text-text-primary font-mono uppercase tracking-[0.25em]">Syncing Neural Coordinates</h2>
+          <span className="text-[10px] uppercase font-bold text-text-tertiary">Connecting to DT Innovation Network...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen text-slate-100 font-sans flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen text-text-primary font-sans flex flex-col justify-between selection:bg-brand-secondary selection:text-black">
       {/* New Simulation Confirmation Modal */}
       <NewSimConfirmModal
         isOpen={showNewSimConfirm}
@@ -716,13 +716,13 @@ export default function App() {
       
       {/* PERSISTENT HEADER BAR (Rendered for in-sim / feed views) */}
       {(activeScreen === "simulation" || activeScreen === "report" || activeScreen === "recap") && (
-        <header className="bg-slate-950 border-b border-slate-850 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-40 sticky top-0 overflow-hidden">
+        <header className="bg-background border-b border-slate-850 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-40 sticky top-0 overflow-hidden">
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-tr from-cyan-400 via-indigo-500 to-purple-600 rounded-xl flex items-center justify-center border border-cyan-400/20 shadow-[0_0_15px_rgba(6,182,212,0.15)] shrink-0">
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white animate-pulse" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-tr from-brand-secondary via-brand-secondary/90 to-brand-secondary/60 rounded-xl flex items-center justify-center border border-brand-secondary/20 shadow-[0_0_15px_rgba(6,182,212,0.15)] shrink-0">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-text-primary animate-pulse" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[9px] sm:text-xs font-black tracking-[0.12em] text-white uppercase font-sans leading-none truncate max-w-[80px] sm:max-w-none">
+              <span className="text-[9px] sm:text-xs font-black tracking-[0.12em] text-text-primary uppercase font-sans leading-none truncate max-w-[80px] sm:max-w-none">
                 DT LAB
               </span>
             </div>
@@ -742,10 +742,10 @@ export default function App() {
 
               <button
                 onClick={() => window.open("https://app.zupskill.com/", "_blank", "noopener,noreferrer")}
-                className="text-xs uppercase font-bold tracking-wider px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 text-slate-400 hover:text-white"
+                className="text-xs uppercase font-bold tracking-wider px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 text-text-secondary hover:text-text-primary"
                 title="Community"
               >
-                <Users className="w-4 h-4 text-cyan-400 shrink-0" />
+                <Users className="w-4 h-4 text-brand-secondary shrink-0" />
                 <span>Community</span>
               </button>
             </div>
@@ -756,19 +756,19 @@ export default function App() {
             {/* Profile controller pill button */}
             <button
               onClick={() => setShowProfileModal(true)}
-              className="bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-xl px-2 sm:px-4 py-1.5 flex items-center gap-2 sm:gap-3 text-left transition-all hover:border-cyan-500/20 cursor-pointer shrink-0"
+              className="bg-surface hover:bg-surface-hover border border-border rounded-xl px-2 sm:px-4 py-1.5 flex items-center gap-2 sm:gap-3 text-left transition-all hover:border-brand-secondary/20 cursor-pointer shrink-0"
             >
               {profile.photoURL ? (
-                <img src={profile.photoURL} alt={profile.username} className="w-6 h-6 rounded-full border border-cyan-400/30 object-cover shrink-0" referrerPolicy="no-referrer" />
+                <img src={profile.photoURL} alt={profile.username} className="w-6 h-6 rounded-full border border-brand-secondary/30 object-cover shrink-0" referrerPolicy="no-referrer" />
               ) : (
-                <div className="w-6 h-6 rounded-full bg-cyan-400/10 text-cyan-400 flex items-center justify-center border border-cyan-400/30 shrink-0">
+                <div className="w-6 h-6 rounded-full bg-brand-primary/10 text-brand-secondary flex items-center justify-center border border-brand-secondary/30 shrink-0">
                   <User className="w-3.5 h-3.5" />
                 </div>
               )}
 
               <div className="hidden sm:block">
-                <span className="text-[10px] font-mono font-bold block text-slate-400 leading-none truncate max-w-[80px]">{profile.username}</span>
-                <span className="text-[10px] text-cyan-400 leading-none">{profile.xp} XP • {profile.level}</span>
+                <span className="text-[10px] font-mono font-bold block text-text-secondary leading-none truncate max-w-[80px]">{profile.username}</span>
+                <span className="text-[10px] text-brand-secondary leading-none">{profile.xp} XP • {profile.level}</span>
               </div>
             </button>
 
@@ -778,7 +778,7 @@ export default function App() {
             <div className="relative sm:hidden ml-0.5">
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="p-1.5 rounded-lg border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors flex items-center justify-center shrink-0"
+                className="p-1.5 rounded-lg border border-border text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors flex items-center justify-center shrink-0"
                 aria-label="More Options"
               >
                 <MoreVertical className="w-4 h-4" />
@@ -787,15 +787,15 @@ export default function App() {
               {showMobileMenu && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowMobileMenu(false)}></div>
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl z-50 overflow-hidden flex flex-col py-1">
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-surface border border-border rounded-xl shadow-xl z-50 overflow-hidden flex flex-col py-1">
                     <button
                       onClick={() => {
                         setShowMobileMenu(false);
                         window.open("https://app.zupskill.com/", "_blank", "noopener,noreferrer");
                       }}
-                      className="px-4 py-3 flex items-center gap-3 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-left"
+                      className="px-4 py-3 flex items-center gap-3 text-sm text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors text-left"
                     >
-                      <Users className="w-4 h-4 text-cyan-400" />
+                      <Users className="w-4 h-4 text-brand-secondary" />
                       Community
                     </button>
                     <button
@@ -803,7 +803,7 @@ export default function App() {
                         setShowMobileMenu(false);
                         setShowResetConfirm(true);
                       }}
-                      className="px-4 py-3 flex items-center gap-3 text-sm text-red-400 hover:bg-slate-800 hover:text-red-300 transition-colors text-left border-t border-slate-800/50"
+                      className="px-4 py-3 flex items-center gap-3 text-sm text-red-400 hover:bg-surface-hover hover:text-red-300 transition-colors text-left border-t border-border/50"
                     >
                       <RotateCcw className="w-4 h-4 text-red-500" />
                       Reset Progress
@@ -817,7 +817,7 @@ export default function App() {
       )}
 
       {/* RENDER ACTIVE GRAPH SCREEN WITH ANIMATEPRESENCE */}
-      <main className="flex-1 w-full bg-slate-950 relative overflow-hidden">
+      <main className="flex-1 w-full bg-background relative overflow-hidden">
         
         <AnimatePresence mode="wait">
           <motion.div
@@ -890,7 +890,7 @@ export default function App() {
             )}
 
             {activeScreen === "simulation" && (
-              <div className="flex flex-col h-full bg-slate-950">
+              <div className="flex flex-col h-full bg-background">
                 {/* STAGE TAB INDICATOR ROUTER */}
                 <ProgressTracker
                   currentStage={currentStage}
@@ -912,7 +912,7 @@ export default function App() {
                     <div className="w-full flex justify-end px-6 pt-4 pb-0 z-10 shrink-0">
                       <button
                         onClick={openIntroAgain}
-                        className="flex items-center gap-1.5 text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-full border border-indigo-500/20"
+                        className="flex items-center gap-1.5 text-xs font-medium text-brand-secondary hover:text-brand-secondary transition-colors bg-indigo-500/10 hover:bg-brand-secondary-hover/20 px-3 py-1.5 rounded-full border border-brand-secondary/20"
                       >
                         <Play className="w-3.5 h-3.5 fill-current" />
                         Watch Introduction Again
@@ -1130,15 +1130,15 @@ export default function App() {
       {/* CONFIRMATION DIALOG FOR FULL DEVELOPER RESET */}
       {showResetConfirm && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 z-55 pointer-events-auto animate-in fade-in duration-200">
-          <div className="max-w-sm w-full max-h-[90vh] overflow-y-auto rounded-2xl relative p-6 bg-slate-900 border border-red-500/30 text-left shadow-[0_0_50px_rgba(239,68,68,0.2)]">
+          <div className="max-w-sm w-full max-h-[90vh] overflow-y-auto rounded-2xl relative p-6 bg-surface border border-red-500/30 text-left shadow-[0_0_50px_rgba(239,68,68,0.2)]">
             <div className="flex items-center gap-3 mb-4 text-red-400">
               <ShieldAlert className="w-6 h-6 animate-pulse text-red-500 shrink-0" />
-              <h3 className="text-sm font-extrabold text-white uppercase tracking-wider font-mono">
+              <h3 className="text-sm font-extrabold text-text-primary uppercase tracking-wider font-mono">
                 Reset Simulation?
               </h3>
             </div>
             
-            <p className="text-xs text-slate-400 mb-6 leading-relaxed font-sans">
+            <p className="text-xs text-text-secondary mb-6 leading-relaxed font-sans">
               This will permanently clear your current progress, remove custom perspectives, erase drafted stage components, delete uploaded files, reset XP/badges, and start a fresh simulation.
             </p>
 
@@ -1149,13 +1149,13 @@ export default function App() {
             <div className="flex justify-end gap-2.5 font-mono">
               <button
                 onClick={() => setShowResetConfirm(false)}
-                className="px-4 py-2 border border-slate-800 text-slate-400 rounded-xl hover:text-white hover:bg-slate-950 transition-colors text-[10px] uppercase font-bold cursor-pointer"
+                className="px-4 py-2 border border-border text-text-secondary rounded-xl hover:text-text-primary hover:bg-background transition-colors text-[10px] uppercase font-bold cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmFullReset}
-                className="px-4 py-2 bg-red-950/80 hover:bg-red-900 text-red-200 hover:text-white border border-red-800 rounded-xl transition-colors text-[10px] uppercase font-bold cursor-pointer"
+                className="px-4 py-2 bg-red-950/80 hover:bg-red-900 text-red-200 hover:text-text-primary border border-red-800 rounded-xl transition-colors text-[10px] uppercase font-bold cursor-pointer"
               >
                 Reset
               </button>
@@ -1178,20 +1178,20 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.9, y: -10, filter: "blur(2px)", transition: { duration: 0.15 } }}
               className={`p-4 rounded-xl border shadow-xl flex items-center gap-3 pointer-events-auto backdrop-blur-md transition-all duration-300 ${
                 theme === "dark"
-                  ? `bg-slate-900/95 ${
+                  ? `bg-surface/95 ${
                       toast.type === "success"
                         ? "border-emerald-500/35 text-emerald-250 shadow-emerald-950/15"
                         : toast.type === "idea"
-                        ? "border-amber-500/35 text-amber-250 shadow-amber-950/15"
+                        ? "border-brand-primary/35 text-amber-250 shadow-amber-950/15"
                         : toast.type === "badge"
                         ? "border-purple-500/50 text-purple-250 shadow-purple-950/20"
-                        : "border-slate-700 text-slate-105"
+                        : "border-border-subtle text-slate-105"
                     }`
-                  : `bg-white/98 z-50 shadow-lg border-2 ${
+                  : `bg-background/98 z-50 shadow-lg border-2 ${
                       toast.type === "success"
                         ? "border-emerald-500/50 text-emerald-950 shadow-emerald-100/40"
                         : toast.type === "idea"
-                        ? "border-amber-500/50 text-amber-950 shadow-amber-100/40"
+                        ? "border-brand-primary/50 text-amber-950 shadow-amber-100/40"
                         : toast.type === "badge"
                         ? "border-purple-500/60 text-purple-950 shadow-purple-100/40"
                         : "border-slate-350 text-slate-900 shadow-slate-200/40"
@@ -1211,8 +1211,8 @@ export default function App() {
                 {toast.type === "idea" && (
                   <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs ${
                     theme === "dark" 
-                      ? "bg-amber-500/10 text-amber-400" 
-                      : "bg-amber-100 text-amber-805 border border-amber-500/30"
+                      ? "bg-amber-500/10 text-brand-primary" 
+                      : "bg-amber-100 text-amber-805 border border-brand-primary/30"
                   }`}>
                     💡
                   </div>
@@ -1229,15 +1229,15 @@ export default function App() {
                 {toast.type === "info" && (
                   <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs ${
                     theme === "dark" 
-                      ? "bg-slate-800 text-slate-400" 
-                      : "bg-slate-100 text-slate-700 border border-slate-350"
+                      ? "bg-surface-hover text-text-secondary" 
+                      : "bg-surface-hover text-slate-700 border border-slate-350"
                   }`}>
                     ⓘ
                   </div>
                 )}
               </div>
               <span className={`text-xs font-sans tracking-wide leading-tight ${
-                theme === "light" ? "font-black text-slate-950" : "font-semibold text-slate-100"
+                theme === "light" ? "font-black text-slate-950" : "font-semibold text-text-primary"
               }`}>
                 {toast.text}
               </span>
@@ -1255,8 +1255,8 @@ export default function App() {
             exit={{ opacity: 0 }}
             className={`fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-6 pointer-events-auto transition-colors duration-350 ${
               theme === "dark"
-                ? "bg-slate-950/90"
-                : "bg-slate-950/40"
+                ? "bg-background/90"
+                : "bg-background/40"
             }`}
           >
             <motion.div
@@ -1266,32 +1266,32 @@ export default function App() {
               transition={{ delay: 0.05, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className={`text-center space-y-4 max-w-md p-8 rounded-3xl relative max-h-[90vh] overflow-y-auto overflow-x-hidden transition-all duration-300 ${
                 theme === "dark"
-                  ? "bg-slate-900 border border-slate-800/80 shadow-2xl shadow-cyan-950/20 text-white"
-                  : "bg-white border-2 border-slate-300 shadow-2xl shadow-slate-400/40 text-slate-900"
+                  ? "bg-surface border border-border/80 shadow-2xl shadow-brand-secondary/20 text-text-primary"
+                  : "bg-background border-2 border-slate-300 shadow-2xl shadow-slate-400/40 text-slate-900"
               }`}
             >
               {/* Pulsing futuristic core orb decor */}
               <div className={`absolute top-[10%] left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-2xl pointer-events-none ${
-                theme === "dark" ? "bg-cyan-500/5" : "bg-indigo-500/5"
+                theme === "dark" ? "bg-brand-secondary/5" : "bg-indigo-500/5"
               }`} />
 
               <div className="flex justify-center mb-2">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center animate-spin duration-3000 ${
                   theme === "dark"
-                    ? "bg-gradient-to-br from-cyan-500/15 to-indigo-500/15 text-cyan-400 border border-cyan-500/30"
-                    : "bg-indigo-100 text-indigo-700 border border-indigo-400/30"
+                    ? "bg-gradient-to-br from-brand-secondary/15 to-brand-secondary/80/15 text-brand-secondary border border-brand-secondary/30"
+                    : "bg-brand-secondary/20 text-brand-secondary border border-brand-secondary/30"
                 }`}>
                   <Zap className="w-5 h-5 animate-pulse" />
                 </div>
               </div>
 
               <h3 className={`text-lg md:text-xl tracking-tight leading-snug uppercase ${
-                theme === "dark" ? "font-extrabold text-white" : "font-black text-slate-950"
+                theme === "dark" ? "font-extrabold text-text-primary" : "font-black text-slate-950"
               }`}>
                 {stageTransition.message}
               </h3>
               <p className={`text-xs leading-relaxed max-w-sm mx-auto ${
-                theme === "dark" ? "text-slate-400 font-medium" : "text-slate-700 font-bold"
+                theme === "dark" ? "text-text-secondary font-medium" : "text-slate-700 font-bold"
               }`}>
                 {stageTransition.subtext}
               </p>
@@ -1299,11 +1299,11 @@ export default function App() {
               <div className="pt-4 flex justify-center">
                 <span className={`text-[9px] font-mono uppercase tracking-widest flex items-center gap-1.5 px-3 py-1 rounded-full border ${
                   theme === "dark"
-                    ? "font-bold text-cyan-400/60 bg-cyan-950/25 border-cyan-500/10"
-                    : "font-black text-indigo-700 bg-indigo-50 border-indigo-300"
+                    ? "font-bold text-brand-secondary/60 bg-brand-secondary/25 border-brand-secondary/10"
+                    : "font-black text-brand-secondary bg-brand-secondary/10 border-brand-secondary"
                 }`}>
                   <span className={`w-1.5 h-1.5 rounded-full animate-ping ${
-                    theme === "dark" ? "bg-cyan-400" : "bg-indigo-600"
+                    theme === "dark" ? "bg-brand-primary" : "bg-brand-secondary"
                   }`} /> Loading Journey Frame
                 </span>
               </div>
@@ -1313,7 +1313,7 @@ export default function App() {
       </AnimatePresence>
       
       {/* SMALL FOOTER */}
-      <footer className="bg-slate-950/60 border-t border-slate-900 py-3 text-center text-[10px] text-slate-500 font-mono tracking-widest uppercase">
+      <footer className="bg-background/60 border-t border-border py-3 text-center text-[10px] text-text-tertiary font-mono tracking-widest uppercase">
         © 2026 ZUPSKILL FUTURE REDESIGN PORTAL
       </footer>
 

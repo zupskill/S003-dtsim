@@ -16,8 +16,8 @@ export default function SimulationIntro({ onComplete }: SimulationIntroProps) {
       highlight: "Let's turn your ideas into action! ✨",
       description: "No boring textbooks here! You're about to solve a real-world problem using design thinking. Learn what real people struggle with, sketch a cool solution, and see how our friendly AI reviews it.",
       icon: Compass,
-      color: "text-cyan-400",
-      accent: "from-cyan-500/20 to-indigo-500/10",
+      color: "text-brand-secondary",
+      accent: "from-brand-secondary/20 to-brand-secondary/80/10",
     },
     {
       title: "The 5 Simple Steps of Design Thinking",
@@ -86,7 +86,7 @@ export default function SimulationIntro({ onComplete }: SimulationIntroProps) {
               initial="initial"
               animate="animate"
               exit="exit"
-              className="absolute inset-0 w-full h-full glass-panel rounded-2xl glow-cyan p-8 text-center flex flex-col justify-between overflow-hidden select-none border border-slate-700 bg-slate-950/85 shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+              className="absolute inset-0 w-full h-full glass-panel rounded-2xl glow-cyan p-8 text-center flex flex-col justify-between overflow-hidden select-none border border-border-subtle bg-background/85 shadow-[0_0_20px_rgba(6,182,212,0.15)]"
             >
               <div className="flex flex-col flex-1 justify-start">
                 {/* Progress Dots inside the stable card layout */}
@@ -107,20 +107,20 @@ export default function SimulationIntro({ onComplete }: SimulationIntroProps) {
                 <div className="h-[270px] w-full flex items-center justify-center relative select-none">
                   <div className="w-full flex flex-col items-center justify-center">
                     {/* Step Icon */}
-                    <div className="mx-auto w-16 h-16 rounded-full bg-slate-900 border border-slate-700/60 flex items-center justify-center mb-5 shrink-0 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+                    <div className="mx-auto w-16 h-16 rounded-full bg-surface border border-border-subtle/60 flex items-center justify-center mb-5 shrink-0 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
                       {React.createElement(currentStep.icon, {
                         className: `w-8 h-8 ${currentStep.color} animate-pulse`,
                       })}
                     </div>
 
                     {/* Step Content */}
-                    <span className="text-xs font-bold tracking-[0.2em] uppercase text-cyan-400 mb-1 block shrink-0">
+                    <span className="text-xs font-bold tracking-[0.2em] uppercase text-brand-secondary mb-1 block shrink-0">
                       {currentStep.title}
                     </span>
-                    <h3 className="text-xl md:text-2xl font-black text-white mb-3 leading-tight shrink-0">
+                    <h3 className="text-xl md:text-2xl font-black text-text-primary mb-3 leading-tight shrink-0">
                       {currentStep.highlight}
                     </h3>
-                    <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-sm shrink-0">
+                    <p className="text-text-secondary text-sm md:text-base leading-relaxed max-w-sm shrink-0">
                       {currentStep.description}
                     </p>
                   </div>
@@ -136,7 +136,7 @@ export default function SimulationIntro({ onComplete }: SimulationIntroProps) {
                       whileTap={{ scale: 0.98 }}
                       transition={{ duration: 0.12, ease: "easeInOut" }}
                       onClick={() => setActiveStep(activeStep + 1)}
-                      className="px-6 py-2.5 bg-slate-900 hover:text-white text-slate-300 font-bold uppercase tracking-widest text-xs rounded-full border border-slate-700 flex items-center gap-2 shadow-sm select-none cursor-pointer"
+                      className="px-6 py-2.5 bg-surface hover:text-text-primary text-text-secondary font-bold uppercase tracking-widest text-xs rounded-full border border-border-subtle flex items-center gap-2 shadow-sm select-none cursor-pointer"
                     >
                       Next Step 👀 <MoveRight className="w-4 h-4" />
                     </motion.button>
@@ -146,14 +146,14 @@ export default function SimulationIntro({ onComplete }: SimulationIntroProps) {
                       whileTap={{ scale: 0.98 }}
                       transition={{ duration: 0.12, ease: "easeInOut" }}
                       onClick={handleStart}
-                      className="px-8 py-3.5 bg-gradient-to-r from-cyan-400 to-indigo-500 hover:from-cyan-300 hover:to-indigo-400 text-black font-extrabold uppercase tracking-widest text-xs rounded-full shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center gap-2 select-none cursor-pointer"
+                      className="px-8 py-3.5 bg-gradient-to-r from-brand-secondary to-brand-secondary/80 hover:from-brand-secondary hover:to-brand-secondary/80 text-black font-extrabold uppercase tracking-widest text-xs rounded-full shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center gap-2 select-none cursor-pointer"
                     >
                       Let's Start! 🚀 <Zap className="w-4 h-4" />
                     </motion.button>
                   )}
                 </div>
 
-                <div className="text-[11px] text-slate-600 font-mono tracking-wider font-semibold">
+                <div className="text-[11px] text-text-tertiary font-mono tracking-wider font-semibold">
                   Brought to you by ZupSkill ❤️
                 </div>
               </div>
@@ -183,13 +183,13 @@ export default function SimulationIntro({ onComplete }: SimulationIntroProps) {
                 }}
                 className="flex flex-col items-center"
               >
-                <div className="w-16 h-16 rounded-full bg-slate-900 border-2 border-cyan-400 flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-                  <Zap className="w-9 h-9 text-cyan-400 fill-cyan-400/20" />
+                <div className="w-16 h-16 rounded-full bg-surface border-2 border-brand-secondary flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                  <Zap className="w-9 h-9 text-brand-secondary fill-cyan-400/20" />
                 </div>
-                <h2 className="text-2xl font-black tracking-[0.25em] text-white uppercase bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">
+                <h2 className="text-2xl font-black tracking-[0.25em] text-text-primary uppercase bg-clip-text bg-gradient-to-r from-brand-secondary to-brand-secondary/80">
                   ZupSkill
                 </h2>
-                <p className="text-[10px] text-cyan-400/80 font-mono tracking-[0.4em] uppercase mt-2">
+                <p className="text-[10px] text-brand-secondary/80 font-mono tracking-[0.4em] uppercase mt-2">
                   Creator Lab
                 </p>
               </motion.div>

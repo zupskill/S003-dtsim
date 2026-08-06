@@ -90,7 +90,7 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
         trendingTag: "CUSTOM CHALLENGE",
         activityCount: 1,
         iconName: "Sparkles",
-        color: "from-purple-600 via-indigo-600 to-blue-500",
+        color: "from-purple-600 via-brand-secondary/90 to-blue-500",
         isCustom: true,
       };
       setIsGenerating(false);
@@ -103,13 +103,13 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
     <div className="w-full max-w-6xl mx-auto py-6 px-4 animate-in fade-in duration-300">
       {/* Visual Header */}
       <div className="text-center mb-10 max-w-2xl mx-auto">
-        <span className="text-xs font-mono text-cyan-400 uppercase tracking-[0.2em] px-3 py-1 bg-cyan-950/35 border border-cyan-500/20 rounded-full">
+        <span className="text-xs font-mono text-brand-secondary uppercase tracking-[0.2em] px-3 py-1 bg-brand-secondary/35 border border-brand-secondary/20 rounded-full">
           Step 1: Choose a Topic 🎯
         </span>
-        <h2 className="text-3xl font-extrabold text-white mt-4 mb-2 tracking-tight">
-          What would you like to <span className="bg-gradient-to-r from-cyan-400 to-indigo-400 text-transparent bg-clip-text">redesign?</span>
+        <h2 className="text-3xl font-extrabold text-text-primary mt-4 mb-2 tracking-tight">
+          What would you like to <span className="bg-gradient-to-r from-brand-secondary to-brand-secondary/80 text-transparent bg-clip-text">redesign?</span>
         </h2>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-text-secondary">
           Pick an interesting problem you actually want to explore. Choose a card below to start your creative journey!
         </p>
       </div>
@@ -126,10 +126,10 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
             <button
               key={topic.id}
               onClick={() => selectTopicAndTriggerScroll(topic)}
-              className={`text-left rounded-2xl bg-slate-950/40 border transition-all duration-300 relative overflow-hidden group cursor-pointer ${
+              className={`text-left rounded-2xl bg-background/40 border transition-all duration-300 relative overflow-hidden group cursor-pointer ${
                 isSelected 
                   ? "border-blue-500 bg-blue-950/20 shadow-[0_0_20px_rgba(59,130,246,0.15)] ring-1 ring-blue-500/30 scale-[1.02]" 
-                  : "border-slate-800/80 hover:border-slate-700/80 hover:bg-slate-900/30 hover:scale-[1.01]"
+                  : "border-border/80 hover:border-border-subtle/80 hover:bg-surface/30 hover:scale-[1.01]"
               }`}
             >
               {/* Soft visual indicator line on select */}
@@ -138,10 +138,10 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
               <div className="p-6 flex flex-col justify-between h-full min-h-[160px]">
                 <div className="space-y-3.5">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-xl ${isSelected ? "bg-blue-500/10 text-blue-400" : "bg-slate-900 text-slate-400 group-hover:text-blue-300"} transition-colors`}>
+                    <div className={`p-2.5 rounded-xl ${isSelected ? "bg-blue-500/10 text-blue-400" : "bg-surface text-text-secondary group-hover:text-blue-300"} transition-colors`}>
                       <IconComp className="w-5 h-5" />
                     </div>
-                    <h3 className="text-[17px] font-bold text-white transition-colors group-hover:text-blue-200">
+                    <h3 className="text-[17px] font-bold text-text-primary transition-colors group-hover:text-blue-200">
                       {topic.title}
                     </h3>
                   </div>
@@ -169,7 +169,7 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
           className={`text-left rounded-2xl border-2 border-dashed transition-all duration-300 relative overflow-hidden group cursor-pointer hover:scale-[1.01] ${
             localSelectedTopic?.isCustom
               ? "border-blue-500 bg-blue-950/10"
-              : "border-slate-800 hover:border-purple-500/40 bg-slate-950/10 hover:bg-slate-950/20"
+              : "border-border hover:border-purple-500/40 bg-background/10 hover:bg-background/20"
           }`}
         >
           <div className="p-6 flex flex-col justify-between h-full min-h-[160px]">
@@ -183,11 +183,11 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
                   <PlusCircle className="w-5 h-5" />
                 </div>
                 
-                <h3 className="text-[17px] font-bold text-white group-hover:text-purple-300 transition-colors">
+                <h3 className="text-[17px] font-bold text-text-primary group-hover:text-purple-300 transition-colors">
                   {localSelectedTopic?.isCustom ? localSelectedTopic.title : "Create Your Own Topic ✏️"}
                 </h3>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <p className="text-xs text-text-secondary leading-relaxed">
                 {localSelectedTopic?.isCustom ? `"${localSelectedTopic.description}"` : "Have a custom struggle you'd love to redesign? Type it in and map it!"}
               </p>
             </div>
@@ -205,10 +205,10 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
       {/* STAGE PROCESSION BOTTOM ACTION BUTTON (BLUE) */}
       <div 
         ref={continueBtnRef} 
-        className="mt-12 pt-6 border-t border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-4"
+        className="mt-12 pt-6 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4"
       >
         <div className="flex flex-col items-start gap-1">
-          <span className="text-slate-500 text-xs font-sans">
+          <span className="text-text-tertiary text-xs font-sans">
             {localSelectedTopic ? `Ready to start Empathize stage with: ${localSelectedTopic.title}` : "Select a topic card above to continue"}
           </span>
           {localSelectedTopic && (
@@ -249,7 +249,7 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => localSelectedTopic && onSelect(localSelectedTopic)}
-          className="px-10 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs uppercase tracking-widest rounded-full cursor-pointer border border-blue-500/30 transition-all duration-300 disabled:opacity-45 disabled:cursor-not-allowed"
+          className="px-10 py-3.5 bg-brand-primary hover:bg-blue-500 text-text-primary font-extrabold text-xs uppercase tracking-widest rounded-full cursor-pointer border border-blue-500/30 transition-all duration-300 disabled:opacity-45 disabled:cursor-not-allowed"
         >
           Continue to Empathize →
         </motion.button>
@@ -258,7 +258,7 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
       {/* Floating Guided visual success feedback toast */}
       {showSuccessFeedback && localSelectedTopic && (
         <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none animate-in fade-in slide-in-from-bottom-5 duration-300">
-          <div className="px-5 py-3 bg-slate-900 border border-emerald-500/30 text-emerald-400 text-xs font-bold font-mono tracking-wider uppercase rounded-full shadow-[0_0_20px_rgba(16,185,129,0.35)] flex items-center gap-2.5 backdrop-blur-md">
+          <div className="px-5 py-3 bg-surface border border-emerald-500/30 text-emerald-400 text-xs font-bold font-mono tracking-wider uppercase rounded-full shadow-[0_0_20px_rgba(16,185,129,0.35)] flex items-center gap-2.5 backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             ✓ Topic Selected
           </div>
@@ -272,19 +272,19 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
             {/* Close button */}
             <button 
               onClick={() => setShowCustomModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"
+              className="absolute top-4 right-4 text-text-secondary hover:text-text-primary cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-3 mb-6">
               <Sparkles className="w-6 h-6 text-purple-400 animate-pulse" />
-              <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Your Custom Topic ✏️</h3>
+              <h3 className="text-lg font-bold text-text-primary uppercase tracking-wider font-mono">Your Custom Topic ✏️</h3>
             </div>
 
             <form onSubmit={handleCreateCustom} className="space-y-4">
               <div>
-                <label className="block text-xs font-mono font-bold uppercase text-slate-400 mb-1.5">
+                <label className="block text-xs font-mono font-bold uppercase text-text-secondary mb-1.5">
                   What is the problem/idea name? *
                 </label>
                 <SafeTextInput
@@ -295,12 +295,12 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
                   onChange={setCustomTitle}
                   onSafetyChange={(safe) => setIsTitleSafe(safe)}
                   context="Custom topic creation name"
-                  className="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                  className="w-full bg-background border border-border text-text-primary text-sm px-4 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono font-bold uppercase text-slate-400 mb-1.5">
+                <label className="block text-xs font-mono font-bold uppercase text-text-secondary mb-1.5">
                   What is this about? (Brief Description) 📝
                 </label>
                 <SafeTextInput
@@ -311,7 +311,7 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
                   onSafetyChange={(safe) => setIsDescSafe(safe)}
                   context="Custom topic description"
                   rows={3}
-                  className="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                  className="w-full bg-background border border-border text-text-primary text-sm px-4 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                 />
               </div>
 
@@ -326,14 +326,14 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
                 <button
                   type="button"
                   onClick={() => setShowCustomModal(false)}
-                  className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                  className="px-4 py-2 bg-surface border border-border hover:border-border-subtle text-text-secondary hover:text-text-primary text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isGenerating || !customTitle.trim() || !isTitleSafe || !isDescSafe}
-                  className="px-6 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(147,51,234,0.3)] disabled:opacity-55 disabled:cursor-not-allowed"
+                  className="px-6 py-2 bg-gradient-to-r from-purple-500 to-brand-secondary/80 hover:from-purple-400 hover:to-brand-secondary/80 text-text-primary text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(147,51,234,0.3)] disabled:opacity-55 disabled:cursor-not-allowed"
                 >
                   {isGenerating ? (
                     <>

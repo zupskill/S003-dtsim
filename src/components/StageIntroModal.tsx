@@ -96,22 +96,22 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center px-4 pt-[68px] pb-4 sm:p-4 bg-slate-950/80 backdrop-blur-sm transition-opacity">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-[95%] sm:w-full max-w-[420px] sm:max-w-3xl max-h-[calc(100vh-84px)] sm:max-h-[90vh] shadow-2xl animate-in fade-in zoom-in-95 duration-300 flex flex-col relative overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center px-4 pt-[68px] pb-4 sm:p-4 bg-background/80 backdrop-blur-sm transition-opacity">
+      <div className="bg-surface border border-border rounded-2xl w-[95%] sm:w-full max-w-[420px] sm:max-w-3xl max-h-[calc(100vh-84px)] sm:max-h-[90vh] shadow-2xl animate-in fade-in zoom-in-95 duration-300 flex flex-col relative overflow-hidden">
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-slate-800 flex flex-col items-center text-center relative shrink-0">
+        <div className="p-4 sm:p-6 border-b border-border flex flex-col items-center text-center relative shrink-0">
           <button 
             onClick={onClose}
-            className="absolute top-2 sm:top-4 right-2 sm:right-4 p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors"
+            className="absolute top-2 sm:top-4 right-2 sm:right-4 p-2 text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-full transition-colors"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-2 text-indigo-400 font-semibold uppercase tracking-wider text-xs sm:text-sm mb-1 sm:mb-2">
+          <div className="flex items-center gap-2 text-brand-secondary font-semibold uppercase tracking-wider text-xs sm:text-sm mb-1 sm:mb-2">
             <span>🎓</span> Design Thinking Briefing
           </div>
-          <h2 className="text-xl sm:text-3xl font-bold text-white mb-1 sm:mb-2">{stageConfig.title}</h2>
-          <p className="text-xs sm:text-sm text-slate-400 hidden sm:block">{stageConfig.description}</p>
+          <h2 className="text-xl sm:text-3xl font-bold text-text-primary mb-1 sm:mb-2">{stageConfig.title}</h2>
+          <p className="text-xs sm:text-sm text-text-secondary hidden sm:block">{stageConfig.description}</p>
         </div>
 
         {/* Video Container */}
@@ -126,12 +126,12 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
         </div>
 
         {/* Learning Summary */}
-        <div className="p-4 sm:p-6 bg-slate-800/50 flex-1 overflow-y-auto">
-          <h3 className="text-sm sm:text-lg font-medium text-white mb-2 sm:mb-3">In this stage you'll learn to:</h3>
+        <div className="p-4 sm:p-6 bg-surface-hover/50 flex-1 overflow-y-auto">
+          <h3 className="text-sm sm:text-lg font-medium text-text-primary mb-2 sm:mb-3">In this stage you'll learn to:</h3>
           <ul className="space-y-1.5 sm:space-y-2">
             {stageConfig.bulletPoints.map((point, index) => (
-              <li key={index} className="flex items-start gap-2 text-xs sm:text-sm text-slate-300">
-                <span className="text-indigo-400 mt-0.5 sm:mt-1">•</span>
+              <li key={index} className="flex items-start gap-2 text-xs sm:text-sm text-text-secondary">
+                <span className="text-brand-secondary mt-0.5 sm:mt-1">•</span>
                 <span>{point}</span>
               </li>
             ))}
@@ -139,11 +139,11 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
         </div>
 
         {/* Footer actions */}
-        <div className="p-4 sm:p-6 border-t border-slate-800 bg-slate-900 flex flex-col gap-3 sm:gap-4 shrink-0">
+        <div className="p-4 sm:p-6 border-t border-border bg-surface flex flex-col gap-3 sm:gap-4 shrink-0">
           <div className="flex items-center justify-end">
             <button
               onClick={() => onContinue(dontShowAgain)}
-              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-text-primary bg-brand-secondary hover:bg-brand-secondary-hover transition-colors flex items-center justify-center gap-2"
             >
               Continue to {stageConfig.title}
               <Play className="w-4 h-4" />
@@ -156,9 +156,9 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
               id="dontShowAgain"
               checked={dontShowAgain}
               onChange={(e) => setDontShowAgain(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-900 cursor-pointer shrink-0"
+              className="w-4 h-4 rounded border-border-subtle bg-surface-hover text-brand-secondary focus:ring-brand-secondary focus:ring-offset-slate-900 cursor-pointer shrink-0"
             />
-            <label htmlFor="dontShowAgain" className="text-xs sm:text-sm text-slate-400 cursor-pointer select-none">
+            <label htmlFor="dontShowAgain" className="text-xs sm:text-sm text-text-secondary cursor-pointer select-none">
               Don't show this introduction again
             </label>
           </div>

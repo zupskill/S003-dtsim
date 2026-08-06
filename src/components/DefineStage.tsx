@@ -278,32 +278,32 @@ export default function DefineStage({
       
       {/* Header section - Minimal and focus-oriented */}
       <div className="text-center mb-6 max-w-2xl mx-auto">
-        <span className="text-xs font-mono text-cyan-400 uppercase tracking-[0.2em] px-3 py-1 bg-cyan-950/35 border border-cyan-500/20 rounded-full">
+        <span className="text-xs font-mono text-brand-secondary uppercase tracking-[0.2em] px-3 py-1 bg-brand-secondary/35 border border-brand-secondary/20 rounded-full">
           Step 2: Define 🧭
         </span>
-        <h2 className="text-3xl font-extrabold text-white mt-4 mb-2 tracking-tight">
-          Refine Your <span className="bg-gradient-to-r from-cyan-400 to-indigo-400 text-transparent bg-clip-text font-black">Design Challenge 🎯</span>
+        <h2 className="text-3xl font-extrabold text-text-primary mt-4 mb-2 tracking-tight">
+          Refine Your <span className="bg-gradient-to-r from-brand-secondary to-brand-secondary/80 text-transparent bg-clip-text font-black">Design Challenge 🎯</span>
         </h2>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-text-secondary">
           Transform a broad user struggle into a polished, actionable "How Might We" springboard for brainstorming.
         </p>
       </div>
 
       {/* 🎯 TOP CONTEXT PANEL (continuity dashboard) */}
       {isCommitted && selectedObs && (
-        <div className="bg-slate-950/80 border border-slate-850 p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4.5 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(6,182,212,0.04)] animate-in slide-in-from-top duration-300">
-          <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500/50" />
+        <div className="bg-background/80 border border-slate-850 p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4.5 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(6,182,212,0.04)] animate-in slide-in-from-top duration-300">
+          <div className="absolute top-0 left-0 w-1 h-full bg-brand-secondary/50" />
           
           {/* Left Aspect: Selected Problem */}
           <div className="flex items-start gap-2.5 pl-2">
-            <div className="p-1.5 bg-cyan-950/45 rounded-xl border border-cyan-500/20 text-cyan-400 mt-0.5 shrink-0 select-none">
+            <div className="p-1.5 bg-brand-secondary/45 rounded-xl border border-brand-secondary/20 text-brand-secondary mt-0.5 shrink-0 select-none">
               🎯
             </div>
             <div>
-              <span className="text-[9px] font-mono font-black text-slate-400 tracking-widest block uppercase">
+              <span className="text-[9px] font-mono font-black text-text-secondary tracking-widest block uppercase">
                 TARGET PROBLEM
               </span>
-              <p className="text-xs font-semibold text-slate-200 mt-0.5 leading-relaxed italic">
+              <p className="text-xs font-semibold text-text-primary mt-0.5 leading-relaxed italic">
                 "{selectedObs?.text || "..."}"
               </p>
             </div>
@@ -311,14 +311,14 @@ export default function DefineStage({
 
           {/* Right Aspect: Design Challenge (HMW) */}
           <div className="flex items-start gap-2.5 md:border-l md:border-slate-850/85 md:pl-4">
-            <div className="p-1.5 bg-indigo-950/45 rounded-xl border border-indigo-505/25 text-indigo-400 mt-0.5 shrink-0 select-none">
+            <div className="p-1.5 bg-brand-secondary/45 rounded-xl border border-brand-secondary/25 text-brand-secondary mt-0.5 shrink-0 select-none">
               ✨
             </div>
             <div>
-              <span className="text-[9px] font-mono font-black text-indigo-300 tracking-widest block uppercase font-bold">
+              <span className="text-[9px] font-mono font-black text-brand-secondary tracking-widest block uppercase font-bold">
                 🎯 DESIGN CHALLENGE
               </span>
-              <p className="text-xs font-bold text-white mt-0.5 leading-relaxed">
+              <p className="text-xs font-bold text-text-primary mt-0.5 leading-relaxed">
                 "{aiStatement || liveStatement || "..."}"
               </p>
             </div>
@@ -331,10 +331,10 @@ export default function DefineStage({
         
         {/* LEFT COLUMN: Problem list from Board (Col 5) */}
         <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="bg-slate-950/20 border border-slate-900/60 p-5 rounded-3xl flex flex-col justify-between h-full min-h-[360px]">
+          <div className="bg-background/20 border border-border/60 p-5 rounded-3xl flex flex-col justify-between h-full min-h-[360px]">
             
             <div className="space-y-4">
-              <span className="text-[10px] font-mono font-bold tracking-wider text-slate-500 block uppercase px-1">
+              <span className="text-[10px] font-mono font-bold tracking-wider text-text-tertiary block uppercase px-1">
                 📌 {isCommitted ? "CHOSEN PROBLEM ACTIVE" : "CHOOSE YOUR TARGET PROBLEM"}
               </span>
 
@@ -356,23 +356,23 @@ export default function DefineStage({
                       }}
                       className={`w-full text-left p-3.5 rounded-2xl border transition-all duration-300 text-xs flex items-start gap-3 cursor-pointer ${
                         isDimmed 
-                          ? "border-slate-900/40 bg-slate-950/5 text-slate-500 opacity-45 cursor-not-allowed hover:opacity-60 saturate-50 blur-[0.2px] hover:blur-none"
+                          ? "border-border/40 bg-background/5 text-text-tertiary opacity-45 cursor-not-allowed hover:opacity-60 saturate-50 blur-[0.2px] hover:blur-none"
                           : isLoverActive 
-                          ? "border-cyan-500 bg-cyan-950/20 text-white shadow-[0_0_18px_rgba(6,182,212,0.15)] scale-[1.02] ring-1 ring-cyan-500/30 font-semibold"
+                          ? "border-brand-secondary bg-brand-secondary/20 text-text-primary shadow-[0_0_18px_rgba(6,182,212,0.15)] scale-[1.02] ring-1 ring-brand-secondary/30 font-semibold"
                           : isSelected
-                          ? "border-amber-500/40 bg-amber-950/5 text-white scale-[1.01]"
-                          : "border-slate-800/80 bg-slate-950/40 text-slate-400 hover:text-slate-200 hover:border-slate-700/65"
+                          ? "border-brand-primary/40 bg-amber-950/5 text-text-primary scale-[1.01]"
+                          : "border-border/80 bg-background/40 text-text-secondary hover:text-text-primary hover:border-border-subtle/65"
                       }`}
                     >
-                      <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 transition-colors ${isLoverActive ? "bg-cyan-400 animate-pulse" : isSelected ? "bg-amber-400 animate-pulse" : "bg-slate-700"}`} />
+                      <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 transition-colors ${isLoverActive ? "bg-brand-primary animate-pulse" : isSelected ? "bg-amber-400 animate-pulse" : "bg-slate-700"}`} />
                       <div className="space-y-0.5 flex-1">
                         <div className="flex items-center justify-between gap-1.5">
                           <span className="text-[9px] font-mono font-bold block opacity-60 tracking-wider uppercase">
                             {obs.perspectiveName}
                           </span>
                           {isLoverActive && (
-                            <span className="text-[8px] font-mono font-extrabold text-cyan-400 flex items-center gap-1 uppercase tracking-wider bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-500/30">
-                              <CheckCircle className="w-2.5 h-2.5 text-cyan-400 stroke-[3]" /> LOCKED
+                            <span className="text-[8px] font-mono font-extrabold text-brand-secondary flex items-center gap-1 uppercase tracking-wider bg-brand-secondary/60 px-1.5 py-0.5 rounded border border-brand-secondary/30">
+                              <CheckCircle className="w-2.5 h-2.5 text-brand-secondary stroke-[3]" /> LOCKED
                             </span>
                           )}
                         </div>
@@ -383,9 +383,9 @@ export default function DefineStage({
                 })}
 
                 {problemObservations.length === 0 && (
-                  <div className="p-8 border-2 border-dashed border-slate-900 text-center rounded-2xl">
-                    <p className="text-xs text-slate-500">Your Problem Board is currently empty.</p>
-                    <p className="text-[10px] text-slate-600 mt-1">Please back up to Empathize and pin some struggles!</p>
+                  <div className="p-8 border-2 border-dashed border-border text-center rounded-2xl">
+                    <p className="text-xs text-text-tertiary">Your Problem Board is currently empty.</p>
+                    <p className="text-[10px] text-text-tertiary mt-1">Please back up to Empathize and pin some struggles!</p>
                   </div>
                 )}
               </div>
@@ -395,12 +395,12 @@ export default function DefineStage({
             {selectedObs && (
               <div className="mt-5">
                 {isCommitted ? (
-                  <div className="p-4.5 bg-gradient-to-r from-cyan-950/40 via-indigo-950/20 to-amber-950/30 rounded-2xl border border-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.12)] relative overflow-hidden transition-all duration-300">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl pointer-events-none" />
-                    <span className="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-widest block mb-1.5 flex items-center gap-1">
+                  <div className="p-4.5 bg-gradient-to-r from-brand-secondary/40 via-brand-secondary/90/20 to-amber-950/30 rounded-2xl border border-brand-secondary shadow-[0_0_20px_rgba(6,182,212,0.12)] relative overflow-hidden transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-secondary/10 rounded-full blur-xl pointer-events-none" />
+                    <span className="text-[10px] font-mono font-bold text-brand-secondary uppercase tracking-widest block mb-1.5 flex items-center gap-1">
                       🎯 SELECTED PROBLEM
                     </span>
-                    <p className="text-xs text-white font-black leading-relaxed italic">
+                    <p className="text-xs text-text-primary font-black leading-relaxed italic">
                       "{selectedObs.text}"
                     </p>
                     
@@ -414,17 +414,17 @@ export default function DefineStage({
                           setIsCommitted(false);
                           onShowToast?.("🔓 Choice unlocked. Select another struggle card!", "info");
                         }}
-                        className="text-[9px] font-mono bg-slate-950 hover:bg-slate-900 text-amber-400 hover:text-amber-300 px-2.5 py-1.5 rounded-lg border border-slate-850 hover:border-slate-700 transition-colors uppercase font-bold flex items-center gap-1 cursor-pointer"
+                        className="text-[9px] font-mono bg-background hover:bg-surface text-brand-primary hover:text-amber-300 px-2.5 py-1.5 rounded-lg border border-slate-850 hover:border-border-subtle transition-colors uppercase font-bold flex items-center gap-1 cursor-pointer"
                       >
                         🔄 Choose Different Problem
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="p-4.5 bg-slate-950/50 border border-dashed border-slate-805 text-slate-500 rounded-2xl flex flex-col items-center justify-center text-center gap-2">
+                  <div className="p-4.5 bg-background/50 border border-dashed border-slate-805 text-text-tertiary rounded-2xl flex flex-col items-center justify-center text-center gap-2">
                     <span className="text-xl animate-bounce">🔒</span>
-                    <p className="text-[11px] font-semibold text-slate-300 animate-pulse" id="commitment-required-lbl">Commitment Required</p>
-                    <p className="text-[10px] text-slate-500 max-w-[210px] leading-relaxed">
+                    <p className="text-[11px] font-semibold text-text-secondary animate-pulse" id="commitment-required-lbl">Commitment Required</p>
+                    <p className="text-[10px] text-text-tertiary max-w-[210px] leading-relaxed">
                       Please select a struggle card above and click to lock in your challenge constraint.
                     </p>
                   </div>
@@ -438,53 +438,53 @@ export default function DefineStage({
         {/* RIGHT COLUMN: Auto-challenge & Optional Context || Locked Workspace Cover (Col 7) */}
         <div className="lg:col-span-7 flex flex-col">
           {!isCommitted ? (
-            <div className="bg-slate-950/25 border border-slate-900/60 p-8 rounded-3xl flex flex-col items-center justify-center text-center min-h-[460px] h-full relative overflow-hidden">
+            <div className="bg-background/25 border border-border/60 p-8 rounded-3xl flex flex-col items-center justify-center text-center min-h-[460px] h-full relative overflow-hidden">
               {/* Visual grid blueprint background */}
               <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(6,182,212,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[size:14px_24px]" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-brand-secondary/5 rounded-full blur-3xl pointer-events-none" />
               
               <div className="relative z-10 max-w-sm flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-300">
-                <div className="w-14 h-14 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-center text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.1)] select-none">
+                <div className="w-14 h-14 bg-surface border border-border rounded-2xl flex items-center justify-center text-brand-secondary shadow-[0_0_20px_rgba(6,182,212,0.1)] select-none">
                   <span className="text-2xl animate-pulse">🔒</span>
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-white tracking-tight uppercase" id="define-stage-locked-heading">
+                  <h3 className="text-base font-black text-text-primary tracking-tight uppercase" id="define-stage-locked-heading">
                     Problem Commitment Required
                   </h3>
-                  <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+                  <p className="text-[11px] text-text-secondary mt-2 leading-relaxed">
                     Please select a target struggle on the left and finalize your Problem Commitment to unlock your dynamic thinking challenge workspace!
                   </p>
                 </div>
-                <div className="p-3 bg-cyan-950/20 rounded-xl border border-cyan-500/10 text-[10px] font-mono text-cyan-300">
+                <div className="p-3 bg-brand-secondary/20 rounded-xl border border-brand-secondary/10 text-[10px] font-mono text-brand-secondary">
                   We'll automatically formulate your custom "How Might We" storm once confirmed.
                 </div>
               </div>
             </div>
           ) : (
-            <div className="bg-slate-950/15 border border-slate-900/80 p-6 rounded-3xl flex flex-col h-full justify-between gap-6 relative animate-in fade-in duration-300">
+            <div className="bg-background/15 border border-border/80 p-6 rounded-3xl flex flex-col h-full justify-between gap-6 relative animate-in fade-in duration-300">
               
               <div className="space-y-5">
-                <div className="flex items-center justify-between pb-1.5 border-b border-slate-900/60">
-                  <span className="text-[10px] font-mono font-bold tracking-wider text-slate-500 block uppercase">
+                <div className="flex items-center justify-between pb-1.5 border-b border-border/60">
+                  <span className="text-[10px] font-mono font-bold tracking-wider text-text-tertiary block uppercase">
                     ⚡ DESIGN THINKING REFINEMENT
                   </span>
-                  <span className="text-[10px] font-mono text-cyan-400 flex items-center gap-1">
+                  <span className="text-[10px] font-mono text-brand-secondary flex items-center gap-1">
                     💡 Zero form-filling, pure context refinement.
                   </span>
                 </div>
 
                 {/* Display Chosen Problem clearly */}
                 {selectedObs && (
-                  <div className="bg-cyan-950/10 border border-cyan-500/10 rounded-2xl p-4.5 relative overflow-hidden backdrop-blur-sm animate-in fade-in duration-300">
-                    <span className="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-widest block mb-1">
+                  <div className="bg-brand-secondary/10 border border-brand-secondary/10 rounded-2xl p-4.5 relative overflow-hidden backdrop-blur-sm animate-in fade-in duration-300">
+                    <span className="text-[10px] font-mono font-bold text-brand-secondary uppercase tracking-widest block mb-1">
                       🎯 Selected Problem
                     </span>
-                    <p className="text-sm text-slate-100 font-extrabold leading-relaxed italic">
+                    <p className="text-sm text-text-primary font-extrabold leading-relaxed italic">
                       "{selectedObs.text}"
                     </p>
-                    <div className="mt-2 text-[10px] font-mono text-slate-400 flex items-center gap-2">
+                    <div className="mt-2 text-[10px] font-mono text-text-secondary flex items-center gap-2">
                       <span>Stakeholder Group:</span>
-                      <span className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-md font-bold uppercase text-[9px]">
+                      <span className="bg-brand-secondary/10 border border-brand-secondary/20 text-brand-secondary px-2 py-0.5 rounded-md font-bold uppercase text-[9px]">
                         {selectedObs.perspectiveName}
                       </span>
                     </div>
@@ -494,10 +494,10 @@ export default function DefineStage({
                 {/* Anything Else Worth Mentioning Field (Optional Context) */}
                 <div>
                   <div className="flex items-center justify-between pb-1.5">
-                    <label className="block text-[11px] font-bold text-slate-300 font-sans uppercase tracking-wider">
+                    <label className="block text-[11px] font-bold text-text-secondary font-sans uppercase tracking-wider">
                       🧩 Additional Context (Optional)
                     </label>
-                    <span className="text-[10px] text-slate-500 font-mono italic">Does not block progress</span>
+                    <span className="text-[10px] text-text-tertiary font-mono italic">Does not block progress</span>
                   </div>
                   <SafeTextInput
                     id="define-stage-optional-input"
@@ -508,31 +508,31 @@ export default function DefineStage({
                     onChange={setAnythingElse}
                     onSafetyChange={(safe) => setIsAnythingElseSafe(safe)}
                     context="Define Stage - OPTIONAL"
-                    className="w-full bg-slate-950/85 border border-slate-850 text-slate-150 text-xs px-3.5 py-3 rounded-xl focus:outline-none focus:border-cyan-500/85 focus:ring-1 focus:ring-cyan-500/20 placeholder:text-slate-600 font-medium transition-all"
+                    className="w-full bg-background/85 border border-slate-850 text-slate-150 text-xs px-3.5 py-3 rounded-xl focus:outline-none focus:border-brand-secondary/85 focus:ring-1 focus:ring-brand-secondary/20 placeholder:text-text-tertiary font-medium transition-all"
                   />
-                  <p className="text-[10px] text-slate-500 mt-1.5 leading-snug">
+                  <p className="text-[10px] text-text-tertiary mt-1.5 leading-snug">
                     Provide extra details, timing observations, or local constraints to sharpen the auto-generated brainstorm.
                   </p>
                 </div>
 
                 {/* ✨ AUTO-GENERATED DESIGN CHALLENGE */}
                 {selectedObs && (
-                  <div className="bg-slate-950/95 border border-cyan-500/25 p-5 rounded-3xl space-y-4 mt-2 transition-all duration-300 relative overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.06)]">
+                  <div className="bg-background/95 border border-brand-secondary/25 p-5 rounded-3xl space-y-4 mt-2 transition-all duration-300 relative overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.06)]">
                     {/* Visual Accent Glow */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/5 rounded-full blur-2xl pointer-events-none" />
                     
                     <div className="flex items-center justify-between relative z-10">
-                      <span className="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5 bg-cyan-950/40 border border-cyan-500/10 px-2.5 py-1 rounded-full">
-                        <Sparkles className={`w-3.5 h-3.5 text-cyan-400 ${isAiLoading ? "animate-spin" : ""}`} />
+                      <span className="text-[10px] font-mono font-bold text-brand-secondary uppercase tracking-wider flex items-center gap-1.5 bg-brand-secondary/40 border border-brand-secondary/10 px-2.5 py-1 rounded-full">
+                        <Sparkles className={`w-3.5 h-3.5 text-brand-secondary ${isAiLoading ? "animate-spin" : ""}`} />
                         🎯 Your Design Challenge
                       </span>
                       
                       {isAiLoading ? (
-                        <span className="text-[9px] bg-cyan-500/10 text-cyan-400 px-2.5 py-1 rounded-full border border-cyan-500/20 font-mono font-bold flex items-center gap-1">
+                        <span className="text-[9px] bg-brand-secondary/10 text-brand-secondary px-2.5 py-1 rounded-full border border-brand-secondary/20 font-mono font-bold flex items-center gap-1">
                           <Loader2 className="w-3 h-3 animate-spin" /> AI is crafting...
                         </span>
                       ) : aiError ? (
-                        <span className="text-[9px] bg-amber-500/15 text-amber-400 px-2.5 py-1 rounded-full border border-amber-500/30 font-mono font-bold flex items-center gap-1">
+                        <span className="text-[9px] bg-amber-500/15 text-brand-primary px-2.5 py-1 rounded-full border border-brand-primary/30 font-mono font-bold flex items-center gap-1">
                           <AlertTriangle className="w-3 h-3" /> Fallback Active
                         </span>
                       ) : aiStatement ? (
@@ -540,7 +540,7 @@ export default function DefineStage({
                           🤖 AI Generated
                         </span>
                       ) : (
-                        <span className="text-[9px] bg-slate-900 border border-slate-805 text-slate-400 px-2.5 py-1 rounded-full font-mono font-bold">
+                        <span className="text-[9px] bg-surface border border-slate-805 text-text-secondary px-2.5 py-1 rounded-full font-mono font-bold">
                           📝 Local Preview
                         </span>
                       )}
@@ -549,30 +549,30 @@ export default function DefineStage({
                     <div className="space-y-3 relative z-10">
                       {isAiLoading && !aiStatement ? (
                         <div className="space-y-2 py-2">
-                          <div className="h-4 bg-slate-850/55 rounded-md animate-pulse w-11/12" />
-                          <div className="h-4 bg-slate-850/55 rounded-md animate-pulse w-3/4" />
+                          <div className="h-4 bg-surface-hover/55 rounded-md animate-pulse w-11/12" />
+                          <div className="h-4 bg-surface-hover/55 rounded-md animate-pulse w-3/4" />
                         </div>
                       ) : (
-                        <h3 className="text-sm md:text-base font-extrabold text-white leading-relaxed font-sans pr-2" id="defined-challenge-stmt">
+                        <h3 className="text-sm md:text-base font-extrabold text-text-primary leading-relaxed font-sans pr-2" id="defined-challenge-stmt">
                           "{aiStatement || liveStatement}"
                         </h3>
                       )}
 
                       {/* Encouraging score & precision note */}
                       {aiStatement && !isAiLoading && (
-                        <div className="pt-3 border-t border-slate-900/60 flex flex-col sm:flex-row sm:items-center gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="pt-3 border-t border-border/60 flex flex-col sm:flex-row sm:items-center gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
                           {precisionScore !== null && (
-                            <div className="flex items-center gap-2 bg-cyan-950/20 border border-cyan-500/10 px-3 py-1 rounded-xl shrink-0">
-                              <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                            <div className="flex items-center gap-2 bg-brand-secondary/20 border border-brand-secondary/10 px-3 py-1 rounded-xl shrink-0">
+                              <div className="text-[10px] font-mono font-bold text-text-secondary uppercase tracking-widest">
                                 Empathy Score:
                               </div>
-                              <div className="text-sm font-black text-cyan-400">
+                              <div className="text-sm font-black text-brand-secondary">
                                 {precisionScore}%
                               </div>
                             </div>
                           )}
                           {precisionFeedback && (
-                            <p className="text-[11px] text-slate-400 italic leading-snug">
+                            <p className="text-[11px] text-text-secondary italic leading-snug">
                               {precisionFeedback}
                             </p>
                           )}
@@ -591,19 +591,19 @@ export default function DefineStage({
       </div>
 
       {/* STAGE FOOTER NAVIGATION */}
-      <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-800/80">
+      <div className="flex justify-between items-center mt-6 pt-4 border-t border-border/80">
         <div className="flex flex-col">
-          <span className="text-slate-400 font-bold text-xs">
+          <span className="text-text-secondary font-bold text-xs">
             Proceeding to Step 3
           </span>
-          <span className="text-slate-600 text-[10px] mt-0.5" id="footer-status-label">
+          <span className="text-text-tertiary text-[10px] mt-0.5" id="footer-status-label">
             {!isCommitted ? "⚠️ Please select and commit to a target struggle to continue!" : "✨ Locked challenge is primed for brainstorming!"}
           </span>
         </div>
         <button
           disabled={!canProgress}
           onClick={onNext}
-          className="px-10 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs uppercase tracking-widest rounded-full cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] disabled:opacity-35 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+          className="px-10 py-3.5 bg-brand-secondary hover:bg-brand-secondary-hover text-text-primary font-extrabold text-xs uppercase tracking-widest rounded-full cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] disabled:opacity-35 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
         >
           Let's Brainstorm →
         </button>
@@ -611,29 +611,29 @@ export default function DefineStage({
 
       {/* PROBLEM SELECTION LIGHTWEIGHT CONFIRMATION MODAL */}
       {showConfirmModal && pendingSelectedObs && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl relative animate-in zoom-in-95 duration-200">
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-cyan-500 to-indigo-500" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-surface border border-border rounded-3xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl relative animate-in zoom-in-95 duration-200">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-secondary to-brand-secondary/80" />
             
             <div className="flex items-start gap-4 mb-4">
-              <div className="p-2.5 bg-cyan-950/45 rounded-2xl border border-cyan-500/20 text-cyan-400 shrink-0">
+              <div className="p-2.5 bg-brand-secondary/45 rounded-2xl border border-brand-secondary/20 text-brand-secondary shrink-0">
                 🎯
               </div>
               <div>
-                <h3 className="text-sm font-black text-white tracking-tight uppercase" id="focus-on-this-title">
+                <h3 className="text-sm font-black text-text-primary tracking-tight uppercase" id="focus-on-this-title">
                   🎯 Focus on This Problem?
                 </h3>
-                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider font-mono">
+                <p className="text-[10px] text-text-secondary font-medium uppercase tracking-wider font-mono">
                   Challenge Confirmation
                 </p>
               </div>
             </div>
 
-            <div className="p-4.5 bg-slate-950/60 rounded-2xl border border-slate-850 my-4 text-xs font-semibold text-slate-100 leading-relaxed italic">
+            <div className="p-4.5 bg-background/60 rounded-2xl border border-slate-850 my-4 text-xs font-semibold text-text-primary leading-relaxed italic">
               "{pendingSelectedObs.text}"
             </div>
 
-            <p className="text-[11px] text-slate-400 leading-relaxed mb-6">
+            <p className="text-[11px] text-text-secondary leading-relaxed mb-6">
               This will become your design challenge for the next stages. All future ideation, prototyping, and testing will focus on this challenge.
             </p>
 
@@ -644,7 +644,7 @@ export default function DefineStage({
                   setShowConfirmModal(false);
                   setPendingSelectedObs(null);
                 }}
-                className="px-4 py-2 bg-transparent hover:bg-slate-850 text-slate-400 hover:text-slate-200 rounded-xl text-xs font-bold transition-all uppercase cursor-pointer"
+                className="px-4 py-2 bg-transparent hover:bg-surface-hover text-text-secondary hover:text-text-primary rounded-xl text-xs font-bold transition-all uppercase cursor-pointer"
               >
                 Choose Another
               </button>
@@ -659,7 +659,7 @@ export default function DefineStage({
                   onAddXP(30);
                   setHasAddedXPValue(true);
                 }}
-                className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl text-xs font-black transition-all uppercase font-mono tracking-wider flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.25)] hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]"
+                className="px-5 py-2.5 bg-brand-secondary hover:bg-brand-primary text-slate-950 rounded-xl text-xs font-black transition-all uppercase font-mono tracking-wider flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.25)] hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]"
               >
                 <Check className="w-4 h-4 text-slate-950 stroke-[3]" /> Focus On This Problem
               </button>

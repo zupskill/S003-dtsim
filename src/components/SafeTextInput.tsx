@@ -150,13 +150,13 @@ export default function SafeTextInput({
 
       {/* Real-time gentle inline suggestions without blocking standard focus */}
       {warning && (
-        <div className="flex items-start gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] sm:text-xs text-slate-300 font-sans leading-normal animate-in fade-in slide-in-from-top-1">
-          <HelpCircle className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${safetyLevel >= 2 ? "text-yellow-400" : "text-cyan-400"}`} />
+        <div className="flex items-start gap-1.5 px-3 py-1.5 rounded-lg bg-surface border border-border text-[10px] sm:text-xs text-text-secondary font-sans leading-normal animate-in fade-in slide-in-from-top-1">
+          <HelpCircle className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${safetyLevel >= 2 ? "text-brand-primary" : "text-brand-secondary"}`} />
           <div className="flex-1">
-            <span className="font-semibold block text-slate-200">
+            <span className="font-semibold block text-text-primary">
               {safetyLevel >= 2 ? "💡 Friendly Suggestion:" : "✨ Let's optimize:"}
             </span>
-            <p className="text-slate-400 font-medium">{warning}</p>
+            <p className="text-text-secondary font-medium">{warning}</p>
           </div>
         </div>
       )}

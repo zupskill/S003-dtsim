@@ -421,27 +421,27 @@ export default function IdeateStage({
       
       {/* HEADER SECTION */}
       <div className="text-center mb-6 max-w-2xl mx-auto">
-        <span className="text-xs font-mono text-cyan-400 uppercase tracking-[0.2em] px-3.5 py-1 bg-cyan-950/45 border border-cyan-500/20 rounded-full">
+        <span className="text-xs font-mono text-brand-secondary uppercase tracking-[0.2em] px-3.5 py-1 bg-brand-secondary/45 border border-brand-secondary/20 rounded-full">
           💡 Step 4: Brainstorming Room
         </span>
-        <h2 className="text-3xl font-extrabold text-white mt-4 mb-2 tracking-tight">
+        <h2 className="text-3xl font-extrabold text-text-primary mt-4 mb-2 tracking-tight">
           💡 Idea Board System
         </h2>
-        <p className="text-xs text-slate-400 leading-relaxed font-medium">
+        <p className="text-xs text-text-secondary leading-relaxed font-medium">
           Ditch the giant textbook pages! Collect simple, bold, or raw ideas on your dashboard board instantly, and let the AI sort them later into neat categories.
         </p>
       </div>
 
       {/* CONTINUITY PATH CONTEXT */}
-      <div className="bg-slate-950/80 border border-slate-900 p-4 rounded-2xl mb-8 grid grid-cols-1 md:grid-cols-2 gap-4 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(6,182,212,0.03)]">
-        <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500/40" />
+      <div className="bg-background/80 border border-border p-4 rounded-2xl mb-8 grid grid-cols-1 md:grid-cols-2 gap-4 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(6,182,212,0.03)]">
+        <div className="absolute top-0 left-0 w-1 h-full bg-brand-secondary/40" />
         
         <div className="flex items-start gap-2.5 pl-2">
-          <div className="p-1 px-1.5 bg-cyan-950/60 rounded-lg border border-cyan-500/20 text-xs shrink-0 select-none">
+          <div className="p-1 px-1.5 bg-brand-secondary/60 rounded-lg border border-brand-secondary/20 text-xs shrink-0 select-none">
             🎯
           </div>
           <div>
-            <span className="text-[9px] font-mono font-bold text-slate-500 tracking-wider block uppercase">
+            <span className="text-[9px] font-mono font-bold text-text-tertiary tracking-wider block uppercase">
               SELECTED STUDENT PROBLEM
             </span>
             <p className="text-xs font-semibold text-slate-350 mt-0.5 leading-relaxed italic">
@@ -450,15 +450,15 @@ export default function IdeateStage({
           </div>
         </div>
 
-        <div className="flex items-start gap-2.5 md:border-l md:border-slate-900 md:pl-4">
-          <div className="p-1 px-1.5 bg-indigo-950/65 rounded-lg border border-indigo-500/20 text-xs shrink-0 select-none">
+        <div className="flex items-start gap-2.5 md:border-l md:border-border md:pl-4">
+          <div className="p-1 px-1.5 bg-brand-secondary/65 rounded-lg border border-brand-secondary/20 text-xs shrink-0 select-none">
             ✨
           </div>
           <div>
-            <span className="text-[9px] font-mono font-bold text-indigo-400 tracking-wider block uppercase">
+            <span className="text-[9px] font-mono font-bold text-brand-secondary tracking-wider block uppercase">
               DESIGN CHALLENGE (HMW)
             </span>
-            <p className="text-xs font-bold text-white mt-0.5 leading-relaxed">
+            <p className="text-xs font-bold text-text-primary mt-0.5 leading-relaxed">
               "{problemStatement || "How might we design a better experience?"}"
             </p>
           </div>
@@ -466,19 +466,19 @@ export default function IdeateStage({
       </div>
 
       {/* SUB-WORKSPACE TAB SWITCHER */}
-      <div className="flex items-center justify-between border-b border-slate-900 pb-3 mb-6">
+      <div className="flex items-center justify-between border-b border-border pb-3 mb-6">
         <div className="flex gap-2">
           <button
             onClick={() => setActiveTab("board")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === "board"
-                ? "bg-cyan-500 text-black font-extrabold shadow-[0_0_12px_rgba(6,182,212,0.2)]"
-                : "bg-slate-900 hover:bg-slate-850 text-slate-400 hover:text-slate-200"
+                ? "bg-brand-secondary text-black font-extrabold shadow-[0_0_12px_rgba(6,182,212,0.2)]"
+                : "bg-surface hover:bg-surface-hover text-text-secondary hover:text-text-primary"
             }`}
           >
             💡 Idea Board
             <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-              activeTab === "board" ? "bg-black/10 text-black font-black" : "bg-slate-800 text-slate-500"
+              activeTab === "board" ? "bg-black/10 text-black font-black" : "bg-surface-hover text-text-tertiary"
             }`}>
               {unsortedIdeas.length}
             </span>
@@ -488,21 +488,21 @@ export default function IdeateStage({
             onClick={() => setActiveTab("matrix")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === "matrix"
-                ? "bg-purple-600 text-white font-extrabold shadow-[0_0_12px_rgba(124,58,237,0.3)]"
-                : "bg-slate-900 hover:bg-slate-850 text-slate-400 hover:text-slate-200"
+                ? "bg-purple-600 text-text-primary font-extrabold shadow-[0_0_12px_rgba(124,58,237,0.3)]"
+                : "bg-surface hover:bg-surface-hover text-text-secondary hover:text-text-primary"
             }`}
           >
             📊 Sorted Matrix
             <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-              activeTab === "matrix" ? "bg-purple-900/40 text-purple-200 font-bold" : "bg-slate-800 text-slate-500"
+              activeTab === "matrix" ? "bg-purple-900/40 text-purple-200 font-bold" : "bg-surface-hover text-text-tertiary"
             }`}>
               {ideas.length - unsortedIdeas.length}
             </span>
           </button>
         </div>
 
-        <div className="text-[10px] font-mono text-slate-500 flex items-center gap-1.5">
-          <Sparkle className="w-3 h-3 text-cyan-400" />
+        <div className="text-[10px] font-mono text-text-tertiary flex items-center gap-1.5">
+          <Sparkle className="w-3 h-3 text-brand-secondary" />
           No AI used during board building!
         </div>
       </div>
@@ -522,18 +522,18 @@ export default function IdeateStage({
             
             {/* LEFT PANEL: Single Idea Creator */}
             <div className="lg:col-span-5 flex flex-col">
-              <div className="bg-slate-950/45 border border-slate-900 p-5 rounded-3xl h-full flex flex-col justify-between">
+              <div className="bg-background/45 border border-border p-5 rounded-3xl h-full flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono font-bold tracking-wider text-slate-400 block uppercase">
+                    <span className="text-[10px] font-mono font-bold tracking-wider text-text-secondary block uppercase">
                       📥 Think of One Idea
                     </span>
-                    <span className="text-[9px] font-mono text-cyan-400 font-bold bg-cyan-950/20 px-2 py-0.5 border border-cyan-500/10 rounded-full">
+                    <span className="text-[9px] font-mono text-brand-secondary font-bold bg-brand-secondary/20 px-2 py-0.5 border border-brand-secondary/10 rounded-full">
                       Instant Local Add
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                  <p className="text-xs text-text-secondary leading-relaxed mb-4">
                     Type a solution idea (even a simple, rough, or one-line idea) below, and add it instantly.
                   </p>
 
@@ -545,15 +545,15 @@ export default function IdeateStage({
                         placeholder="e.g. Provide a specialized shuttle vehicle..."
                         value={singleInput}
                         onChange={(e) => handleInputChange(e.target.value)}
-                        className={`w-full bg-slate-950 border text-xs p-3.5 rounded-2xl focus:outline-none transition-all placeholder:text-slate-600 font-semibold text-slate-200 pr-10 ${
-                          inputWarning ? "border-red-500/50 focus:border-red-500" : "border-slate-800 focus:border-cyan-500"
+                        className={`w-full bg-background border text-xs p-3.5 rounded-2xl focus:outline-none transition-all placeholder:text-text-tertiary font-semibold text-text-primary pr-10 ${
+                          inputWarning ? "border-red-500/50 focus:border-red-500" : "border-border focus:border-brand-secondary"
                         }`}
                         autoFocus
                       />
                       <button
                         type="submit"
                         disabled={!singleInput.trim() || !!inputWarning}
-                        className="absolute right-2.5 top-2.5 p-1.5 bg-cyan-500 hover:bg-cyan-400 text-black rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="absolute right-2.5 top-2.5 p-1.5 bg-brand-secondary hover:bg-brand-primary text-black rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Add to board"
                       >
                         <Plus className="w-4 h-4 shrink-0" />
@@ -573,9 +573,9 @@ export default function IdeateStage({
                   </form>
 
                   {/* PROMPT SPARK CHIPS */}
-                  <div className="border-t border-slate-900/60 pt-4">
-                    <span className="text-[9px] font-mono font-extrabold text-slate-500 tracking-wider block uppercase mb-3 flex items-center gap-1">
-                      <Lightbulb className="w-3 h-3 text-yellow-500" />
+                  <div className="border-t border-border/60 pt-4">
+                    <span className="text-[9px] font-mono font-extrabold text-text-tertiary tracking-wider block uppercase mb-3 flex items-center gap-1">
+                      <Lightbulb className="w-3 h-3 text-brand-primary" />
                       BRAINSTORMING SPARKLERS 💡
                     </span>
                     <div className="flex flex-col gap-2">
@@ -584,9 +584,9 @@ export default function IdeateStage({
                           key={idx}
                           type="button"
                           onClick={() => handleApplyPrompt(p)}
-                          className="text-left text-[11px] p-2 rounded-xl bg-slate-900/40 hover:bg-slate-900 text-slate-400 hover:text-cyan-300 font-medium border border-slate-950 hover:border-cyan-500/10 cursor-pointer transition-all flex items-start gap-1.5"
+                          className="text-left text-[11px] p-2 rounded-xl bg-surface/40 hover:bg-surface text-text-secondary hover:text-brand-secondary font-medium border border-slate-950 hover:border-brand-secondary/10 cursor-pointer transition-all flex items-start gap-1.5"
                         >
-                          <Sparkle className="w-3 h-3 text-cyan-500/60 mt-0.5 shrink-0" />
+                          <Sparkle className="w-3 h-3 text-brand-secondary/60 mt-0.5 shrink-0" />
                           <span>{p}</span>
                         </button>
                       ))}
@@ -595,21 +595,21 @@ export default function IdeateStage({
                 </div>
 
                 {/* PROGRESS AND GLOWING METERS */}
-                <div className="mt-5 pt-4 border-t border-slate-900/80 space-y-4 font-bold">
+                <div className="mt-5 pt-4 border-t border-border/80 space-y-4 font-bold">
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center text-[10px] font-mono">
-                      <span className="text-slate-400">BOARD SIZE</span>
-                      <span className={ideas.length >= 10 ? "text-emerald-400 font-extrabold" : "text-cyan-400 font-extrabold"}>
+                      <span className="text-text-secondary">BOARD SIZE</span>
+                      <span className={ideas.length >= 10 ? "text-emerald-400 font-extrabold" : "text-brand-secondary font-extrabold"}>
                         Collected: {ideas.length} / 10 Ideas
                       </span>
                     </div>
-                    <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-background rounded-full overflow-hidden">
                       <div 
-                        className={`h-full transition-all duration-300 ${ideas.length >= 10 ? "bg-emerald-500" : "bg-cyan-500"}`}
+                        className={`h-full transition-all duration-300 ${ideas.length >= 10 ? "bg-emerald-500" : "bg-brand-secondary"}`}
                         style={{ width: `${Math.min((ideas.length / 10) * 100, 100)}%` }}
                       />
                     </div>
-                    <p className="text-[9.5px] text-slate-500 font-normal leading-relaxed italic mt-1">
+                    <p className="text-[9.5px] text-text-tertiary font-normal leading-relaxed italic mt-1">
                       {ideas.length === 0 && "Your sandbox is empty. Type your first idea above!"}
                       {ideas.length > 0 && ideas.length < 5 && "Start simple! Collect some more ideas below."}
                       {ideas.length >= 5 && ideas.length < 10 && "Great board size! Ready to sort or add more."}
@@ -620,7 +620,7 @@ export default function IdeateStage({
                   <button
                     onClick={handleSortMyIdeas}
                     disabled={ideas.length === 0}
-                    className="w-full py-3.5 bg-gradient-to-r from-cyan-400 to-indigo-500 text-black text-xs font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_25px_rgba(6,182,212,0.45)] flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transform active:scale-95 duration-150"
+                    className="w-full py-3.5 bg-gradient-to-r from-brand-secondary to-brand-secondary/80 text-black text-xs font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_25px_rgba(6,182,212,0.45)] flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transform active:scale-95 duration-150"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     Sort My Ideas ✨
@@ -632,27 +632,27 @@ export default function IdeateStage({
 
             {/* RIGHT PANEL: Your Active Sticky Board (Problem Board Style) */}
             <div className="lg:col-span-7 flex flex-col">
-              <div className="bg-slate-950/20 border-2 border-slate-900 border-dashed rounded-3xl p-5 min-h-[440px] flex flex-col">
-                <div className="border-b border-slate-900 pb-3 mb-4 flex items-center justify-between">
+              <div className="bg-background/20 border-2 border-border border-dashed rounded-3xl p-5 min-h-[440px] flex flex-col">
+                <div className="border-b border-border pb-3 mb-4 flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-extrabold text-white flex items-center gap-1.5 uppercase tracking-wide">
+                    <h3 className="text-sm font-extrabold text-text-primary flex items-center gap-1.5 uppercase tracking-wide">
                       📌 Ideas Sandbox Board
                     </h3>
-                    <p className="text-[10px] text-slate-500 mt-0.5">
+                    <p className="text-[10px] text-text-tertiary mt-0.5">
                       Double-click text to modify wording anytime.
                     </p>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400 bg-slate-950 px-2 py-1 rounded-lg">
+                  <span className="text-[10px] font-mono text-text-secondary bg-background px-2 py-1 rounded-lg">
                     {ideas.length} total on board
                   </span>
                 </div>
 
                 {ideas.length === 0 ? (
                   <div className="flex-1 flex flex-col items-center justify-center text-center py-20 px-4">
-                    <div className="w-12 h-12 rounded-full bg-slate-900 text-slate-500 border border-slate-800 flex items-center justify-center text-xl mb-3">
+                    <div className="w-12 h-12 rounded-full bg-surface text-text-tertiary border border-border flex items-center justify-center text-xl mb-3">
                       ✍️
                     </div>
-                    <h4 className="text-xs font-bold text-slate-200">No ideas on the board yet</h4>
+                    <h4 className="text-xs font-bold text-text-primary">No ideas on the board yet</h4>
                     <p className="text-[10.5px] text-slate-550 max-w-[280px] mt-1.5 leading-normal">
                       Write down your thoughts on the left! Once they are saved, click Sort to filter.
                     </p>
@@ -666,7 +666,7 @@ export default function IdeateStage({
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.85 }}
-                          className="p-4 bg-slate-950/70 border border-slate-850 rounded-2xl relative shadow-sm hover:border-cyan-500/20 hover:shadow-[0_2px_12px_rgba(6,182,212,0.03)] duration-200 group flex flex-col justify-between"
+                          className="p-4 bg-background/70 border border-slate-850 rounded-2xl relative shadow-sm hover:border-brand-secondary/20 hover:shadow-[0_2px_12px_rgba(6,182,212,0.03)] duration-200 group flex flex-col justify-between"
                         >
                           <div>
                             {/* Inline Edit form block */}
@@ -679,19 +679,19 @@ export default function IdeateStage({
                                   onSafetyChange={(safe) => setIsEditSafe(safe)}
                                   context={problemStatement}
                                   rows={2}
-                                  className="w-full bg-slate-900 border border-cyan-500 text-slate-200 text-xs p-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-cyan-500/10 font-medium"
+                                  className="w-full bg-surface border border-brand-secondary text-text-primary text-xs p-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-secondary/10 font-medium"
                                 />
                                 <div className="flex gap-1">
                                   <button
                                     onClick={() => saveEdit(item.id)}
                                     disabled={!isEditSafe}
-                                    className="px-2 py-1 bg-cyan-500 text-black text-[9px] font-mono tracking-wider font-extrabold rounded-lg disabled:opacity-40 cursor-pointer"
+                                    className="px-2 py-1 bg-brand-secondary text-black text-[9px] font-mono tracking-wider font-extrabold rounded-lg disabled:opacity-40 cursor-pointer"
                                   >
                                     SAVE ✅
                                   </button>
                                   <button
                                     onClick={() => setEditingId(null)}
-                                    className="px-2 py-1 bg-slate-800 text-slate-400 text-[9px] font-mono rounded-lg"
+                                    className="px-2 py-1 bg-surface-hover text-text-secondary text-[9px] font-mono rounded-lg"
                                   >
                                     CANCEL
                                   </button>
@@ -701,12 +701,12 @@ export default function IdeateStage({
                               <div>
                                 <span className="text-[8px] font-mono text-slate-650 tracking-wider block uppercase mb-1 flex items-center justify-between">
                                   <span>ID: {item.id.split("_")[2] || "raw"}</span>
-                                  <span className="text-[9px] text-cyan-400 font-bold">Unsorted</span>
+                                  <span className="text-[9px] text-brand-secondary font-bold">Unsorted</span>
                                 </span>
                                 
                                 <p 
                                   onClick={() => startEditing(item)}
-                                  className="text-xs font-semibold text-slate-100 italic pr-6 cursor-pointer hover:underline hover:text-white"
+                                  className="text-xs font-semibold text-text-primary italic pr-6 cursor-pointer hover:underline hover:text-text-primary"
                                   title="Double-click to edit"
                                 >
                                   "{item.text}"
@@ -716,10 +716,10 @@ export default function IdeateStage({
                           </div>
 
                           {/* Sticky bottom controls row */}
-                          <div className="mt-3.5 pt-2 border-t border-slate-900 flex items-center justify-between">
+                          <div className="mt-3.5 pt-2 border-t border-border flex items-center justify-between">
                             <button
                               onClick={() => startEditing(item)}
-                              className="text-[10px] text-slate-500 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+                              className="text-[10px] text-text-tertiary hover:text-text-primary transition-colors flex items-center gap-1 cursor-pointer"
                             >
                               <Edit2 className="w-3 h-3" /> Edit Word{editingId === item.id ? "ing" : "s"}
                             </button>
@@ -754,15 +754,15 @@ export default function IdeateStage({
           >
             {/* Quick alert bar */}
             {(nowIdeas.length === 0 && wowIdeas.length === 0 && howIdeas.length === 0) && (
-              <div className="bg-slate-950/80 border-2 border-dashed border-slate-900/90 rounded-2xl p-6 text-center max-w-xl mx-auto py-10">
-                <Lightbulb className="w-7 h-7 text-yellow-500/60 mx-auto mb-2 animate-pulse" />
+              <div className="bg-background/80 border-2 border-dashed border-border/90 rounded-2xl p-6 text-center max-w-xl mx-auto py-10">
+                <Lightbulb className="w-7 h-7 text-brand-primary/60 mx-auto mb-2 animate-pulse" />
                 <h4 className="text-xs font-bold text-slate-305">Matrix Currently Empty!</h4>
-                <p className="text-[11px] text-slate-500 leading-normal max-w-sm mx-auto mt-1 flex-col">
+                <p className="text-[11px] text-text-tertiary leading-normal max-w-sm mx-auto mt-1 flex-col">
                   Your ideas are waiting for categorization. Return to the <b>Idea Board</b> tab on top and press "Sort My Ideas" to load AI categories.
                 </p>
                 <button
                   onClick={() => setActiveTab("board")}
-                  className="mt-4 px-4 py-2 bg-slate-900 hover:bg-slate-850 rounded-xl text-[10.5px] font-bold text-cyan-400 cursor-pointer"
+                  className="mt-4 px-4 py-2 bg-surface hover:bg-surface-hover rounded-xl text-[10.5px] font-bold text-brand-secondary cursor-pointer"
                 >
                   Return to Sandbox Board 📌
                 </button>
@@ -773,18 +773,18 @@ export default function IdeateStage({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
               
               {/* NOW COLUMN */}
-              <div className="flex flex-col bg-slate-950/15 border border-slate-900 p-4 rounded-3xl min-h-[460px]">
-                <div className="flex items-center justify-between border-b border-slate-900 pb-2.5 mb-3">
+              <div className="flex flex-col bg-background/15 border border-border p-4 rounded-3xl min-h-[460px]">
+                <div className="flex items-center justify-between border-b border-border pb-2.5 mb-3">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 shrink-0 shadow-[0_0_8px_rgba(250,204,21,0.4)]" />
                     <div>
-                      <span className="text-xs font-black text-yellow-400 tracking-wider block font-sans">
+                      <span className="text-xs font-black text-brand-primary tracking-wider block font-sans">
                         NOW IDEAS
                       </span>
-                      <span className="text-[9px] text-slate-500 font-medium block">Actionable immediate wins</span>
+                      <span className="text-[9px] text-text-tertiary font-medium block">Actionable immediate wins</span>
                     </div>
                   </div>
-                  <span className="text-xs bg-slate-950 text-slate-400 px-2.5 py-0.5 border border-slate-900 rounded font-mono">
+                  <span className="text-xs bg-background text-text-secondary px-2.5 py-0.5 border border-border rounded font-mono">
                     {nowIdeas.length}
                   </span>
                 </div>
@@ -811,26 +811,26 @@ export default function IdeateStage({
                   ))}
 
                   {nowIdeas.length === 0 && (
-                    <div className="p-4 border-2 border-dashed border-slate-900/40 rounded-2xl text-center py-10 bg-slate-950/5">
-                      <p className="text-[10.5px] text-slate-600 font-bold leading-normal">Nothing in NOW ideas yet.</p>
+                    <div className="p-4 border-2 border-dashed border-border/40 rounded-2xl text-center py-10 bg-background/5">
+                      <p className="text-[10.5px] text-text-tertiary font-bold leading-normal">Nothing in NOW ideas yet.</p>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* WOW COLUMN */}
-              <div className="flex flex-col bg-slate-950/15 border border-slate-900 p-4 rounded-3xl min-h-[460px]">
-                <div className="flex items-center justify-between border-b border-slate-900 pb-2.5 mb-3">
+              <div className="flex flex-col bg-background/15 border border-border p-4 rounded-3xl min-h-[460px]">
+                <div className="flex items-center justify-between border-b border-border pb-2.5 mb-3">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shrink-0 shadow-[0_0_8px_rgba(34,211,238,0.4)]" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-brand-primary shrink-0 shadow-[0_0_8px_rgba(34,211,238,0.4)]" />
                     <div>
-                      <span className="text-xs font-black text-cyan-400 tracking-wider block font-sans">
+                      <span className="text-xs font-black text-brand-secondary tracking-wider block font-sans">
                         WOW IDEAS
                       </span>
-                      <span className="text-[9px] text-slate-500 font-medium block">Creative, realistic game-changers</span>
+                      <span className="text-[9px] text-text-tertiary font-medium block">Creative, realistic game-changers</span>
                     </div>
                   </div>
-                  <span className="text-xs bg-slate-950 text-slate-400 px-2.5 py-0.5 border border-slate-900 rounded font-mono">
+                  <span className="text-xs bg-background text-text-secondary px-2.5 py-0.5 border border-border rounded font-mono">
                     {wowIdeas.length}
                   </span>
                 </div>
@@ -857,26 +857,26 @@ export default function IdeateStage({
                   ))}
 
                   {wowIdeas.length === 0 && (
-                    <div className="p-4 border-2 border-dashed border-slate-900/40 rounded-2xl text-center py-10 bg-slate-950/5">
-                      <p className="text-[10.5px] text-slate-600 font-bold leading-normal">Nothing in WOW ideas yet.</p>
+                    <div className="p-4 border-2 border-dashed border-border/40 rounded-2xl text-center py-10 bg-background/5">
+                      <p className="text-[10.5px] text-text-tertiary font-bold leading-normal">Nothing in WOW ideas yet.</p>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* HOW COLUMN */}
-              <div className="flex flex-col bg-slate-950/15 border border-slate-900 p-4 rounded-3xl min-h-[460px]">
-                <div className="flex items-center justify-between border-b border-slate-900 pb-2.5 mb-3">
+              <div className="flex flex-col bg-background/15 border border-border p-4 rounded-3xl min-h-[460px]">
+                <div className="flex items-center justify-between border-b border-border pb-2.5 mb-3">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-purple-400 shrink-0 shadow-[0_0_8px_rgba(192,132,252,0.4)]" />
                     <div>
                       <span className="text-xs font-black text-purple-400 tracking-wider block font-sans">
                         HOW IDEAS
                       </span>
-                      <span className="text-[9px] text-slate-500 font-medium block">Futuristic / ambitious frontiers</span>
+                      <span className="text-[9px] text-text-tertiary font-medium block">Futuristic / ambitious frontiers</span>
                     </div>
                   </div>
-                  <span className="text-xs bg-slate-950 text-slate-400 px-2.5 py-0.5 border border-slate-900 rounded font-mono">
+                  <span className="text-xs bg-background text-text-secondary px-2.5 py-0.5 border border-border rounded font-mono">
                     {howIdeas.length}
                   </span>
                 </div>
@@ -903,8 +903,8 @@ export default function IdeateStage({
                   ))}
 
                   {howIdeas.length === 0 && (
-                    <div className="p-4 border-2 border-dashed border-slate-900/40 rounded-2xl text-center py-10 bg-slate-950/5">
-                      <p className="text-[10.5px] text-slate-600 font-bold leading-normal">Nothing in HOW ideas yet.</p>
+                    <div className="p-4 border-2 border-dashed border-border/40 rounded-2xl text-center py-10 bg-background/5">
+                      <p className="text-[10.5px] text-text-tertiary font-bold leading-normal">Nothing in HOW ideas yet.</p>
                     </div>
                   )}
                 </div>
@@ -923,23 +923,23 @@ export default function IdeateStage({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6"
+            className="fixed inset-0 bg-background/85 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6"
           >
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-sm w-full max-h-[90vh] overflow-y-auto text-center shadow-[0_10px_40px_rgba(6,182,212,0.15)] flex flex-col items-center">
+            <div className="bg-surface border border-border rounded-3xl p-8 max-w-sm w-full max-h-[90vh] overflow-y-auto text-center shadow-[0_10px_40px_rgba(6,182,212,0.15)] flex flex-col items-center">
               <div className="relative mb-5 flex items-center justify-center">
-                <RefreshCw className="w-12 h-12 text-cyan-400 animate-spin absolute" />
+                <RefreshCw className="w-12 h-12 text-brand-secondary animate-spin absolute" />
                 <Lightbulb className="w-6 h-6 text-yellow-405 animate-pulse" />
               </div>
-              <h3 className="text-sm font-black text-white tracking-widest uppercase mb-1">
+              <h3 className="text-sm font-black text-text-primary tracking-widest uppercase mb-1">
                 Sorting your Idea Board
               </h3>
-              <p className="text-xs text-cyan-300 font-bold uppercase mb-4 animate-pulse">
+              <p className="text-xs text-brand-secondary font-bold uppercase mb-4 animate-pulse">
                 {loadingText}
               </p>
-              <div className="w-16 h-1 bg-slate-950 rounded-full overflow-hidden mb-1.5">
-                <div className="h-full bg-cyan-400 animate-[pulse_1.5s_infinite] w-full" />
+              <div className="w-16 h-1 bg-background rounded-full overflow-hidden mb-1.5">
+                <div className="h-full bg-brand-primary animate-[pulse_1.5s_infinite] w-full" />
               </div>
-              <p className="text-[10.5px] text-slate-500 leading-normal font-sans">
+              <p className="text-[10.5px] text-text-tertiary leading-normal font-sans">
                 A single optimize batch request is packaging all of your brainstorming cards now. No credits wasted!
               </p>
             </div>
@@ -948,15 +948,15 @@ export default function IdeateStage({
       </AnimatePresence>
 
       {/* FOOTER NAV CONTROLS ROW */}
-      <div className="flex justify-between items-center mt-8 pt-4 border-t border-slate-900">
-        <span className="text-slate-500 text-[10.5px] font-medium">
+      <div className="flex justify-between items-center mt-8 pt-4 border-t border-border">
+        <span className="text-text-tertiary text-[10.5px] font-medium">
           Stage 4 Checklist: Brainstorm sandbox finished ({ideas.length} custom ideas)
         </span>
         
         <button
           disabled={ideas.length === 0 || ideas.some(i => i.category === "UNSORTED")}
           onClick={onNext}
-          className="px-10 py-3.5 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs uppercase tracking-widest rounded-full cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(124,58,237,0.3)] hover:shadow-[0_0_25px_rgba(124,58,237,0.5)] disabled:opacity-45 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+          className="px-10 py-3.5 bg-purple-600 hover:bg-purple-500 text-text-primary font-extrabold text-xs uppercase tracking-widest rounded-full cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(124,58,237,0.3)] hover:shadow-[0_0_25px_rgba(124,58,237,0.5)] disabled:opacity-45 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
         >
           Build Sandbox Prototype 🚀
         </button>
@@ -1011,19 +1011,19 @@ function SortedCard({
       transition={{ duration: 0.2 }}
       className={`p-3.5 rounded-2xl relative border shadow-sm transition-all duration-200 ${
         item.enhanced 
-          ? "bg-slate-900/90 border-indigo-500/25 shadow-[inset_0_1px_3px_rgba(99,102,241,0.05),_0_2px_12px_rgba(0,0,0,0.2)]" 
-          : "bg-slate-950/70 border-slate-850 hover:border-slate-800"
+          ? "bg-surface/90 border-brand-secondary/25 shadow-[inset_0_1px_3px_rgba(99,102,241,0.05),_0_2px_12px_rgba(0,0,0,0.2)]" 
+          : "bg-background/70 border-slate-850 hover:border-border"
       }`}
     >
       <div>
         
         {/* Card Header information block */}
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[8px] font-mono font-bold uppercase py-0.5 px-2 bg-slate-900 border border-slate-850 text-slate-500 rounded-md">
+          <span className="text-[8px] font-mono font-bold uppercase py-0.5 px-2 bg-surface border border-slate-850 text-text-tertiary rounded-md">
             ID: {item.id.split("_")[2] || "sorted"}
           </span>
           {item.enhanced && (
-            <span className="text-[8px] font-black text-indigo-400 bg-indigo-950/40 px-2 py-0.5 border border-indigo-500/20 rounded-md uppercase flex items-center gap-0.5 animate-pulse">
+            <span className="text-[8px] font-black text-brand-secondary bg-brand-secondary/40 px-2 py-0.5 border border-brand-secondary/20 rounded-md uppercase flex items-center gap-0.5 animate-pulse">
               <Sparkles className="w-2.5 h-2.5 shrink-0" /> Enhanced
             </span>
           )}
@@ -1039,13 +1039,13 @@ function SortedCard({
               onSafetyChange={(safe) => setIsEditSafe(safe)}
               context={problemStatement}
               rows={2}
-              className="w-full bg-slate-900 border border-cyan-500 text-slate-200 text-xs p-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-cyan-500/10 font-semibold"
+              className="w-full bg-surface border border-brand-secondary text-text-primary text-xs p-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-secondary/10 font-semibold"
             />
             <div className="flex gap-1.5">
               <button
                 onClick={saveEdit}
                 disabled={!isEditSafe}
-                className="px-2 py-1 bg-cyan-400 text-black text-[9px] font-mono tracking-wider font-extrabold rounded-md disabled:opacity-40 cursor-pointer"
+                className="px-2 py-1 bg-brand-primary text-black text-[9px] font-mono tracking-wider font-extrabold rounded-md disabled:opacity-40 cursor-pointer"
               >
                 SAVE 💾
               </button>
@@ -1061,7 +1061,7 @@ function SortedCard({
           <div className="space-y-1.5">
             {item.enhanced && !viewOriginal ? (
               <div>
-                <h4 className="text-xs font-black text-indigo-300 tracking-tight leading-snug">
+                <h4 className="text-xs font-black text-brand-secondary tracking-tight leading-snug">
                   🚀 {item.enhancedTitle}
                 </h4>
                 <p className="text-[10.5px] text-slate-350 leading-relaxed font-semibold italic mt-1 font-sans">
@@ -1069,7 +1069,7 @@ function SortedCard({
                 </p>
                 <button
                   onClick={() => setViewOriginal(true)}
-                  className="text-[9px] text-slate-500 hover:text-white underline mt-1.5 block cursor-pointer transition-colors"
+                  className="text-[9px] text-text-tertiary hover:text-text-primary underline mt-1.5 block cursor-pointer transition-colors"
                 >
                   Show original wording
                 </button>
@@ -1078,7 +1078,7 @@ function SortedCard({
               <div>
                 <p 
                   onClick={startEditing}
-                  className="text-xs font-semibold text-slate-100 italic leading-relaxed hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-text-primary italic leading-relaxed hover:underline cursor-pointer"
                   title="Click to edit raw idea text"
                 >
                   "{item.text}"
@@ -1086,7 +1086,7 @@ function SortedCard({
                 {item.enhanced && (
                   <button
                     onClick={() => setViewOriginal(false)}
-                    className="text-[9px] text-indigo-450 hover:text-indigo-300 underline mt-1.5 block cursor-pointer font-bold transition-colors"
+                    className="text-[9px] text-brand-secondary hover:text-brand-secondary underline mt-1.5 block cursor-pointer font-bold transition-colors"
                   >
                     Show enhanced details ✨
                   </button>
@@ -1098,8 +1098,8 @@ function SortedCard({
 
         {/* AI Brief analysis reasoning */}
         {item.reasoning && (
-          <p className="text-[10px] text-slate-450 leading-normal pt-2 mt-2.5 border-t border-slate-900 font-medium">
-            <span className="font-bold text-slate-500">AI:</span> {item.reasoning}
+          <p className="text-[10px] text-slate-450 leading-normal pt-2 mt-2.5 border-t border-border font-medium">
+            <span className="font-bold text-text-tertiary">AI:</span> {item.reasoning}
           </p>
         )}
 
@@ -1109,7 +1109,7 @@ function SortedCard({
       {!editingId && (
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="w-full text-center text-[9px] font-mono font-bold tracking-widest text-slate-500 hover:text-slate-300 py-1.5 mt-2 border-t border-b border-slate-900/40 block cursor-pointer uppercase flex items-center justify-center gap-1"
+          className="w-full text-center text-[9px] font-mono font-bold tracking-widest text-text-tertiary hover:text-text-secondary py-1.5 mt-2 border-t border-b border-border/40 block cursor-pointer uppercase flex items-center justify-center gap-1"
         >
           {collapsed ? "📊 Show Metrics & Options" : "🔼 Hide Options"}
         </button>
@@ -1125,51 +1125,51 @@ function SortedCard({
             className="overflow-hidden space-y-3 pt-2.5"
           >
             {/* QUALITY SCORE SECTORS */}
-            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 bg-slate-950 p-2.5 rounded-xl border border-slate-900 font-bold">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 bg-background p-2.5 rounded-xl border border-border font-bold">
               <div className="space-y-0.5">
-                <div className="flex justify-between text-[9px] font-mono text-slate-400">
+                <div className="flex justify-between text-[9px] font-mono text-text-secondary">
                   <span>Innovation</span>
                   <span>{scores.innovation}%</span>
                 </div>
-                <div className="w-full h-1 bg-slate-900 rounded-full overflow-hidden">
-                  <div className="h-full bg-cyan-400" style={{ width: `${scores.innovation}%` }} />
+                <div className="w-full h-1 bg-surface rounded-full overflow-hidden">
+                  <div className="h-full bg-brand-primary" style={{ width: `${scores.innovation}%` }} />
                 </div>
               </div>
 
               <div className="space-y-0.5">
-                <div className="flex justify-between text-[9px] font-mono text-slate-400">
+                <div className="flex justify-between text-[9px] font-mono text-text-secondary">
                   <span>Feasibility</span>
                   <span>{scores.feasibility}%</span>
                 </div>
-                <div className="w-full h-1 bg-slate-900 rounded-full overflow-hidden">
+                <div className="w-full h-1 bg-surface rounded-full overflow-hidden">
                   <div className="h-full bg-yellow-405" style={{ width: `${scores.feasibility}%` }} />
                 </div>
               </div>
 
               <div className="space-y-0.5">
-                <div className="flex justify-between text-[9px] font-mono text-slate-400">
+                <div className="flex justify-between text-[9px] font-mono text-text-secondary">
                   <span>Impact</span>
                   <span>{scores.impact}%</span>
                 </div>
-                <div className="w-full h-1 bg-slate-900 rounded-full overflow-hidden">
+                <div className="w-full h-1 bg-surface rounded-full overflow-hidden">
                   <div className="h-full bg-emerald-500" style={{ width: `${scores.impact}%` }} />
                 </div>
               </div>
 
               <div className="space-y-0.5">
-                <div className="flex justify-between text-[9px] font-mono text-slate-400">
+                <div className="flex justify-between text-[9px] font-mono text-text-secondary">
                   <span>Scalability</span>
                   <span>{scores.scalability}%</span>
                 </div>
-                <div className="w-full h-1 bg-slate-900 rounded-full overflow-hidden">
+                <div className="w-full h-1 bg-surface rounded-full overflow-hidden">
                   <div className="h-full bg-purple-400" style={{ width: `${scores.scalability}%` }} />
                 </div>
               </div>
             </div>
 
             {/* OVERRIDE CLASSIFICATIONS BUTTON MATRIX */}
-            <div className="pt-2 border-t border-slate-900">
-              <span className="text-[8px] font-mono font-bold text-slate-500 block uppercase mb-1.5">
+            <div className="pt-2 border-t border-border">
+              <span className="text-[8px] font-mono font-bold text-text-tertiary block uppercase mb-1.5">
                 Shift Category Group:
               </span>
               <div className="grid grid-cols-3 gap-1 shadow-sm shrink-0 font-mono">
@@ -1179,7 +1179,7 @@ function SortedCard({
                   className={`text-[8.5px] py-1 text-center rounded-lg transition-all border font-bold uppercase cursor-pointer ${
                     item.category === "NOW"
                       ? "bg-yellow-400 text-black font-extrabold border-yellow-405"
-                      : "bg-slate-950 hover:bg-slate-900 text-slate-400 border-slate-900 hover:text-slate-200"
+                      : "bg-background hover:bg-surface text-text-secondary border-border hover:text-text-primary"
                   }`}
                 >
                   NOW
@@ -1189,8 +1189,8 @@ function SortedCard({
                   disabled={item.category === "WOW"}
                   className={`text-[8.5px] py-1 text-center rounded-lg transition-all border font-bold uppercase cursor-pointer ${
                     item.category === "WOW"
-                      ? "bg-cyan-400 text-black font-extrabold border-cyan-405"
-                      : "bg-slate-950 hover:bg-slate-900 text-slate-400 border-slate-900 hover:text-slate-200"
+                      ? "bg-brand-primary text-black font-extrabold border-brand-secondary"
+                      : "bg-background hover:bg-surface text-text-secondary border-border hover:text-text-primary"
                   }`}
                 >
                   WOW
@@ -1200,8 +1200,8 @@ function SortedCard({
                   disabled={item.category === "HOW"}
                   className={`text-[8.5px] py-1 text-center rounded-lg transition-all border font-bold uppercase cursor-pointer ${
                     item.category === "HOW"
-                      ? "bg-purple-600 text-white font-extrabold border-purple-500"
-                      : "bg-slate-950 hover:bg-slate-900 text-slate-400 border-slate-900 hover:text-slate-200"
+                      ? "bg-purple-600 text-text-primary font-extrabold border-purple-500"
+                      : "bg-background hover:bg-surface text-text-secondary border-border hover:text-text-primary"
                   }`}
                 >
                   HOW
@@ -1213,7 +1213,7 @@ function SortedCard({
             <div className="flex items-center justify-between pt-1 flex-row">
               <button
                 onClick={startEditing}
-                className="text-[10px] text-slate-500 hover:text-white flex items-center gap-1 cursor-pointer font-bold"
+                className="text-[10px] text-text-tertiary hover:text-text-primary flex items-center gap-1 cursor-pointer font-bold"
               >
                 <Edit2 className="w-2.5 h-2.5" /> Edit Raw Text
               </button>

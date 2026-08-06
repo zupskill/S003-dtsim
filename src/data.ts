@@ -8,7 +8,7 @@ export const PREDEFINED_TOPICS: Topic[] = [
     trendingTag: "TRAFFIC",
     activityCount: 0,
     iconName: "Car",
-    color: "from-blue-600 to-indigo-500",
+    color: "from-blue-600 to-brand-secondary/80",
   },
   {
     id: "college-life",
@@ -26,7 +26,7 @@ export const PREDEFINED_TOPICS: Topic[] = [
     trendingTag: "SOCIAL",
     activityCount: 0,
     iconName: "Sparkles",
-    color: "from-violet-600 to-purple-400",
+    color: "from-violet-600 to-brand-secondary/60",
   },
   {
     id: "mental-health",

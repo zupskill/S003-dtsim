@@ -92,13 +92,18 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
         const searchParams = new URLSearchParams(window.location.search);
         const code = searchParams.get('code');
         if (code) {
+          console.log("[AUTH] User selected account");
           await supabase.auth.exchangeCodeForSession(code);
+          console.log("[AUTH] Authentication successful");
           window.history.replaceState({}, document.title, window.location.pathname);
         }
       } catch (e) {}
 
       const { data } = await supabase.auth.getSession();
       if (!mounted) return;
+      if (data.session?.user) {
+        console.log("[AUTH] Found existing session");
+      }
       setUser(data.session?.user ?? null);
       if (data.session?.user) {
         await loadUserProfile(data.session.user);
@@ -109,8 +114,12 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
     initializeAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log(`[AUTH] Auth state changed: ${event}`);
       if (!mounted) return;
       if (event === 'INITIAL_SESSION') return;
+      if (event === 'SIGNED_IN') {
+        console.log("[AUTH] Authentication successful");
+      }
       setUser(session?.user ?? null);
       if (session?.user) {
         setIsLoading(true);
@@ -178,17 +187,38 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
   }, [user, activityProgress]);
 
   const signOut = useCallback(async () => {
+    console.log("[AUTH] Logout initiated");
     await supabase.auth.signOut();
+    console.log("[AUTH] Supabase session cleared");
+    setUser(null);
+    setProfile(null);
+    setActivityProgress([]);
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith("zupskill_sim_")) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    console.log("[AUTH] Local auth state cleared");
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
+    console.log("[AUTH] Google OAuth initiated");
     if (!isSupabaseConfigured) {
       alert("Please connect Supabase first");
       return;
     }
+    console.log("[AUTH] Account chooser requested");
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin }
+      options: { 
+        redirectTo: window.location.origin,
+        queryParams: {
+          prompt: 'select_account'
+        }
+      }
     });
   }, []);
 

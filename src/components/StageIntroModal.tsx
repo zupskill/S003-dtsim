@@ -115,18 +115,22 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
         </div>
 
         {/* Video Container */}
-        <div className="w-full aspect-video bg-black relative shrink-0">
+        <div className="w-full bg-black shrink-0 flex items-center justify-center">
           <iframe
             src={stageConfig.youtubeUrl}
             title={`${stageConfig.title} Introduction`}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
-            className="w-full h-full border-0"
+            className="w-full aspect-video border-0"
+            style={{ 
+              maxHeight: "clamp(140px, 35vh, 450px)",
+              maxWidth: "calc(clamp(140px, 35vh, 450px) * 16 / 9)" 
+            }}
           ></iframe>
         </div>
 
         {/* Learning Summary */}
-        <div className="p-4 sm:p-6 bg-surface-hover/50 flex-1 overflow-y-auto">
+        <div className="p-4 sm:p-6 bg-surface-hover/50 flex-1 overflow-y-auto min-h-0">
           <h3 className="text-sm sm:text-lg font-medium text-text-primary mb-2 sm:mb-3">In this stage you'll learn to:</h3>
           <ul className="space-y-1.5 sm:space-y-2">
             {stageConfig.bulletPoints.map((point, index) => (

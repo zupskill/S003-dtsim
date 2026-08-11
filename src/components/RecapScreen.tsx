@@ -65,7 +65,7 @@ export default function RecapScreen({ recap, profile, onNewStart, onReviewRecap,
               {recap.overallScore}%
             </div>
             <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-text-tertiary' : 'text-text-secondary'}`}>
-              Overall Score
+              Design Thinking Engagement
             </span>
           </div>
         </div>

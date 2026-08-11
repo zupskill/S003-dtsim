@@ -1966,6 +1966,65 @@ Provide your response in JSON matching the specified response schema. Determine 
   }
 });
 
+// 9. AI Thoughtfulness Score Evaluator
+app.post("/api/test/thoughtfulness", async (req: Request, res: Response) => {
+  try {
+    const { problemObservations, refinedHowMightWe, ideas, selectedPrototype } = req.body;
+    
+    const prompt = `You are an AI scoring system evaluating a student's engagement in a Design Thinking simulation.
+We need to assign an AI Thoughtfulness score from 0 to 10 based ONLY on the provided student inputs.
+
+Evaluate:
+- specificity
+- relevance
+- user-centered thinking
+- depth of reasoning
+- consistency between stages
+- reflection
+- thoughtfulness
+
+DO NOT evaluate time spent, number of clicks, or length of text if it's meaningless.
+
+Student Inputs:
+Observations: ${JSON.stringify(problemObservations)}
+HMW Statement: "${refinedHowMightWe}"
+Generated Ideas: ${JSON.stringify(ideas)}
+Prototype: ${JSON.stringify(selectedPrototype)}
+
+Provide a score from 0 to 10 as an integer, and a short 1-sentence reason.`;
+
+    const config = {
+      systemInstruction: "You are an evaluator. Return a JSON object with 'score' (number between 0-10) and 'reason' (string).",
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        required: ["score", "reason"],
+        properties: {
+          score: {
+            type: Type.INTEGER,
+            description: "A score from 0 to 10 evaluating thoughtfulness."
+          },
+          reason: {
+            type: Type.STRING,
+            description: "A short 1-sentence explanation of the score."
+          }
+        }
+      }
+    };
+
+    const text = await generateContentWithRetry(prompt, config, 1);
+    const parsed = JSON.parse(text);
+    
+    // Ensure the score is bounded
+    let score = typeof parsed.score === "number" ? Math.max(0, Math.min(10, Math.round(parsed.score))) : 5;
+    
+    return res.json({ score, reason: parsed.reason });
+  } catch (error: any) {
+    logApiError("Error evaluating AI thoughtfulness:", error);
+    return res.status(500).json({ error: "Failed to generate AI Thoughtfulness score", score: 0 });
+  }
+});
+
 // Integration with Vite
 async function startServer() {
   // Vite dev server middleware in development

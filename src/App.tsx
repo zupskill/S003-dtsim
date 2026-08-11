@@ -16,6 +16,7 @@ const ScrollToTop = () => {
 };
 
 // Component imports
+import { calculateDeterministicEngagement, generateEngagementFeedback, getEngagementLevel } from "./utils/scoringEngine";
 import LandingScreen from "./components/LandingScreen";
 import NewSimConfirmModal from "./components/NewSimConfirmModal";
 import { generateRecapReport } from "./utils/pdfGenerator";
@@ -1058,24 +1059,47 @@ export default function App() {
                       onAddXP={handleAddXP}
                       onUnlockBadge={handleUnlockBadge}
                       onNext={async () => {
-                        // Compute Recap
+                        // Engagement Score Calculation
+                        let testingData = {};
                         const savedTesting = localStorage.getItem(`zupskill_testing_${selectedTopic.id}`);
-                        let creativity = 75, understanding = 80, innovation = 70;
                         if (savedTesting) {
                           try {
-                            const parsed = JSON.parse(savedTesting);
-                            if (parsed.iWishScore != null) creativity = parsed.iWishScore;
-                            if (parsed.iLikeScore != null) understanding = parsed.iLikeScore;
-                            if (parsed.whatIfScore != null) innovation = parsed.whatIfScore;
+                            testingData = JSON.parse(savedTesting);
                           } catch(e) {}
                         }
-                        const overallScore = Math.round((creativity + understanding + innovation) / 3);
-
-                        let title = "Explorer";
-                        if (overallScore >= 91) title = "DT Innovation Master";
-                        else if (overallScore >= 76) title = "Innovation Builder";
-                        else if (overallScore >= 61) title = "Creative Thinker";
-                        else if (overallScore >= 41) title = "Problem Solver";
+                        
+                        const deterministic = calculateDeterministicEngagement(
+                          maxReachedStage,
+                          problemObservations,
+                          refinedHowMightWe,
+                          ideas,
+                          selectedPrototype,
+                          testingData
+                        );
+                        
+                        let aiThoughtfulnessScore = 0;
+                        try {
+                          const response = await fetch("/api/test/thoughtfulness", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              problemObservations,
+                              refinedHowMightWe,
+                              ideas,
+                              selectedPrototype
+                            })
+                          });
+                          if (response.ok) {
+                            const data = await response.json();
+                            aiThoughtfulnessScore = data.score || 0;
+                          }
+                        } catch(err) {
+                          console.error("AI Thoughtfulness evaluation failed", err);
+                        }
+                        
+                        const overallScore = Math.min(100, deterministic.stageCompletion + deterministic.meaningfulInput + deterministic.reflectionIteration + aiThoughtfulnessScore);
+                        const levelData = getEngagementLevel(overallScore);
+                        const feedbackMsg = generateEngagementFeedback({ ...deterministic, aiThoughtfulness: aiThoughtfulnessScore, total: overallScore });
 
                         const topIdeas = ideas.slice(0, 3).map(i => i.text);
                         const recap = {
@@ -1086,8 +1110,17 @@ export default function App() {
                           problemStatement: refinedHowMightWe,
                           topIdeas: topIdeas,
                           prototypeSummary: selectedPrototype.description,
-                          achievements: [title],
+                          achievements: [levelData.title],
                           overallScore: overallScore,
+                          engagementBreakdown: {
+                            stageCompletion: deterministic.stageCompletion,
+                            meaningfulInput: deterministic.meaningfulInput,
+                            reflectionIteration: deterministic.reflectionIteration,
+                            aiThoughtfulness: aiThoughtfulnessScore,
+                            feedback: feedbackMsg,
+                            levelTitle: levelData.title,
+                            levelDesc: levelData.desc
+                          },
                           completionTime: Date.now()
                         };
 
@@ -1100,7 +1133,7 @@ export default function App() {
                             task_description: "Evaluated prototype",
                             value1: selectedPrototype?.title || "",
                             value2: selectedPrototype?.description || "",
-                            value3: JSON.stringify({ creativity, understanding, innovation, overallScore }),
+                            value3: JSON.stringify(recap.engagementBreakdown),
                             score: overallScore,
                             completed: true
                           });

@@ -28,6 +28,29 @@ export default function FinalReport({
 
   // 1. Retrieve the actual simulated scores from localStorage or default comfortably
   const getSimulatedScores = () => {
+    // If the userProfile has a recently completed simulation with an engagementBreakdown, use that.
+    if (userProfile.lastCompletedSimulation?.engagementBreakdown) {
+      const breakdown = userProfile.lastCompletedSimulation.engagementBreakdown;
+      
+      const savedKey = `zupskill_testing_${topic.id}`;
+      const saved = localStorage.getItem(savedKey);
+      let creativity = 75, understanding = 80, innovation = 70;
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.iWishScore != null) creativity = parsed.iWishScore;
+          if (parsed.iLikeScore != null) understanding = parsed.iLikeScore;
+          if (parsed.whatIfScore != null) innovation = parsed.whatIfScore;
+        } catch(e) {}
+      }
+
+      return {
+        creativity, understanding, innovation, 
+        overallScore: userProfile.lastCompletedSimulation.overallScore,
+        breakdown
+      };
+    }
+
     const savedKey = `zupskill_testing_${topic.id}`;
     const saved = localStorage.getItem(savedKey);
     let creativity = 75;
@@ -53,13 +76,24 @@ export default function FinalReport({
       } catch (err) {}
     }
 
-    return { creativity, understanding, innovation, overallScore };
+    return { creativity, understanding, innovation, overallScore, breakdown: null };
   };
 
   const scores = getSimulatedScores();
 
   // Determine achievement details based on dynamic, earned testing scores & tiers
-  const getAchievementDetails = (scores: { creativity: number; understanding: number; innovation: number; overallScore: number }) => {
+  const getAchievementDetails = (scores: { creativity: number; understanding: number; innovation: number; overallScore: number; breakdown?: any }) => {
+    if (scores.breakdown) {
+      return {
+        title: scores.breakdown.levelTitle,
+        symbol: scores.breakdown.levelTitle.includes("Master") || scores.breakdown.levelTitle.includes("Thinker 🚀") ? "🚀" : (scores.breakdown.levelTitle.includes("Explorer") ? "🌟" : "💡"),
+        desc: scores.breakdown.feedback,
+        strengthScores: scores,
+        tierName: scores.breakdown.levelTitle,
+        colorClass: "bg-brand-primary/40 border border-brand-primary/20 text-brand-primary"
+      };
+    }
+
     const avgScore = scores.overallScore;
     
     if (avgScore >= 91) {
@@ -267,7 +301,7 @@ export default function FinalReport({
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-left relative z-10">
             <div className="text-center sm:text-left space-y-1">
               <span className={`text-[10px] font-mono block uppercase tracking-[0.2em] font-black ${isDark ? "text-brand-primary" : "text-brand-primary"}`}>
-                OVERALL DESIGN SCORE
+                {scores.breakdown ? "DESIGN THINKING ENGAGEMENT SCORE" : "OVERALL DESIGN SCORE"}
               </span>
               <div className="flex items-baseline justify-center sm:justify-start gap-1">
                 <span className={`text-5xl font-black font-mono tracking-tight leading-none ${isDark ? "text-text-primary" : "text-slate-900"}`}>
@@ -288,6 +322,29 @@ export default function FinalReport({
               </span>
             </div>
           </div>
+          
+          {scores.breakdown && (
+            <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-mono uppercase text-slate-500 dark:text-slate-400">Stage Completion</span>
+                  <span className="font-bold text-lg dark:text-slate-200">{scores.breakdown.stageCompletion} <span className="text-xs font-normal text-slate-400">/ 40</span></span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-mono uppercase text-slate-500 dark:text-slate-400">Meaningful Input</span>
+                  <span className="font-bold text-lg dark:text-slate-200">{scores.breakdown.meaningfulInput} <span className="text-xs font-normal text-slate-400">/ 30</span></span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-mono uppercase text-slate-500 dark:text-slate-400">Reflection & Iteration</span>
+                  <span className="font-bold text-lg dark:text-slate-200">{scores.breakdown.reflectionIteration} <span className="text-xs font-normal text-slate-400">/ 20</span></span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-mono uppercase text-slate-500 dark:text-slate-400">AI Thoughtfulness</span>
+                  <span className="font-bold text-lg dark:text-slate-200">{scores.breakdown.aiThoughtfulness} <span className="text-xs font-normal text-slate-400">/ 10</span></span>
+                </div>
+              </div>
+            </div>
+          )}
         </motion.div>
 
         {/* STRENGTHS AND GROWTH FIELDS */}

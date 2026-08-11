@@ -84,6 +84,15 @@ export interface CompletedSimulationRecap {
   prototypeSummary: string;
   achievements: string[];
   overallScore: number;
+  engagementBreakdown?: {
+    stageCompletion: number;
+    meaningfulInput: number;
+    reflectionIteration: number;
+    aiThoughtfulness: number;
+    feedback: string;
+    levelTitle: string;
+    levelDesc: string;
+  };
   completionTime: number;
 }
 

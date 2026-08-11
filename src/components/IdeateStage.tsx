@@ -623,7 +623,7 @@ export default function IdeateStage({
                     className="w-full py-3.5 bg-gradient-to-r from-brand-primary to-brand-primary/80 text-black text-xs font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer shadow-[0_0_15px_rgba(0,181,230,0.3)] hover:shadow-[0_0_25px_rgba(0,181,230,0.45)] flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transform active:scale-95 duration-150"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    Sort My Ideas ✨
+                    Sort My Ideas 
                   </button>
                 </div>
 

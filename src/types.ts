@@ -52,7 +52,6 @@ export interface PrototypeData {
   canvasData?: string; // base64 representation of drawn sketch
   storyboardSteps?: string[]; 
   flowSteps?: string[];
-  uploadedName?: string;
 }
 
 export interface TestData {

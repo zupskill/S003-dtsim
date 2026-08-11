@@ -4,7 +4,7 @@ import {
   Sparkles, 
   Layers, 
   FileText, 
-  CloudUpload, 
+
   CheckCircle, 
   Lightbulb, 
   Flame,
@@ -172,32 +172,17 @@ export default function PrototypeStage({
   const pitchActiveUnsafe = !isPitchProblemSafe || !isPitchSolutionSafe || !isPitchWhySafe || !isPitchImpactSafe;
   const formatUnsafe = format === "storyboard" ? storyboardActiveUnsafe : pitchActiveUnsafe;
 
-  // Optional File Upload state
-  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: string } | null>(() => {
-    const key = `zupskill_prototype_${topic.id}`;
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.uploadedFile !== undefined) return parsed.uploadedFile;
-      } catch {}
-    }
-    return null;
-  });
-  const [dragOver, setDragOver] = useState(false);
-
   useEffect(() => {
     const stateToSave = {
       format,
       storyboardScenes,
       pitch,
-      uploadedFile,
       selectedIdea,
       isCommitted
     };
     localStorage.setItem(`zupskill_prototype_${topic.id}`, JSON.stringify(stateToSave));
     localStorage.setItem(`zupskill_prototype_committed_${topic.id}`, String(isCommitted));
-  }, [format, storyboardScenes, pitch, uploadedFile, selectedIdea, isCommitted, topic.id]);
+  }, [format, storyboardScenes, pitch, selectedIdea, isCommitted, topic.id]);
 
   // Set initial selected idea from Stage 4
   useEffect(() => {
@@ -206,40 +191,6 @@ export default function PrototypeStage({
       setSelectedIdea(bestIdea);
     }
   }, [ideas, selectedIdea]);
-
-  // Optional File attachment handlers
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(true);
-  };
-
-  const handleDragLeave = () => {
-    setDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      setUploadedFile({
-        name: file.name,
-        size: `${(file.size / 1024).toFixed(1)} KB`
-      });
-      onAddXP(20);
-    }
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setUploadedFile({
-        name: file.name,
-        size: `${(file.size / 1024).toFixed(1)} KB`
-      });
-      onAddXP(20);
-    }
-  };
 
   // Blueprint preset templates to help fast-track storyboard/pitch fields with edit control
   const handleAutoFillSuggestion = () => {
@@ -322,8 +273,7 @@ export default function PrototypeStage({
       title: titlePrefix,
       description: composedDesc,
       format: format,
-      storyboardSteps: storyboardScenes.map((s) => `${s.title}: ${s.text}`).filter(Boolean),
-      uploadedName: uploadedFile?.name
+      storyboardSteps: storyboardScenes.map((s) => `${s.title}: ${s.text}`).filter(Boolean)
     };
 
     setPrototype(pData);
@@ -778,8 +728,8 @@ export default function PrototypeStage({
 
               </div>
 
-              {/* LOWER PORTION: FILE UPLOAD ZONE & PROGRESS TRACKER */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-border/60 pt-4 mt-4">
+              {/* LOWER PORTION: PROGRESS TRACKER */}
+              <div className="grid grid-cols-1 gap-4 border-t border-border/60 pt-4 mt-4">
                 
                 {/* TARGET/PROGRESS TRACKER WITH MOTIVATION STATUS */}
                 <div className="bg-background/30 p-3.5 rounded-2xl border border-border flex flex-col justify-center gap-2">
@@ -802,51 +752,6 @@ export default function PrototypeStage({
                     <span>{progress.text}</span>
                   </p>
                 </div>
-
-                {/* INTERACTIVE OPTIONAL DOCK UPLOAD ZONE */}
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-2xl p-3 text-center transition-all flex flex-col justify-center cursor-pointer ${
-                    dragOver
-                      ? "border-brand-primary bg-brand-primary/5"
-                      : uploadedFile
-                      ? "border-emerald-500/40 bg-emerald-950/15"
-                      : "border-slate-850 bg-background/10 hover:border-border hover:bg-background/30"
-                  }`}
-                >
-                  <input
-                    type="file"
-                    id="pro-file-upload"
-                    accept="image/*,.pdf,.sketch"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
-                  
-                  <label htmlFor="pro-file-upload" className="cursor-pointer">
-                    {uploadedFile ? (
-                      <div className="flex items-center justify-center gap-2 text-emerald-400">
-                        <CheckCircle className="w-4 h-4 shrink-0 animate-bounce" />
-                        <div className="text-left">
-                          <span className="font-bold text-xs text-text-primary block truncate max-w-[190px]">{uploadedFile.name} ({uploadedFile.size})</span>
-                          <span className="text-[9px] block text-text-secondary">Mockup attached successfully.</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-0.5">
-                        <CloudUpload className="w-5 h-5 text-text-tertiary mx-auto" />
-                        <p className="text-[10px] text-text-secondary font-bold block">
-                          Upload custom wireframe or sketch (Optional)
-                        </p>
-                        <p className="text-[9px] text-text-tertiary block">
-                          Drag & Drop here or Browse files
-                        </p>
-                      </div>
-                    )}
-                  </label>
-                </div>
-
               </div>
 
             </div>

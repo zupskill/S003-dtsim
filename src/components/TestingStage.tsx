@@ -184,6 +184,7 @@ export default function TestingStage({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         problemStatement: refinedProblem,
+        originalProblemText: originalProblemText,
         prototypeTitle: prototype.title,
         prototypeDescription: prototype.description,
         selectedIdea: selectedIdeaText
@@ -202,10 +203,9 @@ export default function TestingStage({
       .catch(err => {
         console.error("Fail loading what-if:", err);
         setWhatIfChallenges([
-          `What if users choose an alternate route or bypass ${solutionName} due to unexpected habits?`,
-          `What if peak student traffic hours create overcrowding or bottlenecks around ${solutionName}?`
+          "Evaluation failed to generate due to a network or AI error. Please try again."
         ]);
-        setWhatIfScore(70);
+        setWhatIfScore(0);
         setLoadingWhatIf(false);
       });
 
@@ -215,6 +215,7 @@ export default function TestingStage({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         problemStatement: refinedProblem,
+        originalProblemText: originalProblemText,
         prototypeTitle: prototype.title,
         prototypeDescription: prototype.description,
         selectedIdea: selectedIdeaText
@@ -233,10 +234,9 @@ export default function TestingStage({
       .catch(err => {
         console.error("Fail loading i-like:", err);
         setILikeHighlights([
-          `I like that ${solutionName} directly addresses the described user core pain points in a neat way.`,
-          `I like that this design makes the key parts of ${solutionName} easily visible and understandable.`
+          "Evaluation failed to generate due to a network or AI error. Please try again."
         ]);
-        setILikeScore(80);
+        setILikeScore(0);
         setLoadingILike(false);
       });
 
@@ -246,6 +246,7 @@ export default function TestingStage({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         problemStatement: refinedProblem,
+        originalProblemText: originalProblemText,
         prototypeTitle: prototype.title,
         prototypeDescription: prototype.description,
         selectedIdea: selectedIdeaText
@@ -265,10 +266,9 @@ export default function TestingStage({
       .catch(err => {
         console.error("Fail loading i-wish:", err);
         setIWishImprovements([
-          `I wish we could explore adding clear visual signs or supportive markings to ${solutionName} for better guidance.`,
-          `I wish there was a clear option or quick guide for first-time users to easily understand ${solutionName}.`
+          "Evaluation failed to generate due to a network or AI error. Please try again."
         ]);
-        setIWishScore(75);
+        setIWishScore(0);
         setLoadingIWish(false);
       });
 

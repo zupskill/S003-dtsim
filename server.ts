@@ -1771,12 +1771,13 @@ function cleanTitle(title: string): string {
 // 6. Test Stage (Path A): WHAT IF Generator
 app.post("/api/test/what-if", async (req: Request, res: Response) => {
   try {
-    const { problemStatement, prototypeTitle, prototypeDescription, selectedIdea } = req.body;
+    const { problemStatement, prototypeTitle, prototypeDescription, selectedIdea, originalProblemText } = req.body;
     
     const prompt = `You are an experienced Design Thinking Simulator mentor.
 We need to generate highly relevant, contextual real-world stress tests ("What If?") for the student's actual solution concept.
 
 Selected Problem: "${problemStatement}"
+Original Observations: "${originalProblemText || ""}"
 Selected Idea: "${selectedIdea || ""}"
 Selected Solution Title: "${prototypeTitle}"
 Storyboard / Prototype description (Source of Truth): "${prototypeDescription}"
@@ -1830,28 +1831,20 @@ Provide your response in JSON matching the specified response schema. Determine 
     return res.json(JSON.parse(text));
   } catch (error: any) {
     logApiError("Error testing what-if:", error);
-    const { prototypeTitle } = req.body;
-    const name = cleanTitle(prototypeTitle);
-    return res.json({
-      category: "Infrastructure Solution",
-      challenges: [
-        `What if users choose an alternate route or bypass ${name} due to unexpected habits?`,
-        `What if peak student traffic hours create overcrowding or bottlenecks around ${name}?`
-      ],
-      score: 75
-    });
+    return res.status(500).json({ error: "Failed to generate what-if scenarios" });
   }
 });
 
 // 7. Test Stage (Path B): I LIKE Generator
 app.post("/api/test/i-like", async (req: Request, res: Response) => {
   try {
-    const { problemStatement, prototypeTitle, prototypeDescription, selectedIdea } = req.body;
+    const { problemStatement, prototypeTitle, prototypeDescription, selectedIdea, originalProblemText } = req.body;
     
     const prompt = `You are an experienced Design Thinking Simulator mentor celebrating a solution concept in a university campus environment.
 We need to highlight highly relevant real-world strengths ("I Like...") of the student's actual solution.
 
 Selected Problem: "${problemStatement}"
+Original Observations: "${originalProblemText || ""}"
 Selected Idea: "${selectedIdea || ""}"
 Selected Solution Title: "${prototypeTitle}"
 Storyboard / Prototype description (Source of Truth): "${prototypeDescription}"
@@ -1904,27 +1897,19 @@ Provide your response in JSON matching the specified response schema. Determine 
     return res.json(JSON.parse(text));
   } catch (error: any) {
     logApiError("Error testing i-like:", error);
-    const { prototypeTitle } = req.body;
-    const name = cleanTitle(prototypeTitle);
-    return res.json({
-      category: "Infrastructure Solution",
-      highlights: [
-        `I like that ${name} directly addresses the described user core pain points in a neat way.`,
-        `I like that this design makes the key parts of ${name} easily visible and understandable.`
-      ],
-      score: 82
-    });
+    return res.status(500).json({ error: "Failed to generate i-like highlights" });
   }
 });
 
 // 8. Test Stage (Path C): I WISH Generator
 app.post("/api/test/i-wish", async (req: Request, res: Response) => {
   try {
-    const { problemStatement, prototypeTitle, prototypeDescription, selectedIdea } = req.body;
+    const { problemStatement, prototypeTitle, prototypeDescription, selectedIdea, originalProblemText } = req.body;
     
     const prompt = `You are an experienced Design Thinking Simulator mentor suggesting improvements ("I Wish...") for the student's actual solution.
 
 Selected Problem: "${problemStatement}"
+Original Observations: "${originalProblemText || ""}"
 Selected Idea: "${selectedIdea || ""}"
 Selected Solution Title: "${prototypeTitle}"
 Storyboard / Prototype description (Source of Truth): "${prototypeDescription}"
@@ -1977,16 +1962,7 @@ Provide your response in JSON matching the specified response schema. Determine 
     return res.json(JSON.parse(text));
   } catch (error: any) {
     logApiError("Error testing i-wish:", error);
-    const { prototypeTitle } = req.body;
-    const name = cleanTitle(prototypeTitle);
-    return res.json({
-      category: "Infrastructure Solution",
-      improvements: [
-        `I wish we could explore adding clear visual signs or supportive markings to ${name} for better guidance.`,
-        `I wish there was a clear option or quick guide for first-time users to easily understand ${name}.`
-      ],
-      score: 80
-    });
+    return res.status(500).json({ error: "Failed to generate i-wish improvements" });
   }
 });
 

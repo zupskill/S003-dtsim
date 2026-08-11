@@ -102,22 +102,22 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center px-4 pt-[68px] pb-4 sm:p-4 bg-background/80 backdrop-blur-sm transition-opacity">
-      <div className="bg-surface border border-border rounded-2xl w-[95%] sm:w-full max-w-[420px] sm:max-w-3xl max-h-[calc(100vh-84px)] sm:max-h-[90vh] shadow-2xl animate-in fade-in zoom-in-95 duration-300 flex flex-col relative overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-background/80 backdrop-blur-sm transition-opacity">
+      <div className="bg-surface border border-border rounded-2xl w-full max-w-3xl max-h-[96dvh] shadow-2xl animate-in fade-in zoom-in-95 duration-300 flex flex-col relative overflow-hidden">
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-border flex flex-col items-center text-center relative shrink-0">
+        <div className="p-3 sm:p-5 border-b border-border flex flex-col items-center text-center relative shrink-0">
           <button 
             onClick={onClose}
-            className="absolute top-2 sm:top-4 right-2 sm:right-4 p-2 text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-full transition-colors"
+            className="absolute top-2 right-2 sm:top-4 sm:right-4 p-2 text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-full transition-colors"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-2 text-brand-primary font-semibold uppercase tracking-wider text-xs sm:text-sm mb-1 sm:mb-2">
+          <div className="flex items-center gap-2 text-brand-primary font-semibold uppercase tracking-wider text-[10px] sm:text-xs mb-1">
             <span>🎓</span> Design Thinking Briefing
           </div>
-          <h2 className="text-xl sm:text-3xl font-bold text-text-primary mb-1 sm:mb-2">{stageConfig.title}</h2>
-          <p className="text-xs sm:text-sm text-text-secondary hidden sm:block">{stageConfig.description}</p>
+          <h2 className="text-lg sm:text-2xl font-bold text-text-primary mb-1">{stageConfig.title}</h2>
+          <p className="text-xs text-text-secondary hidden sm:block max-w-[90%]">{stageConfig.description}</p>
         </div>
 
         {/* Video Container */}
@@ -127,21 +127,23 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
             title={`${stageConfig.title} Introduction`}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
-            className="w-full aspect-video border-0"
+            className="w-full border-0"
             style={{ 
-              maxHeight: "clamp(140px, 35vh, 450px)",
-              maxWidth: "calc(clamp(140px, 35vh, 450px) * 16 / 9)" 
+              height: "auto",
+              maxHeight: "min(35dvh, 320px)",
+              maxWidth: "calc(min(35dvh, 320px) * 16 / 9)",
+              aspectRatio: "16 / 9"
             }}
           ></iframe>
         </div>
 
         {/* Learning Summary */}
-        <div className="p-4 sm:p-6 bg-surface-hover/50 flex-1 overflow-y-auto min-h-0">
-          <h3 className="text-sm sm:text-lg font-medium text-text-primary mb-2 sm:mb-3">In this stage you'll learn to:</h3>
-          <ul className="space-y-1.5 sm:space-y-2">
+        <div className="p-3 sm:p-5 bg-surface-hover/50 flex-1 overflow-y-auto min-h-[80px]">
+          <h3 className="text-sm sm:text-base font-medium text-text-primary mb-2">In this stage you'll learn to:</h3>
+          <ul className="space-y-1.5">
             {stageConfig.bulletPoints.map((point, index) => (
               <li key={index} className="flex items-start gap-2 text-xs sm:text-sm text-text-secondary">
-                <span className="text-brand-primary mt-0.5 sm:mt-1">•</span>
+                <span className="text-brand-primary mt-0.5">•</span>
                 <span>{point}</span>
               </li>
             ))}
@@ -149,11 +151,11 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
         </div>
 
         {/* Footer actions */}
-        <div className="p-4 sm:p-6 border-t border-border bg-surface flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 shrink-0">
+        <div className="p-3 sm:p-5 border-t border-border bg-surface flex flex-row flex-wrap items-center justify-center gap-3 shrink-0">
           <button
             onClick={() => setHasWatched(true)}
             disabled={hasWatched}
-            className={`w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium border transition-colors flex items-center justify-center ${
+            className={`flex-1 min-w-[200px] whitespace-nowrap px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium border transition-colors flex items-center justify-center ${
               hasWatched 
                 ? 'bg-brand-primary/10 text-brand-primary border-brand-primary/30 cursor-default' 
                 : 'text-text-primary border-border hover:bg-surface-hover'
@@ -164,7 +166,7 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
           <button
             onClick={() => onContinue(true)}
             disabled={!hasWatched}
-            className={`w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-colors flex items-center justify-center gap-2 ${
+            className={`flex-1 min-w-[200px] whitespace-nowrap px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-colors flex items-center justify-center gap-2 ${
               hasWatched
                 ? "text-text-primary bg-brand-primary hover:bg-brand-primary-hover"
                 : "text-text-tertiary bg-surface-hover border border-border opacity-50 cursor-not-allowed"

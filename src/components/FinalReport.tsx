@@ -304,10 +304,10 @@ export default function FinalReport({
                 {scores.breakdown ? "DESIGN THINKING ENGAGEMENT SCORE" : "OVERALL DESIGN SCORE"}
               </span>
               <div className="flex items-baseline justify-center sm:justify-start gap-1">
-                <span className={`text-5xl font-black font-mono tracking-tight leading-none ${isDark ? "text-text-primary" : "text-slate-900"}`}>
+                <span className={`text-5xl font-black font-mono tracking-tight leading-none ${isDark ? "text-text-primary" : "text-black"}`}>
                   {ach.strengthScores.overallScore}
                 </span>
-                <span className={`text-lg font-bold font-mono ${isDark ? "text-text-tertiary" : "text-text-secondary"}`}>/ 100</span>
+                <span className={`text-lg font-bold font-mono ${isDark ? "text-text-tertiary" : "text-slate-700"}`}>/ 100</span>
               </div>
             </div>
             
@@ -324,23 +324,23 @@ export default function FinalReport({
           </div>
           
           {scores.breakdown && (
-            <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+            <div className={`mt-6 pt-6 border-t ${isDark ? "border-slate-800" : "border-slate-200"}`}>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-mono uppercase text-slate-500 dark:text-slate-400">Stage Completion</span>
-                  <span className="font-bold text-lg dark:text-slate-200">{scores.breakdown.stageCompletion} <span className="text-xs font-normal text-slate-400">/ 40</span></span>
+                  <span className={`text-[10px] font-mono uppercase ${isDark ? "text-slate-400" : "text-slate-700"}`}>Stage Completion</span>
+                  <span className={`font-bold text-lg ${isDark ? "text-slate-200" : "text-black"}`}>{scores.breakdown.stageCompletion} <span className={`text-xs font-normal ${isDark ? "text-slate-400" : "text-slate-700"}`}>/ 40</span></span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-mono uppercase text-slate-500 dark:text-slate-400">Meaningful Input</span>
-                  <span className="font-bold text-lg dark:text-slate-200">{scores.breakdown.meaningfulInput} <span className="text-xs font-normal text-slate-400">/ 30</span></span>
+                  <span className={`text-[10px] font-mono uppercase ${isDark ? "text-slate-400" : "text-slate-700"}`}>Meaningful Input</span>
+                  <span className={`font-bold text-lg ${isDark ? "text-slate-200" : "text-black"}`}>{scores.breakdown.meaningfulInput} <span className={`text-xs font-normal ${isDark ? "text-slate-400" : "text-slate-700"}`}>/ 30</span></span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-mono uppercase text-slate-500 dark:text-slate-400">Reflection & Iteration</span>
-                  <span className="font-bold text-lg dark:text-slate-200">{scores.breakdown.reflectionIteration} <span className="text-xs font-normal text-slate-400">/ 20</span></span>
+                  <span className={`text-[10px] font-mono uppercase ${isDark ? "text-slate-400" : "text-slate-700"}`}>Reflection & Iteration</span>
+                  <span className={`font-bold text-lg ${isDark ? "text-slate-200" : "text-black"}`}>{scores.breakdown.reflectionIteration} <span className={`text-xs font-normal ${isDark ? "text-slate-400" : "text-slate-700"}`}>/ 20</span></span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-mono uppercase text-slate-500 dark:text-slate-400">AI Thoughtfulness</span>
-                  <span className="font-bold text-lg dark:text-slate-200">{scores.breakdown.aiThoughtfulness} <span className="text-xs font-normal text-slate-400">/ 10</span></span>
+                  <span className={`text-[10px] font-mono uppercase ${isDark ? "text-slate-400" : "text-slate-700"}`}>AI Thoughtfulness</span>
+                  <span className={`font-bold text-lg ${isDark ? "text-slate-200" : "text-black"}`}>{scores.breakdown.aiThoughtfulness} <span className={`text-xs font-normal ${isDark ? "text-slate-400" : "text-slate-700"}`}>/ 10</span></span>
                 </div>
               </div>
             </div>

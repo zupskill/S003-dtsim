@@ -91,8 +91,6 @@ interface StageIntroModalProps {
 }
 
 export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: StageIntroModalProps) {
-  const [dontShowAgain, setDontShowAgain] = useState(false);
-
   if (!isOpen) return null;
 
   return (
@@ -146,7 +144,7 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
         <div className="p-4 sm:p-6 border-t border-border bg-surface flex flex-col gap-3 sm:gap-4 shrink-0">
           <div className="flex items-center justify-end">
             <button
-              onClick={() => onContinue(dontShowAgain)}
+              onClick={() => onContinue(false)}
               className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-text-primary bg-brand-primary hover:bg-brand-primary-hover transition-colors flex items-center justify-center gap-2"
             >
               Continue to {stageConfig.title}
@@ -155,16 +153,12 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
           </div>
           
           <div className="flex items-center gap-2 mt-1 sm:mt-2">
-            <input
-              type="checkbox"
-              id="dontShowAgain"
-              checked={dontShowAgain}
-              onChange={(e) => setDontShowAgain(e.target.checked)}
-              className="w-4 h-4 rounded border-border-subtle bg-surface-hover text-brand-primary focus:ring-brand-primary focus:ring-offset-slate-900 cursor-pointer shrink-0"
-            />
-            <label htmlFor="dontShowAgain" className="text-xs sm:text-sm text-text-secondary cursor-pointer select-none">
-              Don't show this introduction again
-            </label>
+            <button
+              onClick={() => onContinue(true)}
+              className="text-xs sm:text-sm text-text-secondary hover:text-text-primary cursor-pointer select-none transition-colors text-left"
+            >
+              I watched the video
+            </button>
           </div>
         </div>
       </div>

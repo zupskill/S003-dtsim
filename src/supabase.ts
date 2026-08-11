@@ -53,20 +53,37 @@ export async function getSupabaseProfile(userId: string): Promise<UserProfile | 
       } catch (e) {}
 
       let empathizeSummary = "";
-      try {
-         if (stage2?.value1) {
-            const obs = JSON.parse(stage2.value1);
-            if (obs.length > 0) empathizeSummary = obs[0].text;
-         }
-      } catch(e) {}
+      if (stage2?.value1) {
+        try {
+          const obs = JSON.parse(stage2.value1);
+          if (Array.isArray(obs) && obs.length > 0) {
+            empathizeSummary = obs[0].text || String(obs[0]);
+          } else {
+            empathizeSummary = String(obs);
+          }
+        } catch(e) {
+          // If it's not JSON, it's likely our new plain text format.
+          // Get the first line as summary, or the whole text if it's short
+          const lines = stage2.value1.split('\n');
+          empathizeSummary = lines[0] || stage2.value1;
+        }
+      }
       
       let topIdeas: string[] = [];
-      try {
-         if (stage4?.value1) {
-            const ideas = JSON.parse(stage4.value1);
-            topIdeas = ideas.slice(0, 3).map((i: any) => i.text);
-         }
-      } catch(e) {}
+      if (stage4?.value1) {
+        try {
+          const ideas = JSON.parse(stage4.value1);
+          if (Array.isArray(ideas)) {
+            topIdeas = ideas.slice(0, 3).map((i: any) => i.text || String(i));
+          } else {
+            topIdeas = [String(ideas)];
+          }
+        } catch(e) {
+          // Plain text format, one idea per line
+          const lines = stage4.value1.split('\n').filter(Boolean);
+          topIdeas = lines.slice(0, 3);
+        }
+      }
 
       let overallScore = parsedScores.overallScore;
       let title = "Explorer";

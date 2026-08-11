@@ -155,12 +155,37 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
     if (!user || !isSupabaseConfigured) return;
     
     if (activityProgress.length > 0) {
-      const payloads = activityProgress.map(p => ({
-        ...p,
-        user_id: user.id,
-        updated_at: new Date().toISOString(),
-        task_id: parseFloat(p.task_id)
-      }));
+      const payloads = activityProgress.map(p => {
+        let formattedValue1 = p.value1;
+        
+        if (typeof formattedValue1 === 'string' && formattedValue1.trim().startsWith('[')) {
+          try {
+            const parsed = JSON.parse(formattedValue1);
+            if (Array.isArray(parsed)) {
+              const textLines = parsed.map(item => {
+                if (item && typeof item === 'object') {
+                  return item.text || item.content || item.observation || item.title || item.statement || item.response || item.idea;
+                }
+                return String(item);
+              }).filter(Boolean);
+              
+              if (textLines.length > 0) {
+                formattedValue1 = textLines.join('\n');
+              }
+            }
+          } catch (e) {
+            // Ignore parse errors, leave as is
+          }
+        }
+
+        return {
+          ...p,
+          value1: formattedValue1,
+          user_id: user.id,
+          updated_at: new Date().toISOString(),
+          task_id: parseFloat(p.task_id)
+        };
+      });
       try {
         const { error } = await supabase.from("activity_designthinking").insert(payloads);
         if (error) console.error("Final sync failed:", error);

@@ -91,6 +91,14 @@ interface StageIntroModalProps {
 }
 
 export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: StageIntroModalProps) {
+  const [hasWatched, setHasWatched] = useState(false);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setHasWatched(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -143,14 +151,24 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
         {/* Footer actions */}
         <div className="p-4 sm:p-6 border-t border-border bg-surface flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 shrink-0">
           <button
-            onClick={() => onContinue(true)}
-            className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-text-primary border border-border hover:bg-surface-hover transition-colors flex items-center justify-center"
+            onClick={() => setHasWatched(true)}
+            disabled={hasWatched}
+            className={`w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium border transition-colors flex items-center justify-center ${
+              hasWatched 
+                ? 'bg-brand-primary/10 text-brand-primary border-brand-primary/30 cursor-default' 
+                : 'text-text-primary border-border hover:bg-surface-hover'
+            }`}
           >
             I watched the video
           </button>
           <button
-            onClick={() => onContinue(false)}
-            className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-text-primary bg-brand-primary hover:bg-brand-primary-hover transition-colors flex items-center justify-center gap-2"
+            onClick={() => onContinue(true)}
+            disabled={!hasWatched}
+            className={`w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-colors flex items-center justify-center gap-2 ${
+              hasWatched
+                ? "text-text-primary bg-brand-primary hover:bg-brand-primary-hover"
+                : "text-text-tertiary bg-surface-hover border border-border opacity-50 cursor-not-allowed"
+            }`}
           >
             Continue to {stageConfig.title}
             <Play className="w-4 h-4" />

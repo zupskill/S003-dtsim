@@ -141,25 +141,20 @@ export function StageIntroModal({ isOpen, stageConfig, onContinue, onClose }: St
         </div>
 
         {/* Footer actions */}
-        <div className="p-4 sm:p-6 border-t border-border bg-surface flex flex-col gap-3 sm:gap-4 shrink-0">
-          <div className="flex items-center justify-end">
-            <button
-              onClick={() => onContinue(false)}
-              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-text-primary bg-brand-primary hover:bg-brand-primary-hover transition-colors flex items-center justify-center gap-2"
-            >
-              Continue to {stageConfig.title}
-              <Play className="w-4 h-4" />
-            </button>
-          </div>
-          
-          <div className="flex items-center gap-2 mt-1 sm:mt-2">
-            <button
-              onClick={() => onContinue(true)}
-              className="text-xs sm:text-sm text-text-secondary hover:text-text-primary cursor-pointer select-none transition-colors text-left"
-            >
-              I watched the video
-            </button>
-          </div>
+        <div className="p-4 sm:p-6 border-t border-border bg-surface flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 shrink-0">
+          <button
+            onClick={() => onContinue(true)}
+            className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-text-primary border border-border hover:bg-surface-hover transition-colors flex items-center justify-center"
+          >
+            I watched the video
+          </button>
+          <button
+            onClick={() => onContinue(false)}
+            className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-text-primary bg-brand-primary hover:bg-brand-primary-hover transition-colors flex items-center justify-center gap-2"
+          >
+            Continue to {stageConfig.title}
+            <Play className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>

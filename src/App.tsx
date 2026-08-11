@@ -734,11 +734,11 @@ export default function App() {
             <div className="hidden sm:flex items-center gap-4">
               <button
                 onClick={() => setShowResetConfirm(true)}
-                title="Developer Tool: Reset entire simulation progress and return to Topic Selection"
-                className="px-2.5 py-1.5 rounded-lg border border-red-900/35 bg-red-950/20 hover:bg-red-950/45 text-red-400 hover:text-red-300 hover:border-red-500/50 text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all duration-200"
+                title="Reset simulation progress"
+                className="text-xs font-bold tracking-wider px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 text-text-secondary hover:text-red-500 hover:bg-red-500/10"
               >
-                <RotateCcw className="w-3.5 h-3.5 text-red-500 animate-pulse shrink-0" />
-                <span>🔄 Reset</span>
+                <RotateCcw className="w-4 h-4 shrink-0" />
+                <span>Reset Simulation</span>
               </button>
 
               <button
@@ -804,10 +804,10 @@ export default function App() {
                         setShowMobileMenu(false);
                         setShowResetConfirm(true);
                       }}
-                      className="px-4 py-3 flex items-center gap-3 text-sm text-red-400 hover:bg-surface-hover hover:text-red-300 transition-colors text-left border-t border-border/50"
+                      className="px-4 py-3 flex items-center gap-3 text-sm text-text-secondary hover:bg-red-500/10 hover:text-red-500 transition-colors text-left border-t border-border/50"
                     >
-                      <RotateCcw className="w-4 h-4 text-red-500" />
-                      Reset Progress
+                      <RotateCcw className="w-4 h-4" />
+                      Reset Simulation
                     </button>
                   </div>
                 </>
@@ -1130,35 +1130,31 @@ export default function App() {
 
       {/* CONFIRMATION DIALOG FOR FULL DEVELOPER RESET */}
       {showResetConfirm && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 z-55 pointer-events-auto animate-in fade-in duration-200">
-          <div className="max-w-sm w-full max-h-[90vh] overflow-y-auto rounded-2xl relative p-6 bg-surface border border-red-500/30 text-left shadow-[0_0_50px_rgba(239,68,68,0.2)]">
-            <div className="flex items-center gap-3 mb-4 text-red-400">
-              <ShieldAlert className="w-6 h-6 animate-pulse text-red-500 shrink-0" />
-              <h3 className="text-sm font-extrabold text-text-primary uppercase tracking-wider font-mono">
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-55 pointer-events-auto animate-in fade-in duration-200">
+          <div className="max-w-sm w-full max-h-[90vh] overflow-y-auto rounded-2xl relative p-6 bg-surface border border-border text-left shadow-xl">
+            <div className="flex items-center gap-3 mb-4 text-red-500">
+              <RotateCcw className="w-6 h-6 shrink-0" />
+              <h3 className="text-lg font-bold text-text-primary">
                 Reset Simulation?
               </h3>
             </div>
             
-            <p className="text-xs text-text-secondary mb-6 leading-relaxed font-sans">
-              This will permanently clear your current progress, remove custom perspectives, erase drafted stage components, delete uploaded files, reset XP/badges, and start a fresh simulation.
+            <p className="text-sm text-text-secondary mb-6 leading-relaxed">
+              This will clear your current Design Thinking simulation progress and allow you to start again.
             </p>
-
-            <span className="text-[9px] font-mono font-semibold tracking-wide text-red-400/85 block bg-red-950/20 border border-red-900/35 rounded-lg px-2.5 py-1.5 mb-5 leading-tight">
-              ⚠️ Developer Tool / Testing Only
-            </span>
             
-            <div className="flex justify-end gap-2.5 font-mono">
+            <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowResetConfirm(false)}
-                className="px-4 py-2 border border-border text-text-secondary rounded-xl hover:text-text-primary hover:bg-background transition-colors text-[10px] uppercase font-bold cursor-pointer"
+                className="px-5 py-2.5 bg-surface-hover hover:bg-border text-text-primary rounded-xl transition-colors text-sm font-semibold cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmFullReset}
-                className="px-4 py-2 bg-red-950/80 hover:bg-red-900 text-red-200 hover:text-text-primary border border-red-800 rounded-xl transition-colors text-[10px] uppercase font-bold cursor-pointer"
+                className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors text-sm font-semibold cursor-pointer flex items-center gap-2"
               >
-                Reset
+                Reset Simulation
               </button>
             </div>
           </div>

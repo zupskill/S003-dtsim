@@ -19,7 +19,7 @@ export const STAGE_INTROS: Record<number, StageIntroConfig> = {
       "Understand why it matters",
       "Select a topic to focus your design thinking efforts"
     ],
-    youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    youtubeUrl: "https://www.youtube.com/embed/gnWj97CEjeo",
   },
   2: {
     id: 2,
@@ -31,7 +31,7 @@ export const STAGE_INTROS: Record<number, StageIntroConfig> = {
       "Identify hidden needs",
       "Build empathy before solving problems"
     ],
-    youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    youtubeUrl: "https://www.youtube.com/embed/OAV3D5cri04",
   },
   3: {
     id: 3,
@@ -43,7 +43,7 @@ export const STAGE_INTROS: Record<number, StageIntroConfig> = {
       "Create a How Might We (HMW) question",
       "Set a clear direction for ideation"
     ],
-    youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    youtubeUrl: "https://www.youtube.com/embed/4AHO42Aq5fM",
   },
   4: {
     id: 4,
@@ -55,7 +55,7 @@ export const STAGE_INTROS: Record<number, StageIntroConfig> = {
       "Think outside the box",
       "Select the most promising solutions"
     ],
-    youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    youtubeUrl: "https://www.youtube.com/embed/8ka_H8npvgM",
   },
   5: {
     id: 5,
@@ -67,7 +67,7 @@ export const STAGE_INTROS: Record<number, StageIntroConfig> = {
       "Learn by making",
       "Prepare for user testing"
     ],
-    youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    youtubeUrl: "https://www.youtube.com/embed/2PzT0aAi9Lw",
   },
   6: {
     id: 6,
@@ -79,7 +79,7 @@ export const STAGE_INTROS: Record<number, StageIntroConfig> = {
       "Identify areas for improvement",
       "Iterate based on test results"
     ],
-    youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    youtubeUrl: "https://www.youtube.com/embed/2PzT0aAi9Lw",
   }
 };
 

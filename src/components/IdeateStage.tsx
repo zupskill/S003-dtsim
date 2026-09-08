@@ -247,7 +247,7 @@ export default function IdeateStage({
 
     setIsProcessing(true);
     try {
-      const response = await fetch("/api/ideate", {
+      const response = await fetch("./api/ideate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -337,7 +337,7 @@ export default function IdeateStage({
 
     setIsEnhancingId(ideaId);
     try {
-      const response = await fetch("/api/ideas/enhance", {
+      const response = await fetch("./api/ideas/enhance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

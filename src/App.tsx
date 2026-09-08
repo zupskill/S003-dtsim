@@ -1079,7 +1079,7 @@ export default function App() {
                         
                         let aiThoughtfulnessScore = 0;
                         try {
-                          const response = await fetch("/api/test/thoughtfulness", {
+                          const response = await fetch("./api/test/thoughtfulness", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({

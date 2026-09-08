@@ -1000,7 +1000,7 @@ export async function scanTextOnServer(text: string, context?: string): Promise<
   }
 
   try {
-    const response = await fetch("/api/moderate", {
+    const response = await fetch("./api/moderate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

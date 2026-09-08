@@ -210,7 +210,7 @@ export default function DefineStage({
 
     const delayDebounceFn = setTimeout(async () => {
       try {
-        const response = await fetch("/api/define", {
+        const response = await fetch("./api/define", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

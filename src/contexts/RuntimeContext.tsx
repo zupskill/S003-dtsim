@@ -239,7 +239,7 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { 
-        redirectTo: window.location.origin,
+        redirectTo: window.location.origin + window.location.pathname,
         queryParams: {
           prompt: 'select_account'
         }

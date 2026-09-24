@@ -2,6 +2,7 @@
  * Client-side Content Moderation & Spam Detection Service
  * Design Thinking Simulation - DT Innovation Lab
  */
+import { apiFetch } from "./api";
 
 // Simple dictionary of common inappropriate words (Level 1 / Level 2 indicators)
 const BAD_WORDS_DICTIONARY = [
@@ -1000,7 +1001,7 @@ export async function scanTextOnServer(text: string, context?: string): Promise<
   }
 
   try {
-    const response = await fetch("./api/moderate", {
+    const response = await apiFetch("./api/moderate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import SafeTextInput from "./SafeTextInput";
 import { assessTextQuality } from "../utils/moderation";
+import { apiFetch } from "../utils/api";
 
 function localValidateEmpathize(
   text: string,
@@ -352,7 +353,7 @@ export default function EmpathizeStage({
       
       const fetchCustomPerspectives = async () => {
         try {
-          const response = await fetch("./api/generate-topic-perspectives", {
+          const response = await apiFetch("./api/generate-topic-perspectives", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -458,7 +459,7 @@ export default function EmpathizeStage({
     const pid = selectedPerspective.id;
     setIsLoadingStrugglesMap(prev => ({ ...prev, [pid]: true }));
 
-    fetch("./api/perspectives", {
+    apiFetch("./api/perspectives", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -611,7 +612,7 @@ export default function EmpathizeStage({
     setObservationError(null);
     try {
       const existingTexts = problemObservations.map(obs => obs.text);
-      const res = await fetch("./api/empathize/check-duplicate", {
+      const res = await apiFetch("./api/empathize/check-duplicate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: textToPin, existing: existingTexts })
@@ -914,7 +915,7 @@ export default function EmpathizeStage({
     }));
 
     try {
-      const response = await fetch("./api/empathize/refine", {
+      const response = await apiFetch("./api/empathize/refine", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -1070,7 +1071,7 @@ export default function EmpathizeStage({
     setIsGeneratingPerspective(true);
 
     try {
-      const response = await fetch("./api/perspectives", {
+      const response = await apiFetch("./api/perspectives", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

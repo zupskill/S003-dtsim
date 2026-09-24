@@ -2,14 +2,21 @@ import express, { Request, Response } from "express";
 import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
+import { strictAiLimiter, scoringLimiter, moderateLimiter } from "./server/rateLimiter";
+import { perspectivesCache, moderationCache, aiContentCache, evaluationCache, MemoryCache } from "./server/cache";
+import { securityHeadersMiddleware, sanitizeString, sanitizeStringArray, isPlainObject, clampNumber } from "./server/validation";
+import { computeServerAuthoritativeScore } from "./server/evaluator";
+import { requireSupabaseAuth, AuthenticatedRequest } from "./server/auth";
 
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
 
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+// Security-hardened body limits (prevent OOM / DoS memory attacks)
+app.use(express.json({ limit: "500kb" }));
+app.use(express.urlencoded({ extended: true, limit: "500kb" }));
+app.use(securityHeadersMiddleware);
 
 // Initialize GoogleGenAI client lazily to avoid startup crashes if key is initially blank
 let aiClient: GoogleGenAI | null = null;
@@ -71,13 +78,17 @@ function logApiError(message: string, err: any) {
 async function generateContentWithRetry(prompt: string, config: any, retries = 2): Promise<string> {
   const ai = getAiClient();
   console.log("[AI] Initializing Gemini model: gemini-2.5-flash-lite");
+  const boundedConfig = {
+    maxOutputTokens: config?.maxOutputTokens || 1000,
+    ...config,
+  };
   let attempt = 0;
   while (attempt <= retries) {
     try {
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash-lite",
         contents: prompt,
-        config: config,
+        config: boundedConfig,
       });
       if (response && response.text) {
         return response.text;
@@ -100,7 +111,7 @@ async function generateContentWithRetry(prompt: string, config: any, retries = 2
 }
 
 // 1. Live Check
-app.get("/api/health", (req: Request, res: Response) => {
+app.get("/api/health", moderateLimiter, (req: Request, res: Response) => {
   res.json({ status: "ok", time: new Date().toISOString() });
 });
 
@@ -813,16 +824,27 @@ function localDuplicateCheck(text: string, existing: string[]): boolean {
   return false;
 }
 
-app.post("/api/moderate", async (req: Request, res: Response) => {
+app.post("/api/moderate", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { text, context } = req.body;
+    const rawText = req.body?.text;
+    const rawContext = req.body?.context;
+    const text = sanitizeString(rawText, 1500);
+    const context = sanitizeString(rawContext, 500);
+
     if (!text) {
       return res.json({ safe: true, level: 0, warning: "" });
+    }
+
+    const cacheKey = MemoryCache.hashKey("moderate", { text, context });
+    const cached = moderationCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
     }
 
     // Run offline local checks first (prevents quota leaks and works during offline/rate-limiting/429 periods)
     const localCheck = localModerateCheck(text, context);
     if (localCheck !== null) {
+      moderationCache.set(cacheKey, localCheck, 10 * 60 * 1000);
       return res.json(localCheck);
     }
 
@@ -926,6 +948,7 @@ app.post("/api/moderate", async (req: Request, res: Response) => {
 
     const textResponse = await generateContentWithRetry(prompt, config, 1);
     const parsed = JSON.parse(textResponse);
+    moderationCache.set(cacheKey, parsed, 10 * 60 * 1000);
     return res.json(parsed);
   } catch (err: any) {
     logApiError("AI Moderation handler error, fallback to safe:", err);
@@ -935,14 +958,20 @@ app.post("/api/moderate", async (req: Request, res: Response) => {
 });
 
 // AI Observation Refinement endpoint
-app.post("/api/empathize/refine", async (req: Request, res: Response) => {
-  const text = req.body?.text || "";
-  const context = req.body?.context || "";
-  const perspective = req.body?.perspective || "";
+app.post("/api/empathize/refine", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  const text = sanitizeString(req.body?.text, 1500);
+  const context = sanitizeString(req.body?.context, 500);
+  const perspective = sanitizeString(req.body?.perspective, 200);
 
   try {
     if (!text || !text.trim()) {
       return res.json({ safe: true, needsRefinement: false, refinedText: "" });
+    }
+
+    const cacheKey = MemoryCache.hashKey("refine", { text, context, perspective });
+    const cached = aiContentCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
     }
 
     const trimmedText = text.trim();
@@ -1052,11 +1081,13 @@ MANDATORY RULES:
       finalRefinedText = localFallback.refinedText;
     }
 
-    return res.json({
+    const responseData = {
       safe: true,
       needsRefinement: true,
       refinedText: finalRefinedText
-    });
+    };
+    aiContentCache.set(cacheKey, responseData, 10 * 60 * 1000);
+    return res.json(responseData);
 
   } catch (err: any) {
     logApiError("AI Observation Refiner caution, applying fallback logic:", err);
@@ -1071,16 +1102,21 @@ MANDATORY RULES:
 });
 
 // AI Semantic Duplicate Checking endpoint
-app.post("/api/empathize/check-duplicate", async (req: Request, res: Response) => {
-  const text = req.body?.text || "";
-  const existing = req.body?.existing || [];
+app.post("/api/empathize/check-duplicate", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  const text = sanitizeString(req.body?.text, 1000);
+  const existing = sanitizeStringArray(req.body?.existing, 20, 500);
 
   try {
-    if (!text || !text.trim() || !existing || !Array.isArray(existing) || existing.length === 0) {
+    if (!text || !text.trim() || existing.length === 0) {
       return res.json({ isDuplicate: false, similarTo: "" });
     }
 
     const trimmedText = text.trim();
+    const cacheKey = MemoryCache.hashKey("duplicate", { text: trimmedText, existing });
+    const cached = aiContentCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
 
     // 1. Local similarity check fallback (for offline or quick response)
     const localHasDuplicate = localDuplicateCheck(trimmedText, existing);
@@ -1126,10 +1162,12 @@ Return the response in JSON:
     const textResponse = await generateContentWithRetry(prompt, config, 1);
     const parsed = JSON.parse(textResponse);
 
-    return res.json({
+    const result = {
       isDuplicate: !!parsed.isDuplicate || localHasDuplicate,
       similarTo: parsed.similarTo || ""
-    });
+    };
+    aiContentCache.set(cacheKey, result, 10 * 60 * 1000);
+    return res.json(result);
 
   } catch (err: any) {
     logApiError("Duplicate Check caution, fallback to local check:", err);
@@ -1142,11 +1180,20 @@ Return the response in JSON:
 });
 
 // 2. Empathize Stage: Generate Perspective Details Dynamically
-app.post("/api/perspectives", async (req: Request, res: Response) => {
+app.post("/api/perspectives", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { topicTitle, topicDescription, perspectiveName } = req.body;
+    const topicTitle = sanitizeString(req.body?.topicTitle, 200);
+    const topicDescription = sanitizeString(req.body?.topicDescription, 500);
+    const perspectiveName = sanitizeString(req.body?.perspectiveName, 200);
+
     if (!topicTitle || !perspectiveName) {
       return res.status(400).json({ error: "topicTitle and perspectiveName are required." });
+    }
+
+    const cacheKey = MemoryCache.hashKey("perspectives", { topicTitle, topicDescription, perspectiveName });
+    const cached = perspectivesCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
     }
 
     const prompt = `You are a friendly AI peer helper at ZupSkill's DT Innovation Lab.
@@ -1193,6 +1240,7 @@ Create response in valid JSON matching the schema.`;
 
     const text = await generateContentWithRetry(prompt, config, 2);
     const parsed = JSON.parse(text);
+    perspectivesCache.set(cacheKey, parsed, 60 * 60 * 1000);
     return res.json(parsed);
   } catch (error: any) {
     logApiError("Error generating perspective, falling back to smart local loop:", error);
@@ -1262,11 +1310,19 @@ Create response in valid JSON matching the schema.`;
 });
 
 // 2.5 Generate Initial Perspectives for Custom Topics Dynamically
-app.post("/api/generate-topic-perspectives", async (req: Request, res: Response) => {
+app.post("/api/generate-topic-perspectives", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { topicTitle, topicDescription } = req.body;
+    const topicTitle = sanitizeString(req.body?.topicTitle, 200);
+    const topicDescription = sanitizeString(req.body?.topicDescription, 500);
+
     if (!topicTitle) {
       return res.status(400).json({ error: "topicTitle is required." });
+    }
+
+    const cacheKey = MemoryCache.hashKey("topic-perspectives", { topicTitle, topicDescription });
+    const cached = perspectivesCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
     }
 
     const prompt = `You are a helpful ZupSkill companion design assistant.
@@ -1305,7 +1361,9 @@ Format the response as a JSON array of exactly 5 strings containing ONLY the per
     const text = await generateContentWithRetry(prompt, config, 2);
     const parsed = JSON.parse(text);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return res.json(parsed.slice(0, 5));
+      const result = parsed.slice(0, 5);
+      perspectivesCache.set(cacheKey, result, 60 * 60 * 1000);
+      return res.json(result);
     }
     throw new Error("Invalid output format from LLM");
   } catch (error: any) {
@@ -1406,14 +1464,21 @@ function smartReframeHMW(problemText: string): string {
 }
 
 // 3. Define Stage: Refine Selected Problem Statement into a Design Challenge
-app.post("/api/define", async (req: Request, res: Response) => {
+app.post("/api/define", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { topicTitle, problemSelection, answers } = req.body;
+    const topicTitle = sanitizeString(req.body?.topicTitle, 200);
+    const problemSelection = sanitizeString(req.body?.problemSelection, 1000);
+    const optionalContext = sanitizeString(req.body?.answers?.anythingElse || req.body?.answers?.optionalContext, 500);
+
     if (!topicTitle || !problemSelection) {
       return res.status(400).json({ error: "Missing required properties: topicTitle and problemSelection." });
     }
 
-    const optionalContext = (answers && (answers.anythingElse || answers.optionalContext)) || "";
+    const cacheKey = MemoryCache.hashKey("define", { topicTitle, problemSelection, optionalContext });
+    const cached = aiContentCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
 
     const prompt = `You are a supportive, precise, and encouraging Design Thinking coach from ZupSkill.
 A creator is looking at the challenge theme: "${topicTitle}".
@@ -1497,6 +1562,7 @@ Generate a highly inspiring and refined "How Might We" question based on the sel
     }
     
     const parsed = JSON.parse(cleanedText);
+    aiContentCache.set(cacheKey, parsed, 10 * 60 * 1000);
     return res.json(parsed);
   } catch (error: any) {
     logApiError("Error defining problem, falling back to smart local loop:", error);
@@ -1514,11 +1580,19 @@ Generate a highly inspiring and refined "How Might We" question based on the sel
 });
 
 // 4. Ideate Stage: Chunk-Processed Parallel Sorting & Evaluation Engine
-app.post("/api/ideate", async (req: Request, res: Response) => {
+app.post("/api/ideate", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { problemStatement, ideas } = req.body;
-    if (!problemStatement || !Array.isArray(ideas) || ideas.length === 0) {
+    const problemStatement = sanitizeString(req.body?.problemStatement, 1000);
+    const ideas = sanitizeStringArray(req.body?.ideas, 20, 500);
+
+    if (!problemStatement || ideas.length === 0) {
       return res.status(400).json({ error: "problemStatement and array of ideas are required." });
+    }
+
+    const cacheKey = MemoryCache.hashKey("ideate", { problemStatement, ideas });
+    const cached = aiContentCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
     }
 
     // Chunk list into groups of 5 to satisfy "Chunk Processing" and avoid token bottlenecks or timeouts
@@ -1606,6 +1680,7 @@ Format output precisely as a JSON array. Make sure you score them with encouragi
 
     // Flatten results
     const flatResults = results.flat();
+    aiContentCache.set(cacheKey, { results: flatResults }, 10 * 60 * 1000);
     return res.json({ results: flatResults });
   } catch (error: any) {
     logApiError("Error batch evaluation ideation, outer fallback local loop:", error);
@@ -1643,11 +1718,20 @@ Format output precisely as a JSON array. Make sure you score them with encouragi
 });
 
 // 5. Ideate Stage: Optimize/Enhance Idea ("Make this stronger")
-app.post("/api/ideas/enhance", async (req: Request, res: Response) => {
+app.post("/api/ideas/enhance", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { ideaText, problemStatement, category } = req.body;
+    const ideaText = sanitizeString(req.body?.ideaText, 1000);
+    const problemStatement = sanitizeString(req.body?.problemStatement, 1000);
+    const category = sanitizeString(req.body?.category, 50);
+
     if (!ideaText || !problemStatement || !category) {
       return res.status(400).json({ error: "ideaText, problemStatement, and category are required." });
+    }
+
+    const cacheKey = MemoryCache.hashKey("enhance", { ideaText, problemStatement, category });
+    const cached = aiContentCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
     }
 
     const prompt = `You are a friendly, highly creative design partner at ZupSkill's DT Innovation Lab.
@@ -1685,6 +1769,7 @@ Format response in valid JSON.`;
 
     const text = await generateContentWithRetry(prompt, config, 2);
     const parsed = JSON.parse(text);
+    aiContentCache.set(cacheKey, parsed, 10 * 60 * 1000);
     return res.json(parsed);
   } catch (error: any) {
     logApiError("Error enhancing idea, fallback local loop:", error);
@@ -1703,11 +1788,19 @@ Format response in valid JSON.`;
 });
 
 // 5.5 Prototype Stage: Chronological Journey Generator
-app.post("/api/prototype/generate-journey", async (req: Request, res: Response) => {
+app.post("/api/prototype/generate-journey", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { ideaText, refinedProblem } = req.body;
+    const ideaText = sanitizeString(req.body?.ideaText, 1000);
+    const refinedProblem = sanitizeString(req.body?.refinedProblem, 1000);
+
     if (!ideaText) {
       return res.status(400).json({ error: "ideaText is required." });
+    }
+
+    const cacheKey = MemoryCache.hashKey("journey", { ideaText, refinedProblem });
+    const cached = aiContentCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
     }
 
     const prompt = `You are a design thinking mentor, and we are working with a student on a solution journey map.
@@ -1754,6 +1847,7 @@ Return response in valid JSON fitting the schema.`;
 
     const text = await generateContentWithRetry(prompt, config, 1);
     const parsed = JSON.parse(text);
+    aiContentCache.set(cacheKey, parsed, 10 * 60 * 1000);
     return res.json(parsed);
   } catch (error: any) {
     logApiError("Error generating journey, fallback to local templates:", error);
@@ -1769,9 +1863,19 @@ function cleanTitle(title: string): string {
 }
 
 // 6. Test Stage (Path A): WHAT IF Generator
-app.post("/api/test/what-if", async (req: Request, res: Response) => {
+app.post("/api/test/what-if", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { problemStatement, prototypeTitle, prototypeDescription, selectedIdea, originalProblemText } = req.body;
+    const problemStatement = sanitizeString(req.body?.problemStatement, 1000);
+    const prototypeTitle = sanitizeString(req.body?.prototypeTitle, 200);
+    const prototypeDescription = sanitizeString(req.body?.prototypeDescription, 2000);
+    const selectedIdea = sanitizeString(req.body?.selectedIdea, 500);
+    const originalProblemText = sanitizeString(req.body?.originalProblemText, 1000);
+
+    const cacheKey = MemoryCache.hashKey("what-if", { problemStatement, prototypeTitle, prototypeDescription, selectedIdea, originalProblemText });
+    const cached = aiContentCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
     
     const prompt = `You are an experienced Design Thinking Simulator mentor.
 We need to generate highly relevant, contextual real-world stress tests ("What If?") for the student's actual solution concept.
@@ -1828,7 +1932,9 @@ Provide your response in JSON matching the specified response schema. Determine 
     };
 
     const text = await generateContentWithRetry(prompt, config, 2);
-    return res.json(JSON.parse(text));
+    const parsed = JSON.parse(text);
+    aiContentCache.set(cacheKey, parsed, 10 * 60 * 1000);
+    return res.json(parsed);
   } catch (error: any) {
     logApiError("Error testing what-if:", error);
     return res.status(500).json({ error: "Failed to generate what-if scenarios" });
@@ -1836,9 +1942,19 @@ Provide your response in JSON matching the specified response schema. Determine 
 });
 
 // 7. Test Stage (Path B): I LIKE Generator
-app.post("/api/test/i-like", async (req: Request, res: Response) => {
+app.post("/api/test/i-like", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { problemStatement, prototypeTitle, prototypeDescription, selectedIdea, originalProblemText } = req.body;
+    const problemStatement = sanitizeString(req.body?.problemStatement, 1000);
+    const prototypeTitle = sanitizeString(req.body?.prototypeTitle, 200);
+    const prototypeDescription = sanitizeString(req.body?.prototypeDescription, 2000);
+    const selectedIdea = sanitizeString(req.body?.selectedIdea, 500);
+    const originalProblemText = sanitizeString(req.body?.originalProblemText, 1000);
+
+    const cacheKey = MemoryCache.hashKey("i-like", { problemStatement, prototypeTitle, prototypeDescription, selectedIdea, originalProblemText });
+    const cached = aiContentCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
     
     const prompt = `You are an experienced Design Thinking Simulator mentor celebrating a solution concept in a university campus environment.
 We need to highlight highly relevant real-world strengths ("I Like...") of the student's actual solution.
@@ -1894,7 +2010,9 @@ Provide your response in JSON matching the specified response schema. Determine 
     };
 
     const text = await generateContentWithRetry(prompt, config, 2);
-    return res.json(JSON.parse(text));
+    const parsed = JSON.parse(text);
+    aiContentCache.set(cacheKey, parsed, 10 * 60 * 1000);
+    return res.json(parsed);
   } catch (error: any) {
     logApiError("Error testing i-like:", error);
     return res.status(500).json({ error: "Failed to generate i-like highlights" });
@@ -1902,9 +2020,19 @@ Provide your response in JSON matching the specified response schema. Determine 
 });
 
 // 8. Test Stage (Path C): I WISH Generator
-app.post("/api/test/i-wish", async (req: Request, res: Response) => {
+app.post("/api/test/i-wish", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { problemStatement, prototypeTitle, prototypeDescription, selectedIdea, originalProblemText } = req.body;
+    const problemStatement = sanitizeString(req.body?.problemStatement, 1000);
+    const prototypeTitle = sanitizeString(req.body?.prototypeTitle, 200);
+    const prototypeDescription = sanitizeString(req.body?.prototypeDescription, 2000);
+    const selectedIdea = sanitizeString(req.body?.selectedIdea, 500);
+    const originalProblemText = sanitizeString(req.body?.originalProblemText, 1000);
+
+    const cacheKey = MemoryCache.hashKey("i-wish", { problemStatement, prototypeTitle, prototypeDescription, selectedIdea, originalProblemText });
+    const cached = aiContentCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
     
     const prompt = `You are an experienced Design Thinking Simulator mentor suggesting improvements ("I Wish...") for the student's actual solution.
 
@@ -1959,7 +2087,9 @@ Provide your response in JSON matching the specified response schema. Determine 
     };
 
     const text = await generateContentWithRetry(prompt, config, 2);
-    return res.json(JSON.parse(text));
+    const parsed = JSON.parse(text);
+    aiContentCache.set(cacheKey, parsed, 10 * 60 * 1000);
+    return res.json(parsed);
   } catch (error: any) {
     logApiError("Error testing i-wish:", error);
     return res.status(500).json({ error: "Failed to generate i-wish improvements" });
@@ -1967,10 +2097,24 @@ Provide your response in JSON matching the specified response schema. Determine 
 });
 
 // 9. AI Thoughtfulness Score Evaluator
-app.post("/api/test/thoughtfulness", async (req: Request, res: Response) => {
+app.post("/api/test/thoughtfulness", requireSupabaseAuth, scoringLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { problemObservations, refinedHowMightWe, ideas, selectedPrototype } = req.body;
+    const userId = req.userId || "anonymous";
     
+    // User-specific isolation in cache key
+    const cacheKey = MemoryCache.hashKey("thoughtfulness", {
+      userId,
+      problemObservations,
+      refinedHowMightWe,
+      ideas,
+      selectedPrototype
+    });
+    const cached = evaluationCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
+
     const prompt = `You are an AI scoring system evaluating a student's engagement in a Design Thinking simulation.
 We need to assign an AI Thoughtfulness score from 0 to 10 based ONLY on the provided student inputs.
 
@@ -1986,10 +2130,10 @@ Evaluate:
 DO NOT evaluate time spent, number of clicks, or length of text if it's meaningless.
 
 Student Inputs:
-Observations: ${JSON.stringify(problemObservations)}
-HMW Statement: "${refinedHowMightWe}"
-Generated Ideas: ${JSON.stringify(ideas)}
-Prototype: ${JSON.stringify(selectedPrototype)}
+Observations: ${JSON.stringify(problemObservations || [])}
+HMW Statement: "${sanitizeString(refinedHowMightWe, 500)}"
+Generated Ideas: ${JSON.stringify(ideas || [])}
+Prototype: ${JSON.stringify(selectedPrototype || {})}
 
 Provide a score from 0 to 10 as an integer, and a short 1-sentence reason.`;
 
@@ -2015,13 +2159,100 @@ Provide a score from 0 to 10 as an integer, and a short 1-sentence reason.`;
     const text = await generateContentWithRetry(prompt, config, 1);
     const parsed = JSON.parse(text);
     
-    // Ensure the score is bounded
+    // Ensure the score is strictly bounded
     let score = typeof parsed.score === "number" ? Math.max(0, Math.min(10, Math.round(parsed.score))) : 5;
+    const responsePayload = { score, reason: sanitizeString(parsed.reason, 250) };
     
-    return res.json({ score, reason: parsed.reason });
+    evaluationCache.set(cacheKey, responsePayload, 15 * 60 * 1000);
+    return res.json(responsePayload);
   } catch (error: any) {
     logApiError("Error evaluating AI thoughtfulness:", error);
     return res.status(500).json({ error: "Failed to generate AI Thoughtfulness score", score: 0 });
+  }
+});
+
+// 10. Authoritative Server-Authoritative Engagement Scoring Endpoint
+app.post("/api/scoring/evaluate", requireSupabaseAuth, scoringLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    // 1. Enforce verified user identity from JWT (block cross-user impersonation)
+    const verifiedUserId = req.userId;
+    if (req.body?.user_id && req.body.user_id !== verifiedUserId) {
+      return res.status(403).json({ error: "Forbidden: Client-supplied user_id does not match verified token identity" });
+    }
+
+    // 2. Reject oversized payloads
+    const bodyStr = JSON.stringify(req.body || {});
+    if (bodyStr.length > 100000) {
+      return res.status(413).json({ error: "Payload too large: Submission exceeds maximum payload size" });
+    }
+
+    // 3. Task ID validation (if provided)
+    if (req.body?.task_id !== undefined && req.body?.task_id !== null) {
+      const rawTid = req.body.task_id;
+      const parsedTid = parseFloat(String(rawTid));
+      const validTaskIds = [1.0, 2.0, 3.0, 4.0, 5.0];
+      if (
+        isNaN(parsedTid) ||
+        !isFinite(parsedTid) ||
+        !validTaskIds.includes(parsedTid)
+      ) {
+        return res.status(400).json({
+          error: "Invalid task_id: Must be a valid simulator task between 1.0 and 5.0",
+          received: rawTid
+        });
+      }
+    }
+
+    // 4. Missing required inputs validation
+    const {
+      maxReachedStage,
+      problemObservations,
+      refinedHowMightWe,
+      ideas,
+      selectedPrototype,
+      testingData,
+      aiThoughtfulness
+    } = req.body || {};
+
+    const hasAnyInput = (
+      (Array.isArray(problemObservations) && problemObservations.length > 0) ||
+      (typeof refinedHowMightWe === "string" && refinedHowMightWe.trim().length > 0) ||
+      (Array.isArray(ideas) && ideas.length > 0) ||
+      (selectedPrototype && typeof selectedPrototype === "object") ||
+      (testingData && typeof testingData === "object")
+    );
+
+    if (!hasAnyInput) {
+      return res.status(400).json({ error: "Missing required inputs: At least one stage artifact must be provided for evaluation" });
+    }
+
+    // 5. Client-supplied score (e.g. 999999, -999999, NaN, Infinity) is completely ignored!
+    // Server computes the score deterministically. aiThoughtfulness is bounded between 0 and 10.
+    let safeAiScore = 0;
+    if (typeof aiThoughtfulness === "number" && !isNaN(aiThoughtfulness) && isFinite(aiThoughtfulness)) {
+      safeAiScore = Math.max(0, Math.min(10, Math.round(aiThoughtfulness)));
+    }
+
+    const evaluationResult = computeServerAuthoritativeScore({
+      maxReachedStage: typeof maxReachedStage === "number" && !isNaN(maxReachedStage) && isFinite(maxReachedStage)
+        ? Math.max(1, Math.min(6, Math.round(maxReachedStage)))
+        : 1,
+      problemObservations,
+      refinedHowMightWe,
+      ideas,
+      selectedPrototype,
+      testingData,
+    }, safeAiScore);
+
+    // Final authoritative score is strictly bounded between 0 and 100
+    evaluationResult.overallScore = Math.max(0, Math.min(100, Math.round(evaluationResult.overallScore)));
+
+    // Prevent caching for authoritative scoring evaluation
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, private");
+    return res.json(evaluationResult);
+  } catch (error: any) {
+    logApiError("Error in server-authoritative scoring:", error);
+    return res.status(500).json({ error: "Authoritative scoring evaluation failed" });
   }
 });
 

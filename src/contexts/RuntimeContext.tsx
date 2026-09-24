@@ -153,9 +153,24 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
 
   const syncCompletion = useCallback(async (finalScore: number) => {
     if (!user || !isSupabaseConfigured) return;
+
+    // Strict score sanitation (0 to 100 integer)
+    const sanitizedScore = typeof finalScore === 'number' && !isNaN(finalScore)
+      ? Math.max(0, Math.min(100, Math.round(finalScore)))
+      : 0;
     
     if (activityProgress.length > 0) {
-      const payloads = activityProgress.map(p => {
+      // Deduplicate by task_id and limit to valid task ranges (1.0 to 5.0)
+      const validTaskMap = new Map<string, any>();
+      for (const p of activityProgress) {
+        if (!p || typeof p.task_id === 'undefined') continue;
+        const tidStr = String(p.task_id);
+        if (['1.0', '2.0', '3.0', '4.0', '5.0'].includes(tidStr)) {
+          validTaskMap.set(tidStr, p);
+        }
+      }
+
+      const payloads = Array.from(validTaskMap.values()).map(p => {
         let formattedValue1 = p.value1;
         
         if (typeof formattedValue1 === 'string' && formattedValue1.trim().startsWith('[')) {
@@ -178,19 +193,33 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
           }
         }
 
+        // Limit string payloads to 4000 chars to prevent DoS / oversized DB entries
+        const cleanVal1 = typeof formattedValue1 === 'string' ? formattedValue1.slice(0, 4000) : '';
+        const cleanVal2 = typeof p.value2 === 'string' ? p.value2.slice(0, 2000) : '';
+        const cleanVal3 = typeof p.value3 === 'string' ? p.value3.slice(0, 2000) : '';
+
         return {
-          ...p,
-          value1: formattedValue1,
+          activity_id: "S003",
+          task_id: parseFloat(p.task_id),
+          task_name: typeof p.task_name === 'string' ? p.task_name.slice(0, 100) : '',
+          task_description: typeof p.task_description === 'string' ? p.task_description.slice(0, 200) : '',
+          value1: cleanVal1,
+          value2: cleanVal2,
+          value3: cleanVal3,
+          score: p.score ? Math.max(0, Math.min(100, Math.round(Number(p.score)))) : null,
+          completed: true,
           user_id: user.id,
-          updated_at: new Date().toISOString(),
-          task_id: parseFloat(p.task_id)
+          updated_at: new Date().toISOString()
         };
       });
-      try {
-        const { error } = await supabase.from("activity_designthinking").insert(payloads);
-        if (error) console.error("Final sync failed:", error);
-      } catch (err) {
-        console.error(err);
+
+      if (payloads.length > 0) {
+        try {
+          const { error } = await supabase.from("activity_designthinking").insert(payloads);
+          if (error) console.error("Final sync failed:", error);
+        } catch (err) {
+          console.error("Supabase sync exception:", err);
+        }
       }
     }
     
@@ -200,7 +229,7 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
           action: "complete_simulator",
           activity_id: "S003",
           activity_name: "Design Thinking",
-          final_score: finalScore
+          final_score: sanitizedScore
         }
       });
     } catch (err) {

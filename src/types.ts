@@ -50,6 +50,7 @@ export interface PrototypeData {
   description: string;
   format: string; // "canvas" | "storyboard" | "flow" | "wireframe"
   canvasData?: string; // base64 representation of drawn sketch
+  imageUrl?: string;
   storyboardSteps?: string[]; 
   flowSteps?: string[];
 }

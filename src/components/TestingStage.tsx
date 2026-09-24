@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Topic, PrototypeData } from "../types";
 import { Award, ShieldAlert, Sparkles, AlertCircle, RefreshCw, Layers, CheckCircle, HelpCircle, Flame, ArrowRight } from "lucide-react";
+import { apiFetch } from "../utils/api";
 
 interface TestingStageProps {
   topic: Topic;
@@ -179,7 +180,7 @@ export default function TestingStage({
     const solutionName = prototype.title ? prototype.title.replace(/\s+Micro-Model$/i, "") : "your solution";
 
     // Call WHAT-IF
-    const whatIfPromise = fetch("./api/test/what-if", {
+    const whatIfPromise = apiFetch("./api/test/what-if", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -210,7 +211,7 @@ export default function TestingStage({
       });
 
     // Call I-LIKE
-    const iLikePromise = fetch("./api/test/i-like", {
+    const iLikePromise = apiFetch("./api/test/i-like", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -241,7 +242,7 @@ export default function TestingStage({
       });
 
     // Call I-WISH
-    const iWishPromise = fetch("./api/test/i-wish", {
+    const iWishPromise = apiFetch("./api/test/i-wish", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -44,6 +44,7 @@ import {
   saveSupabaseProfile,
   unlockSupabaseBadge,
 } from "./supabase";
+import { apiFetch } from "./utils/api";
 
 // Lucide icon imports for general App use
 import { Award, Compass, Eye, ShieldAlert, Zap, PenTool, Flame, User, MessageSquare, Users, RotateCcw, RefreshCw, Sparkles, Play, MoreVertical } from "lucide-react";
@@ -1059,7 +1060,7 @@ export default function App() {
                       onAddXP={handleAddXP}
                       onUnlockBadge={handleUnlockBadge}
                       onNext={async () => {
-                        // Engagement Score Calculation
+                        // Authoritative Engagement Score Calculation
                         let testingData = {};
                         const savedTesting = localStorage.getItem(`zupskill_testing_${selectedTopic.id}`);
                         if (savedTesting) {
@@ -1068,18 +1069,10 @@ export default function App() {
                           } catch(e) {}
                         }
                         
-                        const deterministic = calculateDeterministicEngagement(
-                          maxReachedStage,
-                          problemObservations,
-                          refinedHowMightWe,
-                          ideas,
-                          selectedPrototype,
-                          testingData
-                        );
-                        
+                        // First attempt to get AI thoughtfulness if possible
                         let aiThoughtfulnessScore = 0;
                         try {
-                          const response = await fetch("./api/test/thoughtfulness", {
+                          const response = await apiFetch("./api/test/thoughtfulness", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -1091,15 +1084,69 @@ export default function App() {
                           });
                           if (response.ok) {
                             const data = await response.json();
-                            aiThoughtfulnessScore = data.score || 0;
+                            aiThoughtfulnessScore = typeof data.score === "number" ? Math.max(0, Math.min(10, data.score)) : 0;
                           }
                         } catch(err) {
                           console.error("AI Thoughtfulness evaluation failed", err);
                         }
-                        
-                        const overallScore = Math.min(100, deterministic.stageCompletion + deterministic.meaningfulInput + deterministic.reflectionIteration + aiThoughtfulnessScore);
-                        const levelData = getEngagementLevel(overallScore);
-                        const feedbackMsg = generateEngagementFeedback({ ...deterministic, aiThoughtfulness: aiThoughtfulnessScore, total: overallScore });
+
+                        // Query Server-Authoritative Scoring Engine
+                        let scoreData: {
+                          stageCompletion: number;
+                          meaningfulInput: number;
+                          reflectionIteration: number;
+                          aiThoughtfulness: number;
+                          overallScore: number;
+                          feedback: string;
+                          levelTitle: string;
+                          levelDesc: string;
+                        } | null = null;
+
+                        try {
+                          const evalResp = await apiFetch("./api/scoring/evaluate", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              maxReachedStage,
+                              problemObservations,
+                              refinedHowMightWe,
+                              ideas,
+                              selectedPrototype,
+                              testingData,
+                              aiThoughtfulness: aiThoughtfulnessScore
+                            })
+                          });
+                          if (evalResp.ok) {
+                            scoreData = await evalResp.json();
+                          }
+                        } catch(evalErr) {
+                          console.warn("Server scoring unreachable, applying fallback:", evalErr);
+                        }
+
+                        // Fallback in case of local offline development or temporary network drop
+                        if (!scoreData) {
+                          const deterministic = calculateDeterministicEngagement(
+                            maxReachedStage,
+                            problemObservations,
+                            refinedHowMightWe,
+                            ideas,
+                            selectedPrototype,
+                            testingData
+                          );
+                          const overallScore = Math.min(100, deterministic.stageCompletion + deterministic.meaningfulInput + deterministic.reflectionIteration + aiThoughtfulnessScore);
+                          const levelData = getEngagementLevel(overallScore);
+                          const feedbackMsg = generateEngagementFeedback({ ...deterministic, aiThoughtfulness: aiThoughtfulnessScore, total: overallScore });
+                          scoreData = {
+                            stageCompletion: deterministic.stageCompletion,
+                            meaningfulInput: deterministic.meaningfulInput,
+                            reflectionIteration: deterministic.reflectionIteration,
+                            aiThoughtfulness: aiThoughtfulnessScore,
+                            overallScore,
+                            feedback: feedbackMsg,
+                            levelTitle: levelData.title,
+                            levelDesc: levelData.desc
+                          };
+                        }
 
                         const topIdeas = ideas.slice(0, 3).map(i => i.text);
                         const recap = {
@@ -1110,16 +1157,16 @@ export default function App() {
                           problemStatement: refinedHowMightWe,
                           topIdeas: topIdeas,
                           prototypeSummary: selectedPrototype.description,
-                          achievements: [levelData.title],
-                          overallScore: overallScore,
+                          achievements: [scoreData.levelTitle],
+                          overallScore: scoreData.overallScore,
                           engagementBreakdown: {
-                            stageCompletion: deterministic.stageCompletion,
-                            meaningfulInput: deterministic.meaningfulInput,
-                            reflectionIteration: deterministic.reflectionIteration,
-                            aiThoughtfulness: aiThoughtfulnessScore,
-                            feedback: feedbackMsg,
-                            levelTitle: levelData.title,
-                            levelDesc: levelData.desc
+                            stageCompletion: scoreData.stageCompletion,
+                            meaningfulInput: scoreData.meaningfulInput,
+                            reflectionIteration: scoreData.reflectionIteration,
+                            aiThoughtfulness: scoreData.aiThoughtfulness,
+                            feedback: scoreData.feedback,
+                            levelTitle: scoreData.levelTitle,
+                            levelDesc: scoreData.levelDesc
                           },
                           completionTime: Date.now()
                         };
@@ -1134,10 +1181,10 @@ export default function App() {
                             value1: selectedPrototype?.title || "",
                             value2: selectedPrototype?.description || "",
                             value3: JSON.stringify(recap.engagementBreakdown),
-                            score: overallScore,
+                            score: scoreData.overallScore,
                             completed: true
                           });
-                        await syncCompletion(overallScore);
+                        await syncCompletion(scoreData.overallScore);
 
                         triggerTransition("report", undefined, "Testing complete. Let's inspect final scores! 🧪");
                       }}

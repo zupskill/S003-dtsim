@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Topic, ProblemObservation } from "../types";
 import { Eye, Compass, HelpCircle, Info, Sparkles, AlertTriangle, Loader2, CheckCircle, Check, RotateCcw } from "lucide-react";
 import SafeTextInput from "./SafeTextInput";
+import { apiFetch } from "../utils/api";
 
 interface DefineStageProps {
   topic: Topic;
@@ -210,7 +211,7 @@ export default function DefineStage({
 
     const delayDebounceFn = setTimeout(async () => {
       try {
-        const response = await fetch("./api/define", {
+        const response = await apiFetch("./api/define", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

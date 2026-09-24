@@ -22,6 +22,7 @@ import {
 import SafeTextInput from "./SafeTextInput";
 import { assessTextQuality } from "../utils/moderation";
 import { motion, AnimatePresence } from "motion/react";
+import { apiFetch } from "../utils/api";
 
 interface IdeateStageProps {
   topic: Topic;
@@ -247,7 +248,7 @@ export default function IdeateStage({
 
     setIsProcessing(true);
     try {
-      const response = await fetch("./api/ideate", {
+      const response = await apiFetch("./api/ideate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -337,7 +338,7 @@ export default function IdeateStage({
 
     setIsEnhancingId(ideaId);
     try {
-      const response = await fetch("./api/ideas/enhance", {
+      const response = await apiFetch("./api/ideas/enhance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -157,37 +157,6 @@ export async function unlockSupabaseBadge(userId: string, badgeId: string): Prom
 /**
  * Store progressive simulation results per stage
  */
-
-(window as any).testSave = async () => {
-  console.log("🔥 RUNNING testSave()...");
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (!user) {
-    console.error("TEST SAVE FAILED: No authenticated user", authError);
-    return;
-  }
-  
-  console.log("Current Supabase User:", user);
-  
-  const payload = {
-    user_id: user.id,
-    activity_id: "S003",
-    task_id: 999,
-    task_name: "TEST",
-    task_description: "Testing Supabase",
-    value1: "hello",
-    completed: true,
-    updated_at: new Date().toISOString()
-  };
-
-  const { data, error } = await supabase
-    .from("activity_designthinking")
-    .insert([payload])
-    .select();
-    
-  console.log("TEST SAVE SUCCESS", data);
-  if (error) console.error("TEST ERROR:", error);
-};
-
 export async function saveStageProgress(payloadDetails: {
   activity_id: string;
   task_id: string;

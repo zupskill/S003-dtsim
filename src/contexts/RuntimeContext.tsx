@@ -2,15 +2,18 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { supabase, getSupabaseProfile, isSupabaseConfigured } from '../supabase';
 import { UserProfile } from '../types';
 import { getOrCreateUser } from '../utils/auth';
+import { apiFetch } from '../utils/api';
 
 interface RuntimeState {
   user: any | null;
   profile: UserProfile | null;
   isLoading: boolean;
   activityProgress: any[];
+  attemptId: string | null;
   setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
   saveStageLocally: (stageData: any) => void;
-  syncCompletion: (finalScore: number) => Promise<void>;
+  startAttempt: () => Promise<string | null>;
+  syncCompletion: (evidence?: any) => Promise<{ success: boolean; authoritativeScore: number; breakdown: any; replay?: boolean } | null>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
 }
@@ -26,6 +29,9 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
     };
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [attemptId, setAttemptId] = useState<string | null>(() => {
+    return localStorage.getItem("zupskill_sim_attempt_id");
+  });
   const [activityProgress, setActivityProgress] = useState<any[]>(() => {
     const drafts = localStorage.getItem("zupskill_sim_draft_progress");
     if (drafts) {
@@ -151,94 +157,75 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
-  const syncCompletion = useCallback(async (finalScore: number) => {
-    if (!user || !isSupabaseConfigured) return;
-
-    // Strict score sanitation (0 to 100 integer)
-    const sanitizedScore = typeof finalScore === 'number' && !isNaN(finalScore)
-      ? Math.max(0, Math.min(100, Math.round(finalScore)))
-      : 0;
-    
-    if (activityProgress.length > 0) {
-      // Deduplicate by task_id and limit to valid task ranges (1.0 to 5.0)
-      const validTaskMap = new Map<string, any>();
-      for (const p of activityProgress) {
-        if (!p || typeof p.task_id === 'undefined') continue;
-        const tidStr = String(p.task_id);
-        if (['1.0', '2.0', '3.0', '4.0', '5.0'].includes(tidStr)) {
-          validTaskMap.set(tidStr, p);
-        }
-      }
-
-      const payloads = Array.from(validTaskMap.values()).map(p => {
-        let formattedValue1 = p.value1;
-        
-        if (typeof formattedValue1 === 'string' && formattedValue1.trim().startsWith('[')) {
-          try {
-            const parsed = JSON.parse(formattedValue1);
-            if (Array.isArray(parsed)) {
-              const textLines = parsed.map(item => {
-                if (item && typeof item === 'object') {
-                  return item.text || item.content || item.observation || item.title || item.statement || item.response || item.idea;
-                }
-                return String(item);
-              }).filter(Boolean);
-              
-              if (textLines.length > 0) {
-                formattedValue1 = textLines.join('\n');
-              }
-            }
-          } catch (e) {
-            // Ignore parse errors, leave as is
-          }
-        }
-
-        // Limit string payloads to 4000 chars to prevent DoS / oversized DB entries
-        const cleanVal1 = typeof formattedValue1 === 'string' ? formattedValue1.slice(0, 4000) : '';
-        const cleanVal2 = typeof p.value2 === 'string' ? p.value2.slice(0, 2000) : '';
-        const cleanVal3 = typeof p.value3 === 'string' ? p.value3.slice(0, 2000) : '';
-
-        return {
-          activity_id: "S003",
-          task_id: parseFloat(p.task_id),
-          task_name: typeof p.task_name === 'string' ? p.task_name.slice(0, 100) : '',
-          task_description: typeof p.task_description === 'string' ? p.task_description.slice(0, 200) : '',
-          value1: cleanVal1,
-          value2: cleanVal2,
-          value3: cleanVal3,
-          score: p.score ? Math.max(0, Math.min(100, Math.round(Number(p.score)))) : null,
-          completed: true,
-          user_id: user.id,
-          updated_at: new Date().toISOString()
-        };
-      });
-
-      if (payloads.length > 0) {
-        try {
-          const { error } = await supabase.from("activity_designthinking").insert(payloads);
-          if (error) console.error("Final sync failed:", error);
-        } catch (err) {
-          console.error("Supabase sync exception:", err);
-        }
-      }
-    }
-    
+  const startAttempt = useCallback(async (): Promise<string | null> => {
+    if (!user) return null;
     try {
-      await supabase.functions.invoke("progress-engine", {
-        body: {
-          action: "complete_simulator",
-          activity_id: "S003",
-          activity_name: "Design Thinking",
-          final_score: sanitizedScore
-        }
+      const res = await apiFetch("./api/simulator/attempt/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
       });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.attemptId) {
+          setAttemptId(data.attemptId);
+          localStorage.setItem("zupskill_sim_attempt_id", data.attemptId);
+          return data.attemptId;
+        }
+      }
     } catch (err) {
-      console.error("Failed to update achievements", err);
+      console.error("Failed to start simulator attempt:", err);
     }
-    
-    setActivityProgress([]);
-    localStorage.removeItem("zupskill_sim_draft_progress");
-  }, [user, activityProgress]);
+    return null;
+  }, [user]);
+
+  const syncCompletion = useCallback(async (evidence?: any): Promise<{ success: boolean; authoritativeScore: number; breakdown: any; replay?: boolean } | null> => {
+    if (!user) return null;
+
+    // Ensure we have a server-issued attempt ID
+    let currentAttemptId = attemptId || localStorage.getItem("zupskill_sim_attempt_id");
+    if (!currentAttemptId) {
+      currentAttemptId = await startAttempt();
+    }
+
+    if (!currentAttemptId) {
+      console.error("Cannot complete simulation without a valid server attempt ticket.");
+      return null;
+    }
+
+    try {
+      const payload = {
+        attemptId: currentAttemptId,
+        problemObservations: evidence?.problemObservations || [],
+        refinedHowMightWe: evidence?.refinedHowMightWe || "",
+        ideas: evidence?.ideas || [],
+        selectedPrototype: evidence?.selectedPrototype || null,
+        testingData: evidence?.testingData || {},
+        aiThoughtfulness: evidence?.aiThoughtfulness || 0,
+        stages: activityProgress
+      };
+
+      const res = await apiFetch("./api/simulator/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // Clear local draft progress upon verified server completion
+        setActivityProgress([]);
+        localStorage.removeItem("zupskill_sim_draft_progress");
+        return data;
+      } else {
+        const errData = await res.json().catch(() => ({ error: "Server completion failed" }));
+        console.error("Server authoritative completion error:", errData);
+        return null;
+      }
+    } catch (err) {
+      console.error("Exception during server completion:", err);
+      return null;
+    }
+  }, [user, attemptId, startAttempt, activityProgress]);
 
   const signOut = useCallback(async () => {
     console.log("[AUTH] Logout initiated");
@@ -247,6 +234,8 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setProfile(null);
     setActivityProgress([]);
+    setAttemptId(null);
+    localStorage.removeItem("zupskill_sim_attempt_id");
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -284,8 +273,8 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <RuntimeContext.Provider value={{
-      user, profile, isLoading, activityProgress, setProfile,
-      saveStageLocally, syncCompletion, signOut, signInWithGoogle
+      user, profile, isLoading, activityProgress, attemptId, setProfile,
+      saveStageLocally, startAttempt, syncCompletion, signOut, signInWithGoogle
     }}>
       {children}
     </RuntimeContext.Provider>

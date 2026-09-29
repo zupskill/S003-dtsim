@@ -2,11 +2,13 @@ import express, { Request, Response } from "express";
 import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
-import { strictAiLimiter, scoringLimiter, moderateLimiter } from "./server/rateLimiter";
+import { createClient } from "@supabase/supabase-js";
+import { strictAiLimiter, scoringLimiter, completionLimiter, moderateLimiter } from "./server/rateLimiter";
 import { perspectivesCache, moderationCache, aiContentCache, evaluationCache, MemoryCache } from "./server/cache";
 import { securityHeadersMiddleware, sanitizeString, sanitizeStringArray, isPlainObject, clampNumber } from "./server/validation";
 import { computeServerAuthoritativeScore } from "./server/evaluator";
 import { requireSupabaseAuth, AuthenticatedRequest } from "./server/auth";
+import { createServerAttempt, getAttempt, abandonUserAttempts, executeAtomicCompletion, finalizeAttempt } from "./server/attempts";
 
 dotenv.config();
 
@@ -2253,6 +2255,313 @@ app.post("/api/scoring/evaluate", requireSupabaseAuth, scoringLimiter, async (re
   } catch (error: any) {
     logApiError("Error in server-authoritative scoring:", error);
     return res.status(500).json({ error: "Authoritative scoring evaluation failed" });
+  }
+});
+
+// =========================================================================
+// S003 PRODUCTION HARDENING — SIMULATOR ATTEMPT & COMPLETION AUTHORITY
+// =========================================================================
+
+// 11. Start Simulator Attempt (Server-issued attempt ID & Replay protection)
+app.post("/api/simulator/attempt/start", requireSupabaseAuth, moderateLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized: Missing user identity" });
+    }
+
+    // Abandon any existing in-progress attempts for this user & activity
+    abandonUserAttempts(userId, "S003");
+
+    // Issue a cryptographically secure, server-authoritative attempt
+    const attempt = createServerAttempt(userId, "S003");
+
+    res.setHeader("Cache-Control", "no-store, no-cache, private");
+    return res.json({
+      success: true,
+      attemptId: attempt.attemptId,
+      activityId: attempt.activityId,
+      status: attempt.status,
+      createdAt: attempt.createdAt,
+    });
+  } catch (error: any) {
+    logApiError("Error starting simulator attempt:", error);
+    return res.status(500).json({ error: "Failed to initialize simulator attempt" });
+  }
+});
+
+// 12. Query Simulator Attempt Status
+app.get("/api/simulator/attempt/:attemptId", requireSupabaseAuth, moderateLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.userId;
+    const { attemptId } = req.params;
+
+    const attempt = getAttempt(attemptId);
+    if (!attempt) {
+      return res.status(404).json({ error: "Attempt not found" });
+    }
+
+    if (attempt.userId !== userId) {
+      return res.status(403).json({ error: "Forbidden: Attempt belongs to another user" });
+    }
+
+    res.setHeader("Cache-Control", "no-store, no-cache, private");
+    return res.json({
+      attemptId: attempt.attemptId,
+      status: attempt.status,
+      activityId: attempt.activityId,
+      authoritativeScore: attempt.authoritativeScore,
+      breakdown: attempt.breakdown,
+      completedAt: attempt.completedAt,
+    });
+  } catch (error: any) {
+    logApiError("Error fetching simulator attempt status:", error);
+    return res.status(500).json({ error: "Failed to fetch attempt status" });
+  }
+});
+
+// 13. Server-Authoritative Simulator Completion Endpoint
+app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized: Missing user identity" });
+    }
+
+    const {
+      attemptId,
+      problemObservations,
+      refinedHowMightWe,
+      ideas,
+      selectedPrototype,
+      testingData,
+      aiThoughtfulness,
+      stages
+    } = req.body || {};
+
+    // 1. Enforce required attempt_id
+    if (!attemptId || typeof attemptId !== "string" || !attemptId.trim()) {
+      return res.status(400).json({ error: "Missing or invalid attemptId. All completions require a server-issued attempt." });
+    }
+
+    const attempt = getAttempt(attemptId.trim());
+    if (!attempt) {
+      return res.status(404).json({
+        error: "Attempt not found or expired. Please refresh and restart the simulation to acquire an attempt ticket."
+      });
+    }
+
+    // 2. Validate attempt ownership
+    if (attempt.userId !== userId) {
+      return res.status(403).json({ error: "Forbidden: Attempt was issued to a different user identity" });
+    }
+
+    if (attempt.activityId !== "S003") {
+      return res.status(400).json({ error: "Invalid activity ID for this simulator endpoint" });
+    }
+
+    // 3. Validate input presence (at least one stage artifact must exist)
+    const hasAnyInput = (
+      (Array.isArray(problemObservations) && problemObservations.length > 0) ||
+      (typeof refinedHowMightWe === "string" && refinedHowMightWe.trim().length > 0) ||
+      (Array.isArray(ideas) && ideas.length > 0) ||
+      (selectedPrototype && typeof selectedPrototype === "object") ||
+      (testingData && typeof testingData === "object")
+    );
+
+    if (!hasAnyInput) {
+      return res.status(400).json({ error: "Missing required inputs: At least one stage artifact must be provided for evaluation" });
+    }
+
+    // 4. Atomic Execution with Concurrency Lock & Replay Protection
+    const { result, wasReplay } = await executeAtomicCompletion(attempt.attemptId, async () => {
+      // A. Calculate Server-Authoritative Score from validated evidence
+      let safeAiScore = 0;
+      if (typeof aiThoughtfulness === "number" && !isNaN(aiThoughtfulness) && isFinite(aiThoughtfulness)) {
+        safeAiScore = Math.max(0, Math.min(10, Math.round(aiThoughtfulness)));
+      }
+
+      const evaluationResult = computeServerAuthoritativeScore({
+        maxReachedStage: 6, // Completion implies final stage reached
+        problemObservations,
+        refinedHowMightWe,
+        ideas,
+        selectedPrototype,
+        testingData,
+      }, safeAiScore);
+
+      const authoritativeScore = Math.max(0, Math.min(100, Math.round(evaluationResult.overallScore)));
+
+      // B. Invoke Central Experience Progress Engine via Supabase Edge Function
+      const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
+      const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "";
+      const authHeader = req.headers.authorization;
+      const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
+
+      let progressEngineStatus: "success" | "skipped" | "error" = "skipped";
+      let progressEngineError: string | undefined;
+
+      if (supabaseUrl && supabaseAnonKey && token) {
+        try {
+          const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+            auth: { persistSession: false, autoRefreshToken: false },
+            global: { headers: { Authorization: `Bearer ${token}` } }
+          });
+
+          const { data: peData, error: peErr } = await userSupabase.functions.invoke("progress-engine", {
+            body: {
+              action: "complete_simulator",
+              activity_id: "S003",
+              activity_name: "Design Thinking",
+              final_score: authoritativeScore
+            }
+          });
+
+          if (peErr) {
+            progressEngineStatus = "error";
+            progressEngineError = peErr.message;
+            logApiError("Progress Engine invocation error:", peErr);
+          } else {
+            progressEngineStatus = "success";
+          }
+        } catch (peEx: any) {
+          progressEngineStatus = "error";
+          progressEngineError = peEx?.message || "Invocation exception";
+          logApiError("Progress Engine invocation exception:", peEx);
+        }
+      }
+
+      // C. Server-Validated Stage Telemetry Persistence to activity_designthinking
+      if (supabaseUrl && supabaseAnonKey && token && Array.isArray(stages) && stages.length > 0) {
+        try {
+          const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+            auth: { persistSession: false, autoRefreshToken: false },
+            global: { headers: { Authorization: `Bearer ${token}` } }
+          });
+
+          // Deduplicate stages and bind to valid range
+          const validTaskMap = new Map<string, any>();
+          for (const s of stages) {
+            if (!s || typeof s.task_id === "undefined") continue;
+            const tidStr = String(s.task_id);
+            if (["1.0", "2.0", "3.0", "4.0", "5.0"].includes(tidStr)) {
+              validTaskMap.set(tidStr, s);
+            }
+          }
+
+          const payloads = Array.from(validTaskMap.values()).map(s => {
+            const cleanVal1 = typeof s.value1 === "string" ? s.value1.slice(0, 4000) : "";
+            const cleanVal2 = typeof s.value2 === "string" ? s.value2.slice(0, 2000) : "";
+            const cleanVal3 = typeof s.value3 === "string" ? s.value3.slice(0, 2000) : "";
+            const isTestStage = String(s.task_id) === "5.0" && (s.task_name === "Test" || !s.task_name);
+
+            return {
+              activity_id: "S003",
+              task_id: parseFloat(s.task_id),
+              task_name: typeof s.task_name === "string" ? s.task_name.slice(0, 100) : "",
+              task_description: typeof s.task_description === "string" ? s.task_description.slice(0, 200) : "",
+              value1: cleanVal1,
+              value2: cleanVal2,
+              value3: cleanVal3,
+              // Authoritative score enforced on test/final stage; client cannot self-assign score
+              score: isTestStage ? authoritativeScore : (s.score ? Math.max(0, Math.min(100, Math.round(Number(s.score)))) : null),
+              completed: true,
+              user_id: userId,
+              updated_at: new Date().toISOString()
+            };
+          });
+
+          if (payloads.length > 0) {
+            const { error: insertErr } = await userSupabase.from("activity_designthinking").insert(payloads);
+            if (insertErr) {
+              logApiError("Telemetry insert warning:", insertErr);
+            }
+          }
+        } catch (dbErr: any) {
+          logApiError("Failed to save validated stage telemetry:", dbErr);
+        }
+      }
+
+      // D. Finalize Attempt
+      finalizeAttempt(attempt.attemptId, {
+        authoritativeScore,
+        breakdown: evaluationResult,
+        progressEngineStatus,
+        progressEngineError
+      });
+
+      return {
+        success: true,
+        authoritativeScore,
+        breakdown: evaluationResult,
+        attemptId: attempt.attemptId,
+        completedAt: Date.now(),
+        progressEngineStatus,
+        replay: false
+      };
+    });
+
+    res.setHeader("Cache-Control", "no-store, no-cache, private");
+
+    if (wasReplay) {
+      return res.status(200).json({
+        success: true,
+        authoritativeScore: result.authoritativeScore,
+        breakdown: result.breakdown,
+        attemptId: attempt.attemptId,
+        replay: true,
+        message: "Attempt already completed. Idempotent result returned; reward not duplicated."
+      });
+    }
+
+    return res.status(200).json(result);
+  } catch (error: any) {
+    logApiError("Error in authoritative simulator completion:", error);
+    return res.status(500).json({ error: "Failed to complete simulator authoritatively" });
+  }
+});
+
+// 14. Server-Authoritative Simulator Reset
+app.post("/api/simulator/reset", requireSupabaseAuth, moderateLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Abandon user's attempts in memory
+    abandonUserAttempts(userId, "S003");
+
+    // Clean up previous journey records in activity_designthinking
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
+    const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "";
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
+
+    if (supabaseUrl && supabaseAnonKey && token) {
+      try {
+        const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+          auth: { persistSession: false, autoRefreshToken: false },
+          global: { headers: { Authorization: `Bearer ${token}` } }
+        });
+        await userSupabase.from("activity_designthinking").delete().eq("user_id", userId).eq("activity_id", "S003");
+      } catch (err: any) {
+        logApiError("Warning clearing previous journey in Supabase:", err);
+      }
+    }
+
+    // Issue a clean new attempt
+    const newAttempt = createServerAttempt(userId, "S003");
+
+    res.setHeader("Cache-Control", "no-store, no-cache, private");
+    return res.json({
+      success: true,
+      message: "Simulation reset successfully",
+      newAttemptId: newAttempt.attemptId
+    });
+  } catch (error: any) {
+    logApiError("Error in simulator reset:", error);
+    return res.status(500).json({ error: "Failed to reset simulation" });
   }
 });
 

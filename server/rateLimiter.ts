@@ -104,6 +104,14 @@ export const scoringLimiter = createRateLimiter({
   message: "Scoring evaluation rate limit reached. Please wait before submitting again.",
 });
 
+// Strict limiter for sensitive completion and reward submission (6 req / min per user/IP)
+export const completionLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 6,
+  keyPrefix: "complete",
+  message: "Completion submission rate limit exceeded. Please wait a moment before trying again.",
+});
+
 // Moderate limiter for general API reads and lightweight operations (120 req / min)
 export const moderateLimiter = createRateLimiter({
   windowMs: 60 * 1000,

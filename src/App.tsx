@@ -221,7 +221,7 @@ export default function App() {
   // Google Auth User states
   const { 
     user, profile, setProfile, isLoading: loadingAuth, 
-    saveStageLocally, syncCompletion, signOut, signInWithGoogle 
+    saveStageLocally, startAttempt, syncCompletion, signOut, signInWithGoogle, attemptId
   } = useRuntime();
 
   const [showAccountChooser, setShowAccountChooser] = useState<boolean>(false);
@@ -577,21 +577,11 @@ export default function App() {
 
     if (user) {
       try {
-        console.log("Clearing previous journey from Supabase...");
-        const { supabase } = await import("./supabase");
-        const { error } = await supabase
-          .from("activity_designthinking")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("activity_id", "S003");
-        
-        if (error) {
-          console.error("Error clearing Supabase journey:", error);
-        } else {
-          console.log("Previous journey cleared");
-        }
+        console.log("Resetting journey on server...");
+        await apiFetch("./api/simulator/reset", { method: "POST" });
+        await startAttempt();
       } catch (err) {
-        console.error("Failed to clear Supabase data:", err);
+        console.error("Failed to reset simulator on server:", err);
       }
     }
 
@@ -611,25 +601,15 @@ export default function App() {
   // FULL DEVELOPER/TESTING RESET
   const handleConfirmFullReset = async () => {
     console.log("[RESET] User confirmed reset");
-    console.log("[RESET] Deleting current user's activity rows...");
+    console.log("[RESET] Resetting current user journey on server...");
     
     if (user) {
       try {
-        const { supabase } = await import("./supabase");
-        const { error, count } = await supabase
-          .from("activity_designthinking")
-          .delete({ count: 'exact' })
-          .eq("user_id", user.id)
-          .eq("activity_id", "S003");
-        
-        if (error) {
-          console.error("[RESET] Delete failed. Supabase error:", error);
-          console.log("Proceeding with local reset...");
-        } else {
-          console.log(`[RESET] Delete successful (${count || 0} rows removed)`);
-        }
+        await apiFetch("./api/simulator/reset", { method: "POST" });
+        await startAttempt();
+        console.log("[RESET] Server reset successful");
       } catch (err) {
-        console.error("[RESET] Delete failed. Exception:", err);
+        console.error("[RESET] Server reset error:", err);
         console.log("Proceeding with local reset...");
       }
     }
@@ -1090,41 +1070,35 @@ export default function App() {
                           console.error("AI Thoughtfulness evaluation failed", err);
                         }
 
-                        // Query Server-Authoritative Scoring Engine
-                        let scoreData: {
-                          stageCompletion: number;
-                          meaningfulInput: number;
-                          reflectionIteration: number;
-                          aiThoughtfulness: number;
-                          overallScore: number;
-                          feedback: string;
-                          levelTitle: string;
-                          levelDesc: string;
-                        } | null = null;
+                        // 1. Record Stage 5 Test locally
+                        saveStageLocally({
+                          activity_id: "S003",
+                          task_id: "5.0",
+                          task_name: "Test",
+                          task_description: "Evaluated prototype",
+                          value1: selectedPrototype?.title || "",
+                          value2: selectedPrototype?.description || "",
+                          completed: true
+                        });
 
-                        try {
-                          const evalResp = await apiFetch("./api/scoring/evaluate", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              maxReachedStage,
-                              problemObservations,
-                              refinedHowMightWe,
-                              ideas,
-                              selectedPrototype,
-                              testingData,
-                              aiThoughtfulness: aiThoughtfulnessScore
-                            })
-                          });
-                          if (evalResp.ok) {
-                            scoreData = await evalResp.json();
-                          }
-                        } catch(evalErr) {
-                          console.warn("Server scoring unreachable, applying fallback:", evalErr);
-                        }
+                        // 2. Submit completion evidence to server-authoritative engine
+                        let finalScore = 0;
+                        let breakdownData: any = null;
 
-                        // Fallback in case of local offline development or temporary network drop
-                        if (!scoreData) {
+                        const completionResult = await syncCompletion({
+                          problemObservations,
+                          refinedHowMightWe,
+                          ideas,
+                          selectedPrototype,
+                          testingData,
+                          aiThoughtfulness: aiThoughtfulnessScore
+                        });
+
+                        if (completionResult && typeof completionResult.authoritativeScore === "number") {
+                          finalScore = completionResult.authoritativeScore;
+                          breakdownData = completionResult.breakdown;
+                        } else {
+                          // Offline development fallback for local UI presentation
                           const deterministic = calculateDeterministicEngagement(
                             maxReachedStage,
                             problemObservations,
@@ -1133,15 +1107,15 @@ export default function App() {
                             selectedPrototype,
                             testingData
                           );
-                          const overallScore = Math.min(100, deterministic.stageCompletion + deterministic.meaningfulInput + deterministic.reflectionIteration + aiThoughtfulnessScore);
-                          const levelData = getEngagementLevel(overallScore);
-                          const feedbackMsg = generateEngagementFeedback({ ...deterministic, aiThoughtfulness: aiThoughtfulnessScore, total: overallScore });
-                          scoreData = {
+                          finalScore = Math.min(100, deterministic.stageCompletion + deterministic.meaningfulInput + deterministic.reflectionIteration + aiThoughtfulnessScore);
+                          const levelData = getEngagementLevel(finalScore);
+                          const feedbackMsg = generateEngagementFeedback({ ...deterministic, aiThoughtfulness: aiThoughtfulnessScore, total: finalScore });
+                          breakdownData = {
                             stageCompletion: deterministic.stageCompletion,
                             meaningfulInput: deterministic.meaningfulInput,
                             reflectionIteration: deterministic.reflectionIteration,
                             aiThoughtfulness: aiThoughtfulnessScore,
-                            overallScore,
+                            overallScore: finalScore,
                             feedback: feedbackMsg,
                             levelTitle: levelData.title,
                             levelDesc: levelData.desc
@@ -1157,34 +1131,13 @@ export default function App() {
                           problemStatement: refinedHowMightWe,
                           topIdeas: topIdeas,
                           prototypeSummary: selectedPrototype.description,
-                          achievements: [scoreData.levelTitle],
-                          overallScore: scoreData.overallScore,
-                          engagementBreakdown: {
-                            stageCompletion: scoreData.stageCompletion,
-                            meaningfulInput: scoreData.meaningfulInput,
-                            reflectionIteration: scoreData.reflectionIteration,
-                            aiThoughtfulness: scoreData.aiThoughtfulness,
-                            feedback: scoreData.feedback,
-                            levelTitle: scoreData.levelTitle,
-                            levelDesc: scoreData.levelDesc
-                          },
+                          achievements: [breakdownData.levelTitle || "Design Thinker"],
+                          overallScore: finalScore,
+                          engagementBreakdown: breakdownData,
                           completionTime: Date.now()
                         };
 
                         setProfile(prev => ({ ...prev, lastCompletedSimulation: recap }));
-
-                        saveStageLocally({
-                            activity_id: "S003",
-                            task_id: "5.0",
-                            task_name: "Test",
-                            task_description: "Evaluated prototype",
-                            value1: selectedPrototype?.title || "",
-                            value2: selectedPrototype?.description || "",
-                            value3: JSON.stringify(recap.engagementBreakdown),
-                            score: scoreData.overallScore,
-                            completed: true
-                          });
-                        await syncCompletion(scoreData.overallScore);
 
                         triggerTransition("report", undefined, "Testing complete. Let's inspect final scores! 🧪");
                       }}

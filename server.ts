@@ -2593,23 +2593,12 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
         }
       ];
 
-      console.log(`[SIMULATOR COMPLETE] Executing Supabase insert of 3 rows for user ${userId.slice(0, 8)}... (mode: ${hasServiceKey ? 'service_role' : 'user_jwt'})`);
+      console.log(`[SIMULATOR COMPLETE] Executing Supabase upsert of 3 rows for user ${userId.slice(0, 8)}... (mode: ${hasServiceKey ? 'service_role' : 'user_jwt'})`);
 
-      // Idempotent attempt write: Remove any prior S003 records for this user to guarantee exactly 3 rows
-      // and prevent unique constraint violations on (user_id, task_id)
-      const { error: preDelErr } = await dbClient
-        .from("activity_designthinking")
-        .delete()
-        .eq("user_id", userId)
-        .eq("activity_id", "S003");
-
-      if (preDelErr) {
-        console.warn("[SIMULATOR COMPLETE] Notice clearing prior user S003 records:", preDelErr.message);
-      }
-
+      // Upsert to handle existing (user_id, task_id) unique constraint without deleting records during completion
       const { data: insertData, error: insertErr } = await dbClient
         .from("activity_designthinking")
-        .insert(threeRows)
+        .upsert(threeRows, { onConflict: "user_id,task_id" })
         .select();
 
       if (insertErr) {

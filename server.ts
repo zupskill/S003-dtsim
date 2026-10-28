@@ -2274,6 +2274,35 @@ app.post("/api/simulator/attempt/start", requireSupabaseAuth, moderateLimiter, a
     // Abandon any existing in-progress attempts for this user & activity
     abandonUserAttempts(userId, "S003");
 
+    // Defensively ensure user row exists in 'users' table upon attempt start
+    try {
+      const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
+      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "";
+      if (supabaseUrl && supabaseServiceKey) {
+        const adminClient = createClient(supabaseUrl, supabaseServiceKey, {
+          auth: { persistSession: false, autoRefreshToken: false }
+        });
+        const userPayload: any = {
+          id: userId,
+          email: req.user?.email || null,
+          full_name: req.user?.user_metadata?.full_name || req.user?.user_metadata?.name || null,
+          avatar_url: req.user?.user_metadata?.avatar_url || req.user?.user_metadata?.picture || null,
+          updated_at: new Date().toISOString()
+        };
+        const { error: ensureErr } = await adminClient.from("users").upsert(
+          userPayload,
+          { onConflict: "id", ignoreDuplicates: true }
+        );
+        if (ensureErr) {
+          console.warn("[SIMULATOR ATTEMPT START] User record ensure notice:", ensureErr.message);
+        } else {
+          console.log(`[SIMULATOR ATTEMPT START] Verified user record in users table for ${userId.slice(0, 8)}`);
+        }
+      }
+    } catch (uStartErr: any) {
+      console.warn("[SIMULATOR ATTEMPT START] Non-blocking user check notice:", uStartErr?.message);
+    }
+
     // Issue a cryptographically secure, server-authoritative attempt
     const attempt = createServerAttempt(userId, "S003");
 
@@ -2354,6 +2383,7 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
       console.warn(`[SIMULATOR COMPLETE] Rejected: Attempt ${attemptId} not found or expired`);
       return res.status(404).json({
         error: "Attempt not found or expired. Please refresh and restart the simulation to acquire an attempt ticket.",
+        code: "ATTEMPT_EXPIRED",
         success: false
       });
     }
@@ -2361,7 +2391,11 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
     // 2. Validate attempt ownership
     if (attempt.userId !== userId) {
       console.warn(`[SIMULATOR COMPLETE] Forbidden: Attempt user ${attempt.userId} != request user ${userId}`);
-      return res.status(403).json({ error: "Forbidden: Attempt was issued to a different user identity", success: false });
+      return res.status(403).json({
+        error: "Forbidden: Attempt was issued to a different user identity",
+        code: "ATTEMPT_USER_MISMATCH",
+        success: false
+      });
     }
 
     if (attempt.activityId !== "S003") {
@@ -2442,10 +2476,22 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
 
       // Defensive check: Ensure user row exists in 'users' table to satisfy activity_designthinking_user_id_fkey constraint
       try {
-        await dbClient.from("users").upsert(
-          { id: userId, email: req.user?.email || null },
+        const userPayload: any = {
+          id: userId,
+          email: req.user?.email || null,
+          full_name: req.user?.user_metadata?.full_name || req.user?.user_metadata?.name || null,
+          avatar_url: req.user?.user_metadata?.avatar_url || req.user?.user_metadata?.picture || null,
+          updated_at: new Date().toISOString()
+        };
+        const { error: uErr } = await dbClient.from("users").upsert(
+          userPayload,
           { onConflict: "id", ignoreDuplicates: true }
         );
+        if (uErr) {
+          console.warn("[SIMULATOR COMPLETE] User record ensure notice:", uErr.message);
+        } else {
+          console.log(`[SIMULATOR COMPLETE] Verified user record exists in users table for ${userId.slice(0, 8)}`);
+        }
       } catch (uErr: any) {
         console.warn("[SIMULATOR COMPLETE] Non-blocking user record check notice:", uErr?.message);
       }
@@ -2548,6 +2594,18 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
       ];
 
       console.log(`[SIMULATOR COMPLETE] Executing Supabase insert of 3 rows for user ${userId.slice(0, 8)}... (mode: ${hasServiceKey ? 'service_role' : 'user_jwt'})`);
+
+      // Idempotent attempt write: Remove any prior S003 records for this user to guarantee exactly 3 rows
+      // and prevent unique constraint violations on (user_id, task_id)
+      const { error: preDelErr } = await dbClient
+        .from("activity_designthinking")
+        .delete()
+        .eq("user_id", userId)
+        .eq("activity_id", "S003");
+
+      if (preDelErr) {
+        console.warn("[SIMULATOR COMPLETE] Notice clearing prior user S003 records:", preDelErr.message);
+      }
 
       const { data: insertData, error: insertErr } = await dbClient
         .from("activity_designthinking")

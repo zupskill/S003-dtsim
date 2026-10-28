@@ -849,7 +849,10 @@ export default function App() {
 
             {activeScreen === "landing" && (
               <LandingScreen
-                onStart={() => triggerTransition("intro")}
+                onStart={async () => {
+                  await startAttempt();
+                  triggerTransition("intro");
+                }}
                 onResume={() => {
                   triggerTransition("simulation", currentStage);
                 }}
@@ -1114,7 +1117,8 @@ export default function App() {
                           finalScore = completionResult.authoritativeScore;
                           breakdownData = completionResult.breakdown;
                         } else {
-                          console.warn("[S003 WARNING] Server persistence not confirmed. User session or network status may be offline. Applying deterministic local presentation fallback.");
+                          console.error("[S003 ERROR] Server persistence failed. Data could not be saved to Supabase.");
+                          showToast("⚠️ Could not persist simulation to cloud database.", "info");
                           // Offline development fallback for local UI presentation
                           const deterministic = calculateDeterministicEngagement(
                             maxReachedStage,

@@ -31,9 +31,7 @@ export default function AuthScreen({
             alt="ZupSkill"
             className="h-10 w-auto object-contain select-none"
           />
-          <div>
-            <h1 className="text-lg font-bold tracking-tight text-text-primary uppercase italic">DT INNOVATION LAB</h1>
-          </div>
+          
         </div>
         
         <div className="flex items-center gap-4">

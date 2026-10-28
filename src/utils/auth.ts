@@ -1,9 +1,12 @@
 import { supabase } from "../supabase";
 
-export async function getOrCreateUser() {
+export async function getOrCreateUser(providedUser?: any) {
   try {
-    const authUserResponse = await supabase.auth.getUser();
-    const authUser = authUserResponse.data?.user;
+    let authUser = providedUser;
+    if (!authUser) {
+      const authUserResponse = await supabase.auth.getUser();
+      authUser = authUserResponse.data?.user;
+    }
     
     if (!authUser) {
       return null;

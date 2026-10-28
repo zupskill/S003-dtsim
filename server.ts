@@ -2621,10 +2621,55 @@ app.post("/api/simulator/reset", requireSupabaseAuth, moderateLimiter, async (re
   try {
     const userId = req.userId;
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(401).json({ error: "Unauthorized: Missing authenticated user identity", success: false });
     }
 
-    console.log(`[SIMULATOR RESET] Resetting in-progress simulator attempts for user ${userId.slice(0, 8)}...`);
+    console.log(`[SIMULATOR RESET] Processing reset for user ${userId.slice(0, 8)} on S003...`);
+
+    // Resolve Supabase Credentials
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "";
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
+
+    const hasServiceKey = !!supabaseServiceKey;
+
+    if (!supabaseUrl || (!hasServiceKey && !supabaseAnonKey)) {
+      console.error("[SIMULATOR RESET ERROR] Supabase credentials not configured on server.");
+      return res.status(500).json({ error: "Supabase credentials not configured on server", success: false });
+    }
+
+    const dbClient = hasServiceKey
+      ? createClient(supabaseUrl, supabaseServiceKey, {
+          auth: { persistSession: false, autoRefreshToken: false }
+        })
+      : createClient(supabaseUrl, supabaseAnonKey, {
+          auth: { persistSession: false, autoRefreshToken: false },
+          global: { headers: { Authorization: `Bearer ${token}` } }
+        });
+
+    // Delete user's previous S003 records ONLY
+    console.log(`[SIMULATOR RESET] Deleting existing S003 records from activity_designthinking for user ${userId.slice(0, 8)}...`);
+    const { error: deleteError } = await dbClient
+      .from("activity_designthinking")
+      .delete()
+      .eq("user_id", userId)
+      .eq("activity_id", "S003");
+
+    if (deleteError) {
+      console.error("[SIMULATOR RESET DB ERROR] Failed to delete previous S003 records:", {
+        code: deleteError.code,
+        message: deleteError.message,
+        details: deleteError.details
+      });
+      return res.status(502).json({
+        error: `Failed to delete previous simulation records [${deleteError.code || 'UNKNOWN'}]: ${deleteError.message}`,
+        success: false
+      });
+    }
+
+    console.log(`[SIMULATOR RESET DB SUCCESS] Previous S003 records deleted successfully for user ${userId.slice(0, 8)}.`);
 
     // Abandon user's in-progress attempts in memory
     abandonUserAttempts(userId, "S003");
@@ -2635,12 +2680,12 @@ app.post("/api/simulator/reset", requireSupabaseAuth, moderateLimiter, async (re
     res.setHeader("Cache-Control", "no-store, no-cache, private");
     return res.json({
       success: true,
-      message: "Simulation reset successfully",
+      message: "Simulation reset and previous records cleared successfully",
       newAttemptId: newAttempt.attemptId
     });
   } catch (error: any) {
     logApiError("Error in simulator reset:", error);
-    return res.status(500).json({ error: "Failed to reset simulation" });
+    return res.status(500).json({ error: error?.message || "Failed to reset simulation", success: false });
   }
 });
 

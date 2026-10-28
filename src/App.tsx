@@ -582,10 +582,12 @@ export default function App() {
     setShowNewSimConfirm(true);
   };
 
-  const handleConfirmNewStart = () => {
+  const handleConfirmNewStart = async () => {
     setShowNewSimConfirm(false);
-    handleResetSim();
-    triggerTransition("intro");
+    const success = await handleResetSim();
+    if (success) {
+      triggerTransition("intro");
+    }
   };
 
   const handleDownloadReport = async () => {
@@ -604,12 +606,39 @@ export default function App() {
   };
 
   // Standard reset simulation
-  const handleResetSim = async () => {
-    // Clear simulation-level keys
+  const handleResetSim = async (): Promise<boolean> => {
+    if (user) {
+      try {
+        console.log("[SIMULATOR RESET] Requesting simulation reset and record deletion on server...");
+        const res = await apiFetch("/api/simulator/reset", { method: "POST" });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({ error: res.statusText }));
+          console.error("[SIMULATOR RESET ERROR] Server returned error:", res.status, errData);
+          showToast("Failed to reset simulation on server. Please try again.", "info");
+          return false;
+        }
+
+        const data = await res.json().catch(() => null);
+        if (!data || data.success !== true) {
+          console.error("[SIMULATOR RESET ERROR] Server response indicated failure:", data);
+          showToast("Failed to reset simulation. Please try again.", "info");
+          return false;
+        }
+
+        console.log("[SIMULATOR RESET SUCCESS] Server confirmed S003 deletion & attempt reset:", data);
+        await startAttempt();
+      } catch (err) {
+        console.error("[SIMULATOR RESET EXCEPTION] Failed to reset simulator on server:", err);
+        showToast("Network error resetting simulation. Please try again.", "info");
+        return false;
+      }
+    }
+
+    // ONLY clear local draft progress and simulation keys after confirmed server success
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith("zupskill_sim_") && key !== "zupskill_sim_profile" && key !== "zupskill_sim_submissions" && key !== "zupskill_sim_saved_submissions" && !key.startsWith("zupskill_sim_recap_")) {
+      if (key && key.startsWith("zupskill_sim_") && key !== "zupskill_sim_profile" && key !== "zupskill_sim_submissions" && key !== "zupskill_sim_saved_submissions") {
         keysToRemove.push(key);
       }
       if (key && (key.startsWith("zupskill_perspectives_") || key.startsWith("zupskill_selected_perspective_") || key.startsWith("zupskill_define_") || key.startsWith("zupskill_prototype_") || key.startsWith("zupskill_testing_"))) {
@@ -618,16 +647,6 @@ export default function App() {
     }
     keysToRemove.forEach((k) => localStorage.removeItem(k));
 
-    if (user) {
-      try {
-        console.log("Resetting journey on server...");
-        await apiFetch("/api/simulator/reset", { method: "POST" });
-        await startAttempt();
-      } catch (err) {
-        console.error("Failed to reset simulator on server:", err);
-      }
-    }
-
     setSelectedTopic(null);
     setProblemObservations([]);
     setRefinedHowMightWe("");
@@ -638,65 +657,17 @@ export default function App() {
     setActiveScreen("landing");
     setSessionSeenIntros({});
     setPersistedSeenIntros({});
+    setProfile((prev) => prev ? { ...prev, lastCompletedSimulation: undefined } : prev);
     handleAddXP(10);
+    showToast("Simulation restarted. Previous data cleared.", "success");
+    return true;
   };
 
   // FULL DEVELOPER/TESTING RESET
   const handleConfirmFullReset = async () => {
-    console.log("[RESET] User confirmed reset");
-    console.log("[RESET] Resetting current user journey on server...");
-    
-    if (user) {
-      try {
-        await apiFetch("/api/simulator/reset", { method: "POST" });
-        await startAttempt();
-        console.log("[RESET] Server reset successful");
-      } catch (err) {
-        console.error("[RESET] Server reset error:", err);
-        console.log("Proceeding with local reset...");
-      }
-    }
-
-    console.log("[RESET] Clearing local state");
-    // 1. Clear all local storage keys starting with zupskill_
-    const keysToRemove: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith("zupskill_")) {
-        keysToRemove.push(key);
-      }
-    }
-    keysToRemove.forEach((k) => localStorage.removeItem(k));
-
-    // 2. Reset React state variables to fresh initialization
-    setSelectedTopic(null);
-    setProblemObservations([]);
-    setRefinedHowMightWe("");
-    setIdeas([]);
-    setSelectedPrototype(null);
-    setSavedSubmissions([]);
-    setSubmissions(MOCK_COMMUNITY_SUBMISSIONS);
-    setSessionSeenIntros({});
-    setPersistedSeenIntros({});
-    setProfile({
-      username: "Beta_Innovator_9",
-      college: "Stanford Design Lab",
-      level: "Explorer",
-      xp: 60,
-      unlockedBadgeIds: ["problem-hunter"],
-      problemsSolved: 0,
-      ideasGenerated: 0,
-      prototypesBuilt: 0
-    });
-    setCurrentStage(1);
-    setMaxReachedStage(1);
-    
-    // 3. Clear transient visual toggles & direct user directly to Landing Page per user request
-    setActiveScreen("landing");
     setShowResetConfirm(false);
-
-    console.log("[RESET] Reset complete");
-    showToast("Session cleared & Reset complete! 🔄", "info");
+    console.log("[RESET] User confirmed reset");
+    await handleResetSim();
   };
 
   let stageKey: "EMPATHIZE" | "DEFINE" | "IDEATE" | "PROTOTYPE" | "TEST" | "RESULTS" | null = null;

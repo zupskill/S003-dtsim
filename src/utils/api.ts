@@ -11,8 +11,17 @@ export async function apiFetch(input: RequestInfo | URL, init?: RequestInit): Pr
 
   if (!headers.has("Authorization")) {
     try {
-      const { data } = await supabase.auth.getSession();
-      const token = data?.session?.access_token;
+      let { data: { session } } = await supabase.auth.getSession();
+
+      // If token is expired or close to expiry (within 30 seconds), refresh session
+      if (session && session.expires_at && (session.expires_at * 1000) < Date.now() + 30000) {
+        const { data: refreshData } = await supabase.auth.refreshSession();
+        if (refreshData?.session) {
+          session = refreshData.session;
+        }
+      }
+
+      const token = session?.access_token;
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }

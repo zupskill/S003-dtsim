@@ -2423,6 +2423,14 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
 
       // Initialize Supabase Client for DB operations:
       // Prefer service role client if available on server, otherwise use anon key with verified user JWT
+      const isThreePartJwt = typeof token === "string" && token.split(".").length === 3;
+      if (!hasServiceKey && !isThreePartJwt) {
+        console.error("[SIMULATOR COMPLETE ERROR] Authorization token is not a valid 3-part JWT and no service-role key is available");
+        const tokenErr = new Error("Authorization Bearer token is not a valid 3-part JWT");
+        (tokenErr as any).statusCode = 401;
+        throw tokenErr;
+      }
+
       const dbClient = hasServiceKey
         ? createClient(supabaseUrl, supabaseServiceKey, {
             auth: { persistSession: false, autoRefreshToken: false }
@@ -2431,6 +2439,16 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
             auth: { persistSession: false, autoRefreshToken: false },
             global: { headers: { Authorization: `Bearer ${token}` } }
           });
+
+      // Defensive check: Ensure user row exists in 'users' table to satisfy activity_designthinking_user_id_fkey constraint
+      try {
+        await dbClient.from("users").upsert(
+          { id: userId, email: req.user?.email || null },
+          { onConflict: "id", ignoreDuplicates: true }
+        );
+      } catch (uErr: any) {
+        console.warn("[SIMULATOR COMPLETE] Non-blocking user record check notice:", uErr?.message);
+      }
 
       // B2. Optional Progress Engine Invocation
       let progressEngineStatus: "success" | "skipped" | "error" = "skipped";

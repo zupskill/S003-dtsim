@@ -56,7 +56,12 @@ export async function requireSupabaseAuth(
 
   // Development/Test harness support for non-production environments
   if (process.env.NODE_ENV !== "production" && token.startsWith("test_user_token_")) {
-    const userId = token.replace("test_user_token_", "");
+    let userId = token.replace("test_user_token_", "");
+    // Ensure test userId is a valid UUID conforming to PostgreSQL column type
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      userId = "4ba2e060-4ea9-4153-9b5c-c65094c2433c"; // Fallback to verified test user UUID
+    }
     req.user = { id: userId, email: `${userId}@test.local` };
     req.userId = userId;
     next();

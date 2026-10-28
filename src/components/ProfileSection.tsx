@@ -211,7 +211,7 @@ export default function ProfileSection({
         <div className="mt-8 pt-4 border-t border-border flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 bg-surface hover:bg-surface-hover text-slate-405 hover:text-text-primary rounded-xl text-xs font-bold uppercase cursor-pointer transition-colors border border-slate-805"
+            className="px-6 py-2.5 bg-surface hover:bg-surface-hover text-text-secondary hover:text-text-primary rounded-xl text-xs font-bold uppercase cursor-pointer transition-colors border border-border"
           >
             Close Window
           </button>

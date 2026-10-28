@@ -445,7 +445,7 @@ export default function IdeateStage({
             <span className="text-[9px] font-mono font-bold text-text-tertiary tracking-wider block uppercase">
               SELECTED STUDENT PROBLEM
             </span>
-            <p className="text-xs font-semibold text-slate-350 mt-0.5 leading-relaxed italic">
+            <p className="text-xs font-semibold text-text-secondary mt-0.5 leading-relaxed italic">
               "{originalProblemText || "..."}"
             </p>
           </div>
@@ -1065,7 +1065,7 @@ function SortedCard({
                 <h4 className="text-xs font-black text-brand-primary tracking-tight leading-snug">
                   🚀 {item.enhancedTitle}
                 </h4>
-                <p className="text-[10.5px] text-slate-350 leading-relaxed font-semibold italic mt-1 font-sans">
+                <p className="text-[10.5px] text-text-secondary leading-relaxed font-semibold italic mt-1 font-sans">
                   "{item.enhancedDescription}"
                 </p>
                 <button

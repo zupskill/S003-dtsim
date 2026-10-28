@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { UserProfile } from "./types";
-import { getOrCreateUser } from "./utils/auth";
+import { reconstructRecapFromActivities } from "./utils/lpfb";
 
 const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL || "";
 const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY || "";
@@ -35,76 +35,7 @@ export async function getSupabaseProfile(userId: string): Promise<UserProfile | 
       return null;
     }
 
-    const testStage = activities.find(a => a.task_id === 5 && a.task_name === "Test") || activities.find(a => a.task_id === 5);
-    const completedCount = testStage ? 1 : 0;
-    
-    let lastCompletedSimulation = null;
-    if (testStage && testStage.task_name === "Test") {
-      const stage1 = activities.find(a => a.task_id === 1);
-      const stage2 = activities.find(a => a.task_id === 2);
-      const stage3 = activities.find(a => a.task_id === 3);
-      const stage4 = activities.find(a => a.task_id === 4);
-
-      let parsedScores = { overallScore: testStage.score || 0, creativity: 0, understanding: 0, innovation: 0 };
-      try {
-        if (testStage.value3) {
-          parsedScores = JSON.parse(testStage.value3);
-        }
-      } catch (e) {}
-
-      let empathizeSummary = "";
-      if (stage2?.value1) {
-        try {
-          const obs = JSON.parse(stage2.value1);
-          if (Array.isArray(obs) && obs.length > 0) {
-            empathizeSummary = obs[0].text || String(obs[0]);
-          } else {
-            empathizeSummary = String(obs);
-          }
-        } catch(e) {
-          // If it's not JSON, it's likely our new plain text format.
-          // Get the first line as summary, or the whole text if it's short
-          const lines = stage2.value1.split('\n');
-          empathizeSummary = lines[0] || stage2.value1;
-        }
-      }
-      
-      let topIdeas: string[] = [];
-      if (stage4?.value1) {
-        try {
-          const ideas = JSON.parse(stage4.value1);
-          if (Array.isArray(ideas)) {
-            topIdeas = ideas.slice(0, 3).map((i: any) => i.text || String(i));
-          } else {
-            topIdeas = [String(ideas)];
-          }
-        } catch(e) {
-          // Plain text format, one idea per line
-          const lines = stage4.value1.split('\n').filter(Boolean);
-          topIdeas = lines.slice(0, 3);
-        }
-      }
-
-      let overallScore = parsedScores.overallScore;
-      let title = "Explorer";
-      if (overallScore >= 91) title = "DT Innovation Master";
-      else if (overallScore >= 76) title = "Innovation Builder";
-      else if (overallScore >= 61) title = "Creative Thinker";
-      else if (overallScore >= 41) title = "Problem Solver";
-
-      lastCompletedSimulation = {
-        simulationName: "DT Innovation Lab",
-        completionDate: new Date(testStage.updated_at).toLocaleDateString(),
-        challenge: stage1?.value2 || "Custom Challenge",
-        empathizeSummary: empathizeSummary,
-        problemStatement: stage3?.value1 || "Problem definition not found",
-        topIdeas: topIdeas,
-        prototypeSummary: testStage.value2 || "Prototype description not found",
-        achievements: [title],
-        overallScore: overallScore,
-        completionTime: new Date(testStage.updated_at).getTime()
-      };
-    }
+    const { recap, completedCount } = reconstructRecapFromActivities(activities);
 
     return {
       uid: userId,
@@ -127,7 +58,7 @@ export async function getSupabaseProfile(userId: string): Promise<UserProfile | 
       gender: "",
       city: "",
       yearOfBirth: "",
-      lastCompletedSimulation
+      lastCompletedSimulation: recap || undefined
     };
   } catch (err) {
     console.error("Error retrieving Supabase profile:", err);

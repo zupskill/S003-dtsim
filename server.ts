@@ -9,6 +9,7 @@ import { securityHeadersMiddleware, sanitizeString, sanitizeStringArray, isPlain
 import { computeServerAuthoritativeScore } from "./server/evaluator";
 import { requireSupabaseAuth, AuthenticatedRequest } from "./server/auth";
 import { createServerAttempt, getAttempt, abandonUserAttempts, executeAtomicCompletion, finalizeAttempt } from "./server/attempts";
+import { buildRow1Payload, buildRow2Payload, buildRow3Payload } from "./server/lpfb";
 
 dotenv.config();
 
@@ -2192,14 +2193,14 @@ app.post("/api/scoring/evaluate", requireSupabaseAuth, scoringLimiter, async (re
     if (req.body?.task_id !== undefined && req.body?.task_id !== null) {
       const rawTid = req.body.task_id;
       const parsedTid = parseFloat(String(rawTid));
-      const validTaskIds = [1.0, 2.0, 3.0, 4.0, 5.0];
+      const validTaskIds = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
       if (
         isNaN(parsedTid) ||
         !isFinite(parsedTid) ||
         !validTaskIds.includes(parsedTid)
       ) {
         return res.status(400).json({
-          error: "Invalid task_id: Must be a valid simulator task between 1.0 and 5.0",
+          error: "Invalid task_id: Must be a valid simulator task between 1.0 and 6.0",
           received: rawTid
         });
       }
@@ -2431,54 +2432,89 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
         }
       }
 
-      // C. Server-Validated Stage Telemetry Persistence to activity_designthinking
-      if (supabaseUrl && supabaseAnonKey && token && Array.isArray(stages) && stages.length > 0) {
+      // C. Server-Validated 3-Row Plain-Text Persistence to activity_designthinking
+      if (supabaseUrl && supabaseAnonKey && token) {
         try {
           const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
             auth: { persistSession: false, autoRefreshToken: false },
             global: { headers: { Authorization: `Bearer ${token}` } }
           });
 
-          // Deduplicate stages and bind to valid range
-          const validTaskMap = new Map<string, any>();
-          for (const s of stages) {
-            if (!s || typeof s.task_id === "undefined") continue;
-            const tidStr = String(s.task_id);
-            if (["1.0", "2.0", "3.0", "4.0", "5.0"].includes(tidStr)) {
-              validTaskMap.set(tidStr, s);
-            }
-          }
+          // Resolve challenge/topic safely
+          const resolvedTopic = req.body.selectedTopic || {
+            id: (Array.isArray(stages) && stages.find((s: any) => String(s.task_id) === "1.0" || String(s.task_id) === "1")?.value1) || "custom",
+            title: (Array.isArray(stages) && stages.find((s: any) => String(s.task_id) === "1.0" || String(s.task_id) === "1")?.value2) || "Design Challenge",
+            trendingTag: "Innovation"
+          };
 
-          const payloads = Array.from(validTaskMap.values()).map(s => {
-            const cleanVal1 = typeof s.value1 === "string" ? s.value1.slice(0, 4000) : "";
-            const cleanVal2 = typeof s.value2 === "string" ? s.value2.slice(0, 2000) : "";
-            const cleanVal3 = typeof s.value3 === "string" ? s.value3.slice(0, 2000) : "";
-            const isTestStage = String(s.task_id) === "5.0" && (s.task_name === "Test" || !s.task_name);
-
-            return {
-              activity_id: "S003",
-              task_id: parseFloat(s.task_id),
-              task_name: typeof s.task_name === "string" ? s.task_name.slice(0, 100) : "",
-              task_description: typeof s.task_description === "string" ? s.task_description.slice(0, 200) : "",
-              value1: cleanVal1,
-              value2: cleanVal2,
-              value3: cleanVal3,
-              // Authoritative score enforced on test/final stage; client cannot self-assign score
-              score: isTestStage ? authoritativeScore : (s.score ? Math.max(0, Math.min(100, Math.round(Number(s.score)))) : null),
-              completed: true,
-              user_id: userId,
-              updated_at: new Date().toISOString()
-            };
+          const row1Payload = buildRow1Payload({
+            topic: resolvedTopic,
+            problemObservations,
+            refinedHowMightWe
           });
 
-          if (payloads.length > 0) {
-            const { error: insertErr } = await userSupabase.from("activity_designthinking").insert(payloads);
-            if (insertErr) {
-              logApiError("Telemetry insert warning:", insertErr);
+          const row2Payload = buildRow2Payload({
+            ideas,
+            selectedPrototype
+          });
+
+          const row3Payload = buildRow3Payload({
+            selectedPrototype,
+            testingData,
+            rubric: evaluationResult,
+            overallScore: authoritativeScore
+          });
+
+          const nowIso = new Date().toISOString();
+
+          const threeRows = [
+            {
+              activity_id: "S003",
+              task_id: 1.0,
+              task_name: "Discovery & Definition",
+              task_description: "Stage 1 & 2: Empathize & Define",
+              value1: row1Payload.value1,
+              value2: row1Payload.value2,
+              value3: row1Payload.value3,
+              score: null,
+              completed: true,
+              user_id: userId,
+              updated_at: nowIso
+            },
+            {
+              activity_id: "S003",
+              task_id: 2.0,
+              task_name: "Ideation",
+              task_description: "Stage 3: Brainstorming & Selection",
+              value1: row2Payload.value1,
+              value2: row2Payload.value2,
+              value3: row2Payload.value3,
+              score: null,
+              completed: true,
+              user_id: userId,
+              updated_at: nowIso
+            },
+            {
+              activity_id: "S003",
+              task_id: 3.0,
+              task_name: "Prototype & Testing",
+              task_description: "Stage 4 & 5: Solution Evaluation & Authoritative Score",
+              value1: row3Payload.value1,
+              value2: row3Payload.value2,
+              value3: row3Payload.value3,
+              score: authoritativeScore,
+              completed: true,
+              user_id: userId,
+              updated_at: nowIso
             }
+          ];
+
+          const { error: insertErr } = await userSupabase.from("activity_designthinking").insert(threeRows);
+          if (insertErr) {
+            logApiError("3-Row activity_designthinking insert warning:", insertErr);
           }
         } catch (dbErr: any) {
-          logApiError("Failed to save validated stage telemetry:", dbErr);
+          logApiError("Failed to save 3-row stage telemetry to Supabase:", dbErr);
         }
       }
 

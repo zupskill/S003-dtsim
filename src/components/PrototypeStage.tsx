@@ -585,7 +585,7 @@ export default function PrototypeStage({
                     <div className="flex flex-col gap-2 max-h-[440px] overflow-y-auto pr-3 pb-4">
                       {storyboardScenes.map((scene, idx) => (
                         <div key={scene.id} className="flex flex-col items-center w-full">
-                          <div className="w-full p-4 bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-850 rounded-2xl flex flex-col gap-3">
+                          <div className="w-full p-4 bg-surface border border-border rounded-2xl flex flex-col gap-3 shadow-sm">
                             <div className="flex items-center gap-3">
                               <span className="text-[10px] font-mono font-black text-brand-primary bg-brand-primary/45 px-2.5 py-1 rounded border border-brand-primary/15 uppercase w-fit shrink-0">
                                 Scene {idx + 1}
@@ -606,7 +606,7 @@ export default function PrototypeStage({
                               }}
                               onSafetyChange={(safe) => setIsStoryboardSafe(prev => ({ ...prev, [scene.id]: safe }))}
                               context={selectedIdea ? `Prototype Storyboard Scene ${idx + 1} (${scene.title}): ${selectedIdea.text}` : "Prototype Storyboard Scene"}
-                              className="w-full bg-background/80 border border-slate-850 p-3 text-sm text-slate-255 rounded-xl focus:outline-none focus:border-brand-primary/50 placeholder:text-text-tertiary resize-y min-h-[90px] font-medium leading-relaxed"
+                              className="w-full bg-background border border-border p-3 text-sm text-text-primary rounded-xl focus:outline-none focus:border-brand-primary/50 placeholder:text-text-tertiary resize-y min-h-[90px] font-medium leading-relaxed"
                             />
                           </div>
                           
@@ -632,7 +632,7 @@ export default function PrototypeStage({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[340px] overflow-y-auto pr-1">
                       {/* Field 1 */}
-                      <div className="p-3.5 bg-background/80 border border-slate-850 rounded-2xl flex flex-col gap-2">
+                      <div className="p-3.5 bg-background border border-border rounded-2xl flex flex-col gap-2">
                         <div className="flex items-center gap-1.5">
                           <span className="text-sm">🎯</span>
                           <span className="text-[9px] font-mono tracking-widest text-text-secondary uppercase font-black">
@@ -650,12 +650,12 @@ export default function PrototypeStage({
                           context={selectedIdea ? `Prototype Pitch Problem Solved: ${selectedIdea.text}` : "Prototype Pitch Problem Solved"}
                           placeholder="State the core student issue your design directly addresses..."
                           rows={3}
-                          className="w-full bg-background border border-slate-850 p-2 text-xs text-text-primary rounded-xl focus:outline-none focus:border-brand-primary/30 resize-none font-medium leading-relaxed"
+                          className="w-full bg-surface border border-border p-2 text-xs text-text-primary rounded-xl focus:outline-none focus:border-brand-primary/30 resize-none font-medium leading-relaxed"
                         />
                       </div>
 
                       {/* Field 2 */}
-                      <div className="p-3.5 bg-background/80 border border-slate-850 rounded-2xl flex flex-col gap-2">
+                      <div className="p-3.5 bg-background border border-border rounded-2xl flex flex-col gap-2">
                         <div className="flex items-center gap-1.5">
                           <span className="text-sm">🛠️</span>
                           <span className="text-[9px] font-mono tracking-widest text-text-secondary uppercase font-black">
@@ -673,12 +673,12 @@ export default function PrototypeStage({
                           context={selectedIdea ? `Prototype Pitch Solution Built: ${selectedIdea.text}` : "Prototype Pitch Solution Built"}
                           placeholder="Summarize the core mechanism of your solution..."
                           rows={3}
-                          className="w-full bg-background border border-slate-850 p-2 text-xs text-text-secondary rounded-xl focus:outline-none focus:border-brand-primary/30 resize-none font-medium leading-relaxed"
+                          className="w-full bg-surface border border-border p-2 text-xs text-text-primary rounded-xl focus:outline-none focus:border-brand-primary/30 resize-none font-medium leading-relaxed"
                         />
                       </div>
 
                       {/* Field 3 */}
-                      <div className="p-3.5 bg-background/80 border border-slate-850 rounded-2xl flex flex-col gap-2">
+                      <div className="p-3.5 bg-background border border-border rounded-2xl flex flex-col gap-2">
                         <div className="flex items-center gap-1.5">
                           <span className="text-sm">⚡</span>
                           <span className="text-[9px] font-mono tracking-widest text-text-secondary uppercase font-black">
@@ -696,12 +696,12 @@ export default function PrototypeStage({
                           context={selectedIdea ? `Prototype Pitch Why It Works: ${selectedIdea.text}` : "Prototype Pitch Why It Works"}
                           placeholder="Details the smart mechanism or logic behind its utility..."
                           rows={3}
-                          className="w-full bg-background border border-slate-850 p-2 text-xs text-text-secondary rounded-xl focus:outline-none focus:border-brand-primary/30 resize-none font-medium leading-relaxed"
+                          className="w-full bg-surface border border-border p-2 text-xs text-text-primary rounded-xl focus:outline-none focus:border-brand-primary/30 resize-none font-medium leading-relaxed"
                         />
                       </div>
 
                       {/* Field 4 */}
-                      <div className="p-3.5 bg-background/80 border border-slate-850 rounded-2xl flex flex-col gap-2">
+                      <div className="p-3.5 bg-background border border-border rounded-2xl flex flex-col gap-2">
                         <div className="flex items-center gap-1.5">
                           <span className="text-sm">💖</span>
                           <span className="text-[9px] font-mono tracking-widest text-text-secondary uppercase font-black">
@@ -719,7 +719,7 @@ export default function PrototypeStage({
                           context={selectedIdea ? `Prototype Pitch Impact Created: ${selectedIdea.text}` : "Prototype Pitch Impact Created"}
                           placeholder="How does this resolve anxieties and delight students..."
                           rows={3}
-                          className="w-full bg-background border border-slate-850 p-2 text-xs text-text-secondary rounded-xl focus:outline-none focus:border-brand-primary/30 resize-none font-medium leading-relaxed"
+                          className="w-full bg-surface border border-border p-2 text-xs text-text-primary rounded-xl focus:outline-none focus:border-brand-primary/30 resize-none font-medium leading-relaxed"
                         />
                       </div>
                     </div>

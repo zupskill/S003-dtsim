@@ -146,14 +146,14 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
                     </h3>
                   </div>
                   
-                  <p className="text-sm text-slate-350 leading-relaxed font-sans italic opacity-90">
+                  <p className="text-sm text-text-secondary leading-relaxed font-sans italic opacity-95">
                     "{topic.description}"
                   </p>
                 </div>
 
                 {isSelected && (
                   <div className="mt-4 flex items-center justify-end">
-                    <span className="text-[9px] bg-blue-950 text-blue-400 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider uppercase border border-blue-500/20">
+                    <span className="text-[9px] bg-blue-500/10 text-blue-600 dark:bg-blue-950 dark:text-blue-400 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider uppercase border border-blue-500/30">
                       SELECTED 🔵
                     </span>
                   </div>
@@ -193,7 +193,7 @@ export default function TopicSelection({ onSelect, selectedTopic }: TopicSelecti
             </div>
             {localSelectedTopic?.isCustom && (
               <div className="mt-4 flex items-center justify-end">
-                <span className="text-[9px] bg-blue-950 text-blue-400 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider uppercase border border-blue-500/20">
+                <span className="text-[9px] bg-blue-500/10 text-blue-600 dark:bg-blue-950 dark:text-blue-400 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider uppercase border border-blue-500/30">
                   SELECTED CUSTOM 🔵
                 </span>
               </div>

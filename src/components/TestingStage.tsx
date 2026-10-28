@@ -390,7 +390,7 @@ export default function TestingStage({
         <div className="flex flex-col">
           <div className={`glass-panel p-5 rounded-2xl flex-1 flex flex-col justify-between border-l-4 border-red-500 h-full ${loadingWhatIf ? "animate-pulse" : "glow-orange"}`}>
             <div>
-              <div className="flex items-center justify-between mb-4 border-b border-slate-850 pb-2">
+              <div className="flex items-center justify-between mb-4 border-b border-border pb-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-red-400 font-mono flex items-center gap-1">
                   🧠 WHAT IF? (FUN SCENARIOS)
                 </span>
@@ -406,9 +406,9 @@ export default function TestingStage({
                 /* Skeleton Loader */
                 <div className="space-y-4">
                   <div className="h-3 bg-red-500/10 rounded w-5/6" />
-                  <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
+                  <div className="h-20 bg-surface border border-border rounded-lg animate-pulse" />
                   <div className="h-3 bg-red-500/10 rounded w-2/3" />
-                  <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
+                  <div className="h-20 bg-surface border border-border rounded-lg animate-pulse" />
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -428,7 +428,7 @@ export default function TestingStage({
               )}
             </div>
 
-            <div className="text-[10px] text-text-tertiary font-mono mt-6 border-t border-slate-855 pt-2 flex items-center gap-1">
+            <div className="text-[10px] text-text-tertiary font-mono mt-6 border-t border-border pt-2 flex items-center gap-1">
               <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" /> Review loaded! ✨
             </div>
           </div>
@@ -438,7 +438,7 @@ export default function TestingStage({
         <div className="flex flex-col">
           <div className={`glass-panel p-5 rounded-2xl flex-1 flex flex-col justify-between border-l-4 border-brand-primary h-full ${loadingILike ? "animate-pulse" : "glow-cyan"}`}>
             <div>
-              <div className="flex items-center justify-between mb-4 border-b border-slate-850 pb-2">
+              <div className="flex items-center justify-between mb-4 border-b border-border pb-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-brand-primary font-mono flex items-center gap-1">
                   💖 I LIKE (HIGHLIGHTS)
                 </span>
@@ -454,9 +454,9 @@ export default function TestingStage({
                 /* Skeleton Loader */
                 <div className="space-y-4">
                   <div className="h-3 bg-brand-primary/10 rounded w-5/6" />
-                  <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
+                  <div className="h-20 bg-surface border border-border rounded-lg animate-pulse" />
                   <div className="h-3 bg-brand-primary/10 rounded w-2/3" />
-                  <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
+                  <div className="h-20 bg-surface border border-border rounded-lg animate-pulse" />
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -476,7 +476,7 @@ export default function TestingStage({
               )}
             </div>
 
-            <div className="text-[10px] text-text-tertiary font-mono mt-6 border-t border-slate-855 pt-2 flex items-center gap-1">
+            <div className="text-[10px] text-text-tertiary font-mono mt-6 border-t border-border pt-2 flex items-center gap-1">
               <span className="w-1.5 h-1.5 bg-brand-secondary rounded-full animate-pulse" /> Delight verified! ✨
             </div>
           </div>
@@ -486,7 +486,7 @@ export default function TestingStage({
         <div className="flex flex-col">
           <div className={`glass-panel p-5 rounded-2xl flex-1 flex flex-col justify-between border-l-4 border-purple-500 h-full ${loadingIWish ? "animate-pulse" : "glow-purple"}`}>
             <div>
-              <div className="flex items-center justify-between mb-4 border-b border-slate-850 pb-2">
+              <div className="flex items-center justify-between mb-4 border-b border-border pb-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-purple-400 font-mono flex items-center gap-1">
                   💡 I WISH (IDEAS FOR GROWTH)
                 </span>
@@ -502,9 +502,9 @@ export default function TestingStage({
                 /* Skeleton Loader */
                 <div className="space-y-4">
                   <div className="h-3 bg-purple-500/10 rounded w-5/6" />
-                  <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
+                  <div className="h-20 bg-surface border border-border rounded-lg animate-pulse" />
                   <div className="h-3 bg-purple-500/10 rounded w-2/3" />
-                  <div className="h-20 bg-surface border border-slate-850 rounded-lg animate-pulse" />
+                  <div className="h-20 bg-surface border border-border rounded-lg animate-pulse" />
                 </div>
               ) : (
                 <div className="space-y-4">

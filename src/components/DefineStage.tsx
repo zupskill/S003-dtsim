@@ -292,7 +292,7 @@ export default function DefineStage({
 
       {/* 🎯 TOP CONTEXT PANEL (continuity dashboard) */}
       {isCommitted && selectedObs && (
-        <div className="bg-background/80 border border-slate-850 p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4.5 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(0,181,230,0.04)] animate-in slide-in-from-top duration-300">
+        <div className="bg-background/80 border border-border p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4.5 relative overflow-hidden backdrop-blur-md shadow-[0_4px_20px_rgba(0,181,230,0.04)] animate-in slide-in-from-top duration-300">
           <div className="absolute top-0 left-0 w-1 h-full bg-brand-primary/50" />
           
           {/* Left Aspect: Selected Problem */}
@@ -311,7 +311,7 @@ export default function DefineStage({
           </div>
 
           {/* Right Aspect: Design Challenge (HMW) */}
-          <div className="flex items-start gap-2.5 md:border-l md:border-slate-850/85 md:pl-4">
+          <div className="flex items-start gap-2.5 md:border-l md:border-border/60 md:pl-4">
             <div className="p-1.5 bg-brand-primary/45 rounded-xl border border-brand-primary/25 text-brand-primary mt-0.5 shrink-0 select-none">
               ✨
             </div>
@@ -509,7 +509,7 @@ export default function DefineStage({
                     onChange={setAnythingElse}
                     onSafetyChange={(safe) => setIsAnythingElseSafe(safe)}
                     context="Define Stage - OPTIONAL"
-                    className="w-full bg-background/85 border border-slate-850 text-slate-150 text-xs px-3.5 py-3 rounded-xl focus:outline-none focus:border-brand-primary/85 focus:ring-1 focus:ring-brand-primary/20 placeholder:text-text-tertiary font-medium transition-all"
+                    className="w-full bg-background border border-border text-text-primary text-xs px-3.5 py-3 rounded-xl focus:outline-none focus:border-brand-primary/85 focus:ring-1 focus:ring-brand-primary/20 placeholder:text-text-tertiary font-medium transition-all"
                   />
                   <p className="text-[10px] text-text-tertiary mt-1.5 leading-snug">
                     Provide extra details, timing observations, or local constraints to sharpen the auto-generated brainstorm.

@@ -17,25 +17,27 @@
 }
 
 :root {
-  /* DARK MODE DEFAULTS */
+  color-scheme: light;
+  /* LIGHT MODE DEFAULTS */
   --brand-secondary: #ffc83d; /* Golden Yellow */
   --brand-secondary-hover: #ffd760;
   --brand-primary: #00b5e6; /* Azure Blue */
   --brand-primary-hover: #19c5f2;
   
-  --background: #05070a; /* Deep Navy with azure gradient overlay handled separately */
-  --surface: #0f172a; 
-  --surface-hover: #1e293b;
+  --background: #f7fafc; /* Soft White */
+  --surface: #ffffff;
+  --surface-hover: #f1f5f9;
   
-  --border: rgba(0, 181, 230, 0.3); /* Soft azure border */
-  --border-subtle: rgba(0, 181, 230, 0.15);
+  --border: rgba(0, 181, 230, 0.2); /* Soft blue/azure border */
+  --border-subtle: rgba(0, 181, 230, 0.1);
   
-  --text-primary: #ffffff;
-  --text-secondary: #94a3b8; /* Cool Gray */
-  --text-tertiary: #64748b;
+  --text-primary: #0f172a; /* Dark Navy */
+  --text-secondary: #64748b; /* Gray */
+  --text-tertiary: #94a3b8;
 }
 
 .light, .light body {
+  color-scheme: light;
   /* LIGHT MODE OVERRIDES */
   --background: #f7fafc; /* Soft White */
   --surface: #ffffff;
@@ -47,6 +49,26 @@
   --text-primary: #0f172a; /* Dark Navy */
   --text-secondary: #64748b; /* Gray */
   --text-tertiary: #94a3b8;
+}
+
+.dark, .dark body {
+  color-scheme: dark;
+  /* DARK MODE OVERRIDES */
+  --brand-secondary: #ffc83d;
+  --brand-secondary-hover: #ffd760;
+  --brand-primary: #00b5e6;
+  --brand-primary-hover: #19c5f2;
+
+  --background: #05070a; /* Deep Navy with azure gradient overlay */
+  --surface: #0f172a; 
+  --surface-hover: #1e293b;
+  
+  --border: rgba(0, 181, 230, 0.3); /* Soft azure border */
+  --border-subtle: rgba(0, 181, 230, 0.15);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8; /* Cool Gray */
+  --text-tertiary: #64748b;
 }
 
 
@@ -108,6 +130,11 @@ html, body, header, main, footer, section, div, button, input, textarea, p, span
 }
 
 body {
+  background-color: #f7fafc;
+  color: #0f172a;
+}
+
+.dark body {
   background-color: #05070A;
   color: #f8fafc;
 }
@@ -140,14 +167,12 @@ body {
 /* Background Overrides */
 .light .bg-slate-950,
 .light .bg-slate-950\/60,
+.light .bg-slate-950\/70,
+.light .bg-slate-950\/80,
+.light .bg-slate-950\/90,
 .light .bg-slate-955,
 .light .bg-slate-905\/60 {
   background-color: #f7fafc !important;
-}
-
-.light .bg-slate-950\/70,
-.light .bg-slate-950\/80 {
-  background-color: rgba(248, 250, 252, 0.8) !important;
 }
 
 .light .bg-slate-900,
@@ -167,12 +192,30 @@ body {
 .light .bg-slate-900\/60,
 .light .bg-slate-910\/50,
 .light .bg-slate-950\/20,
-.light .bg-cyan-950\/20 {
+.light .bg-cyan-950\/20,
+.light .bg-blue-950,
+.light .bg-blue-950\/10,
+.light .bg-blue-950\/20,
+.light .bg-blue-950\/30,
+.light .bg-purple-950,
+.light .bg-purple-950\/10,
+.light .bg-purple-950\/20,
+.light .bg-purple-950\/30,
+.light .bg-purple-950\/40,
+.light .bg-amber-950,
+.light .bg-amber-950\/10,
+.light .bg-amber-950\/20,
+.light .bg-amber-950\/45,
+.light .bg-red-950,
+.light .bg-red-950\/10,
+.light .bg-red-950\/20,
+.light .bg-red-950\/40 {
   background-color: #f1f5f9 !important;
 }
 
 /* Modals overlays background */
 .light .bg-black\/90,
+.light .bg-black\/95,
 .light .bg-slate-950\/90 {
   background-color: rgba(15, 23, 42, 0.45) !important;
   backdrop-filter: blur(8px) !important;
@@ -222,21 +265,21 @@ body {
   font-weight: 550 !important;
 }
 
-.light .text-slate-300 {
-  color: #1e293b !important;
+.light .text-slate-250,
+.light .text-slate-255,
+.light .text-slate-300,
+.light .text-slate-305,
+.light .text-slate-350,
+.light .text-slate-400,
+.light .text-slate-405,
+.light .text-slate-450 {
+  color: #334155 !important;
   font-weight: 550 !important;
 }
 
-.light .text-slate-400 {
-  color: #1e293b !important;
-  font-weight: 500 !important;
-}
-
-.light .text-slate-500 {
-  color: #334155 !important;
-  font-weight: 600 !important;
-}
-
+.light .text-slate-500,
+.light .text-slate-505,
+.light .text-slate-550,
 .light .text-slate-600,
 .light .text-slate-605,
 .light .text-slate-650,
@@ -327,7 +370,7 @@ body {
 .light textarea,
 .light select {
   background-color: #ffffff !important;
-  border-color: #94a3b8 !important;
+  border-color: #cbd5e1 !important;
   color: #0f172a !important;
   font-weight: 550 !important;
 }
@@ -344,13 +387,16 @@ body {
 }
 
 /* Border overrides */
+.light .border-slate-700,
+.light .border-slate-750,
 .light .border-slate-800,
+.light .border-slate-805,
 .light .border-slate-850,
 .light .border-slate-855,
 .light .border-slate-900,
 .light .border-slate-905,
 .light .border-slate-950 {
-  border-color: #94a3b8 !important;
+  border-color: #cbd5e1 !important;
 }
 
 /* Keep sticky note colors contrast and vibrant */

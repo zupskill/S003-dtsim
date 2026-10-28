@@ -54,10 +54,20 @@ import zupskillLogo from "./assets/zupskill-logo.png";
 
 
 export default function App() {
-  // Theme state: default is 'dark'
+  // Theme state: default is 'light' everywhere
   const [theme, setTheme] = useState<"dark" | "light">(() => {
-    const saved = localStorage.getItem("zupskill_theme");
-    return saved === "light" ? "light" : "dark";
+    // 1. URL parameter check (?theme=light or ?theme=dark for parent iframe / direct link)
+    const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+    const urlTheme = searchParams?.get("theme");
+    if (urlTheme === "dark") return "dark";
+    if (urlTheme === "light") return "light";
+
+    // 2. Saved preference check (only if explicitly set)
+    const saved = typeof localStorage !== "undefined" ? localStorage.getItem("zupskill_theme") : null;
+    if (saved === "dark") return "dark";
+
+    // Default is strictly light mode everywhere
+    return "light";
   });
 
   useEffect(() => {
@@ -70,6 +80,39 @@ export default function App() {
       root.classList.add("dark");
       root.classList.remove("light");
     }
+  }, [theme]);
+
+  // Integration with ZupSkill experience: listen for theme events from parent window and announce readiness
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (!event.data) return;
+      if (
+        event.data.type === "SET_THEME" ||
+        event.data.type === "THEME_CHANGE" ||
+        event.data.action === "setTheme"
+      ) {
+        const incomingTheme = event.data.theme;
+        if (incomingTheme === "dark" || incomingTheme === "light") {
+          setTheme(incomingTheme);
+        }
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    // Announce simulator readiness and current theme to parent iframe if embedded
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: "ZUPSKILL_SIMULATOR_READY",
+          simulatorId: "S003",
+          activityId: "S003",
+          theme: theme
+        }, "*");
+      }
+    } catch (e) {}
+
+    return () => window.removeEventListener("message", handleMessage);
   }, [theme]);
 
   const toggleTheme = () => {
@@ -702,7 +745,7 @@ export default function App() {
       
       {/* PERSISTENT HEADER BAR (Rendered for in-sim / feed views) */}
       {(activeScreen === "simulation" || activeScreen === "report" || activeScreen === "recap") && (
-        <header className="bg-background border-b border-slate-850 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-40 sticky top-0 overflow-hidden">
+        <header className="bg-background border-b border-border px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-40 sticky top-0 overflow-hidden">
           <div className="flex items-center justify-start shrink-0">
           <img
             src={zupskillLogo}
@@ -1070,10 +1113,10 @@ export default function App() {
                           console.error("AI Thoughtfulness evaluation failed", err);
                         }
 
-                        // 1. Record Stage 5 Test locally
+                        // 1. Record Stage 6 Test locally
                         saveStageLocally({
                           activity_id: "S003",
-                          task_id: "5.0",
+                          task_id: "6.0",
                           task_name: "Test",
                           task_description: "Evaluated prototype",
                           value1: selectedPrototype?.title || "",
@@ -1091,7 +1134,8 @@ export default function App() {
                           ideas,
                           selectedPrototype,
                           testingData,
-                          aiThoughtfulness: aiThoughtfulnessScore
+                          aiThoughtfulness: aiThoughtfulnessScore,
+                          selectedTopic
                         });
 
                         if (completionResult && typeof completionResult.authoritativeScore === "number") {

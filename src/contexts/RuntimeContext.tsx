@@ -201,6 +201,7 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
         selectedPrototype: evidence?.selectedPrototype || null,
         testingData: evidence?.testingData || {},
         aiThoughtfulness: evidence?.aiThoughtfulness || 0,
+        selectedTopic: evidence?.selectedTopic || null,
         stages: activityProgress
       };
 
@@ -215,6 +216,24 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
         // Clear local draft progress upon verified server completion
         setActivityProgress([]);
         localStorage.removeItem("zupskill_sim_draft_progress");
+
+        // Notify parent iframe / window of completion for ZupSkill integration
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              type: "ZUPSKILL_SIMULATOR_COMPLETED",
+              simulatorId: "S003",
+              activityId: "S003",
+              activityName: "Design Thinking",
+              score: data.authoritativeScore,
+              breakdown: data.breakdown,
+              success: true
+            }, "*");
+          }
+        } catch (e) {
+          console.warn("Could not postMessage to parent window:", e);
+        }
+
         return data;
       } else {
         const errData = await res.json().catch(() => ({ error: "Server completion failed" }));

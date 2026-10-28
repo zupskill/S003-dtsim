@@ -150,7 +150,7 @@ export default function ProfileSetupScreen({
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-surface border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
 
@@ -164,7 +164,7 @@ export default function ProfileSetupScreen({
                   required
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-surface border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function ProfileSetupScreen({
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-surface border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
 
@@ -195,7 +195,7 @@ export default function ProfileSetupScreen({
                   required
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-surface border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -212,7 +212,7 @@ export default function ProfileSetupScreen({
                   required
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-surface border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
 
@@ -226,7 +226,7 @@ export default function ProfileSetupScreen({
                   required
                   value={yearOfBirth}
                   onChange={(e) => setYearOfBirth(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-surface border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -243,7 +243,7 @@ export default function ProfileSetupScreen({
                   required
                   value={college}
                   onChange={(e) => setCollege(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-surface border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
 
@@ -257,7 +257,7 @@ export default function ProfileSetupScreen({
                   required
                   value={branch}
                   onChange={(e) => setBranch(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-surface border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -274,7 +274,7 @@ export default function ProfileSetupScreen({
                   required
                   value={yearOfGraduation}
                   onChange={(e) => setYearOfGraduation(e.target.value)}
-                  className="w-full bg-[#0b0f19] border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
+                  className="w-full bg-surface border border-border hover:border-border-subtle/80 focus:border-brand-primary/50 text-text-primary text-sm px-4 py-3 rounded-xl focus:outline-none transition-colors"
                 />
               </div>
             </div>

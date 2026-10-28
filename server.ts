@@ -2326,7 +2326,8 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
   try {
     const userId = req.userId;
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized: Missing user identity" });
+      console.error("[SIMULATOR COMPLETE] Unauthorized: Missing user identity on request");
+      return res.status(401).json({ error: "Unauthorized: Missing user identity", success: false });
     }
 
     const {
@@ -2340,25 +2341,31 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
       stages
     } = req.body || {};
 
+    console.log(`[SIMULATOR COMPLETE] Received completion request for user ${userId.slice(0, 8)}... attemptId: ${attemptId || "MISSING"}`);
+
     // 1. Enforce required attempt_id
     if (!attemptId || typeof attemptId !== "string" || !attemptId.trim()) {
-      return res.status(400).json({ error: "Missing or invalid attemptId. All completions require a server-issued attempt." });
+      console.warn("[SIMULATOR COMPLETE] Rejected: Missing attemptId");
+      return res.status(400).json({ error: "Missing or invalid attemptId. All completions require a server-issued attempt.", success: false });
     }
 
     const attempt = getAttempt(attemptId.trim());
     if (!attempt) {
+      console.warn(`[SIMULATOR COMPLETE] Rejected: Attempt ${attemptId} not found or expired`);
       return res.status(404).json({
-        error: "Attempt not found or expired. Please refresh and restart the simulation to acquire an attempt ticket."
+        error: "Attempt not found or expired. Please refresh and restart the simulation to acquire an attempt ticket.",
+        success: false
       });
     }
 
     // 2. Validate attempt ownership
     if (attempt.userId !== userId) {
-      return res.status(403).json({ error: "Forbidden: Attempt was issued to a different user identity" });
+      console.warn(`[SIMULATOR COMPLETE] Forbidden: Attempt user ${attempt.userId} != request user ${userId}`);
+      return res.status(403).json({ error: "Forbidden: Attempt was issued to a different user identity", success: false });
     }
 
     if (attempt.activityId !== "S003") {
-      return res.status(400).json({ error: "Invalid activity ID for this simulator endpoint" });
+      return res.status(400).json({ error: "Invalid activity ID for this simulator endpoint", success: false });
     }
 
     // 3. Validate input presence (at least one stage artifact must exist)
@@ -2371,7 +2378,7 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
     );
 
     if (!hasAnyInput) {
-      return res.status(400).json({ error: "Missing required inputs: At least one stage artifact must be provided for evaluation" });
+      return res.status(400).json({ error: "Missing required inputs: At least one stage artifact must be provided for evaluation", success: false });
     }
 
     // 4. Atomic Execution with Concurrency Lock & Replay Protection
@@ -2393,132 +2400,158 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
 
       const authoritativeScore = Math.max(0, Math.min(100, Math.round(evaluationResult.overallScore)));
 
-      // B. Invoke Central Experience Progress Engine via Supabase Edge Function
-      const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
-      const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "";
+      // B. Resolve Supabase Credentials
+      const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
+      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "";
+      const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
       const authHeader = req.headers.authorization;
       const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
 
+      const hasServiceKey = !!supabaseServiceKey;
+      const hasAnonKey = !!supabaseAnonKey;
+      const hasUrl = !!supabaseUrl;
+      const hasToken = !!token;
+
+      console.log(`[SIMULATOR COMPLETE] Supabase Config Check: url=${hasUrl}, serviceKey=${hasServiceKey}, anonKey=${hasAnonKey}, userToken=${hasToken}`);
+
+      if (!hasUrl || (!hasServiceKey && !hasAnonKey)) {
+        console.error("[SIMULATOR COMPLETE ERROR] Supabase credentials not configured on server.");
+        const configErr = new Error("Supabase credentials not configured on server");
+        (configErr as any).statusCode = 500;
+        throw configErr;
+      }
+
+      // Initialize Supabase Client for DB operations:
+      // Prefer service role client if available on server, otherwise use anon key with verified user JWT
+      const dbClient = hasServiceKey
+        ? createClient(supabaseUrl, supabaseServiceKey, {
+            auth: { persistSession: false, autoRefreshToken: false }
+          })
+        : createClient(supabaseUrl, supabaseAnonKey, {
+            auth: { persistSession: false, autoRefreshToken: false },
+            global: { headers: { Authorization: `Bearer ${token}` } }
+          });
+
+      // B2. Optional Progress Engine Invocation
       let progressEngineStatus: "success" | "skipped" | "error" = "skipped";
       let progressEngineError: string | undefined;
 
-      if (supabaseUrl && supabaseAnonKey && token) {
-        try {
-          const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-            auth: { persistSession: false, autoRefreshToken: false },
-            global: { headers: { Authorization: `Bearer ${token}` } }
-          });
-
-          const { data: peData, error: peErr } = await userSupabase.functions.invoke("progress-engine", {
-            body: {
-              action: "complete_simulator",
-              activity_id: "S003",
-              activity_name: "Design Thinking",
-              final_score: authoritativeScore
-            }
-          });
-
-          if (peErr) {
-            progressEngineStatus = "error";
-            progressEngineError = peErr.message;
-            logApiError("Progress Engine invocation error:", peErr);
-          } else {
-            progressEngineStatus = "success";
+      try {
+        const { error: peErr } = await dbClient.functions.invoke("progress-engine", {
+          body: {
+            action: "complete_simulator",
+            activity_id: "S003",
+            activity_name: "Design Thinking",
+            final_score: authoritativeScore
           }
-        } catch (peEx: any) {
+        });
+
+        if (peErr) {
           progressEngineStatus = "error";
-          progressEngineError = peEx?.message || "Invocation exception";
-          logApiError("Progress Engine invocation exception:", peEx);
+          progressEngineError = peErr.message;
+          console.warn("[SIMULATOR PROGRESS-ENGINE] Non-blocking warning:", peErr.message);
+        } else {
+          progressEngineStatus = "success";
         }
+      } catch (peEx: any) {
+        progressEngineStatus = "error";
+        progressEngineError = peEx?.message || "Invocation exception";
+        console.warn("[SIMULATOR PROGRESS-ENGINE] Non-blocking exception:", progressEngineError);
       }
 
       // C. Server-Validated 3-Row Plain-Text Persistence to activity_designthinking
-      if (supabaseUrl && supabaseAnonKey && token) {
-        try {
-          const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-            auth: { persistSession: false, autoRefreshToken: false },
-            global: { headers: { Authorization: `Bearer ${token}` } }
-          });
+      // Resolve challenge/topic safely
+      const resolvedTopic = req.body.selectedTopic || {
+        id: (Array.isArray(stages) && stages.find((s: any) => String(s.task_id) === "1.0" || String(s.task_id) === "1")?.value1) || "custom",
+        title: (Array.isArray(stages) && stages.find((s: any) => String(s.task_id) === "1.0" || String(s.task_id) === "1")?.value2) || "Design Challenge",
+        trendingTag: "Innovation"
+      };
 
-          // Resolve challenge/topic safely
-          const resolvedTopic = req.body.selectedTopic || {
-            id: (Array.isArray(stages) && stages.find((s: any) => String(s.task_id) === "1.0" || String(s.task_id) === "1")?.value1) || "custom",
-            title: (Array.isArray(stages) && stages.find((s: any) => String(s.task_id) === "1.0" || String(s.task_id) === "1")?.value2) || "Design Challenge",
-            trendingTag: "Innovation"
-          };
+      const row1Payload = buildRow1Payload({
+        topic: resolvedTopic,
+        problemObservations,
+        refinedHowMightWe
+      });
 
-          const row1Payload = buildRow1Payload({
-            topic: resolvedTopic,
-            problemObservations,
-            refinedHowMightWe
-          });
+      const row2Payload = buildRow2Payload({
+        ideas,
+        selectedPrototype
+      });
 
-          const row2Payload = buildRow2Payload({
-            ideas,
-            selectedPrototype
-          });
+      const row3Payload = buildRow3Payload({
+        selectedPrototype,
+        testingData,
+        rubric: evaluationResult,
+        overallScore: authoritativeScore
+      });
 
-          const row3Payload = buildRow3Payload({
-            selectedPrototype,
-            testingData,
-            rubric: evaluationResult,
-            overallScore: authoritativeScore
-          });
+      const nowIso = new Date().toISOString();
 
-          const nowIso = new Date().toISOString();
-
-          const threeRows = [
-            {
-              activity_id: "S003",
-              task_id: 1.0,
-              task_name: "Discovery & Definition",
-              task_description: "Stage 1 & 2: Empathize & Define",
-              value1: row1Payload.value1,
-              value2: row1Payload.value2,
-              value3: row1Payload.value3,
-              score: null,
-              completed: true,
-              user_id: userId,
-              updated_at: nowIso
-            },
-            {
-              activity_id: "S003",
-              task_id: 2.0,
-              task_name: "Ideation",
-              task_description: "Stage 3: Brainstorming & Selection",
-              value1: row2Payload.value1,
-              value2: row2Payload.value2,
-              value3: row2Payload.value3,
-              score: null,
-              completed: true,
-              user_id: userId,
-              updated_at: nowIso
-            },
-            {
-              activity_id: "S003",
-              task_id: 3.0,
-              task_name: "Prototype & Testing",
-              task_description: "Stage 4 & 5: Solution Evaluation & Authoritative Score",
-              value1: row3Payload.value1,
-              value2: row3Payload.value2,
-              value3: row3Payload.value3,
-              score: authoritativeScore,
-              completed: true,
-              user_id: userId,
-              updated_at: nowIso
-            }
-          ];
-
-          const { error: insertErr } = await userSupabase.from("activity_designthinking").insert(threeRows);
-          if (insertErr) {
-            logApiError("3-Row activity_designthinking insert warning:", insertErr);
-          }
-        } catch (dbErr: any) {
-          logApiError("Failed to save 3-row stage telemetry to Supabase:", dbErr);
+      const threeRows = [
+        {
+          activity_id: "S003",
+          task_id: 1.0,
+          task_name: "Discovery & Definition",
+          task_description: "Stage 1 & 2: Empathize & Define",
+          value1: row1Payload.value1,
+          value2: row1Payload.value2,
+          value3: row1Payload.value3,
+          score: null,
+          completed: true,
+          user_id: userId,
+          updated_at: nowIso
+        },
+        {
+          activity_id: "S003",
+          task_id: 2.0,
+          task_name: "Ideation",
+          task_description: "Stage 3: Brainstorming & Selection",
+          value1: row2Payload.value1,
+          value2: row2Payload.value2,
+          value3: row2Payload.value3,
+          score: null,
+          completed: true,
+          user_id: userId,
+          updated_at: nowIso
+        },
+        {
+          activity_id: "S003",
+          task_id: 3.0,
+          task_name: "Prototype & Testing",
+          task_description: "Stage 4 & 5: Solution Evaluation & Authoritative Score",
+          value1: row3Payload.value1,
+          value2: row3Payload.value2,
+          value3: row3Payload.value3,
+          score: authoritativeScore,
+          completed: true,
+          user_id: userId,
+          updated_at: nowIso
         }
+      ];
+
+      console.log(`[SIMULATOR COMPLETE] Executing Supabase insert of 3 rows for user ${userId.slice(0, 8)}... (mode: ${hasServiceKey ? 'service_role' : 'user_jwt'})`);
+
+      const { data: insertData, error: insertErr } = await dbClient
+        .from("activity_designthinking")
+        .insert(threeRows)
+        .select();
+
+      if (insertErr) {
+        console.error("[SIMULATOR COMPLETE DB ERROR] Supabase insert failed:", {
+          code: insertErr.code,
+          message: insertErr.message,
+          details: insertErr.details,
+          hint: insertErr.hint
+        });
+        const persistenceErr = new Error(`Supabase persistence failed [${insertErr.code || 'UNKNOWN'}]: ${insertErr.message}`);
+        (persistenceErr as any).dbError = insertErr;
+        (persistenceErr as any).statusCode = 502;
+        throw persistenceErr;
       }
 
-      // D. Finalize Attempt
+      console.log(`[SIMULATOR COMPLETE DB SUCCESS] Successfully persisted 3 rows to activity_designthinking (rows returned: ${insertData ? insertData.length : 3})`);
+
+      // D. Finalize Attempt ONLY after verified database persistence
       finalizeAttempt(attempt.attemptId, {
         authoritativeScore,
         breakdown: evaluationResult,
@@ -2528,6 +2561,7 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
 
       return {
         success: true,
+        dbPersisted: true,
         authoritativeScore,
         breakdown: evaluationResult,
         attemptId: attempt.attemptId,
@@ -2542,6 +2576,7 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
     if (wasReplay) {
       return res.status(200).json({
         success: true,
+        dbPersisted: true,
         authoritativeScore: result.authoritativeScore,
         breakdown: result.breakdown,
         attemptId: attempt.attemptId,
@@ -2552,8 +2587,14 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
 
     return res.status(200).json(result);
   } catch (error: any) {
-    logApiError("Error in authoritative simulator completion:", error);
-    return res.status(500).json({ error: "Failed to complete simulator authoritatively" });
+    console.error("[SIMULATOR COMPLETE EXCEPTION]:", error?.message || error);
+    const dbErr = error?.dbError;
+    const statusCode = error?.statusCode || 500;
+    return res.status(statusCode).json({
+      error: error?.message || "Failed to complete simulator authoritatively",
+      dbError: dbErr ? { code: dbErr.code, message: dbErr.message, hint: dbErr.hint } : undefined,
+      success: false
+    });
   }
 });
 
@@ -2565,26 +2606,10 @@ app.post("/api/simulator/reset", requireSupabaseAuth, moderateLimiter, async (re
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    // Abandon user's attempts in memory
+    console.log(`[SIMULATOR RESET] Resetting in-progress simulator attempts for user ${userId.slice(0, 8)}...`);
+
+    // Abandon user's in-progress attempts in memory
     abandonUserAttempts(userId, "S003");
-
-    // Clean up previous journey records in activity_designthinking
-    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
-    const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "";
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
-
-    if (supabaseUrl && supabaseAnonKey && token) {
-      try {
-        const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-          auth: { persistSession: false, autoRefreshToken: false },
-          global: { headers: { Authorization: `Bearer ${token}` } }
-        });
-        await userSupabase.from("activity_designthinking").delete().eq("user_id", userId).eq("activity_id", "S003");
-      } catch (err: any) {
-        logApiError("Warning clearing previous journey in Supabase:", err);
-      }
-    }
 
     // Issue a clean new attempt
     const newAttempt = createServerAttempt(userId, "S003");

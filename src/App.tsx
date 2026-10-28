@@ -621,7 +621,7 @@ export default function App() {
     if (user) {
       try {
         console.log("Resetting journey on server...");
-        await apiFetch("./api/simulator/reset", { method: "POST" });
+        await apiFetch("/api/simulator/reset", { method: "POST" });
         await startAttempt();
       } catch (err) {
         console.error("Failed to reset simulator on server:", err);
@@ -648,7 +648,7 @@ export default function App() {
     
     if (user) {
       try {
-        await apiFetch("./api/simulator/reset", { method: "POST" });
+        await apiFetch("/api/simulator/reset", { method: "POST" });
         await startAttempt();
         console.log("[RESET] Server reset successful");
       } catch (err) {
@@ -1095,7 +1095,7 @@ export default function App() {
                         // First attempt to get AI thoughtfulness if possible
                         let aiThoughtfulnessScore = 0;
                         try {
-                          const response = await apiFetch("./api/test/thoughtfulness", {
+                          const response = await apiFetch("/api/test/thoughtfulness", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -1139,9 +1139,11 @@ export default function App() {
                         });
 
                         if (completionResult && typeof completionResult.authoritativeScore === "number") {
+                          console.log("[S003 SUCCESS] Simulation completion persisted to Supabase with authoritative score:", completionResult.authoritativeScore);
                           finalScore = completionResult.authoritativeScore;
                           breakdownData = completionResult.breakdown;
                         } else {
+                          console.warn("[S003 WARNING] Server persistence not confirmed. User session or network status may be offline. Applying deterministic local presentation fallback.");
                           // Offline development fallback for local UI presentation
                           const deterministic = calculateDeterministicEngagement(
                             maxReachedStage,

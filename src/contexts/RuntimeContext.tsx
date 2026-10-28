@@ -158,41 +158,54 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const startAttempt = useCallback(async (): Promise<string | null> => {
-    if (!user) return null;
+    if (!user) {
+      console.warn("[SIMULATOR] Cannot start attempt: User is not authenticated.");
+      return null;
+    }
     try {
-      const res = await apiFetch("./api/simulator/attempt/start", {
+      console.log("[SIMULATOR] Requesting attempt ticket from /api/simulator/attempt/start...");
+      const res = await apiFetch("/api/simulator/attempt/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" }
       });
       if (res.ok) {
         const data = await res.json();
         if (data.attemptId) {
+          console.log("[SIMULATOR] Acquired server attempt ticket:", data.attemptId);
           setAttemptId(data.attemptId);
           localStorage.setItem("zupskill_sim_attempt_id", data.attemptId);
           return data.attemptId;
         }
+      } else {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        console.error("[SIMULATOR ERROR] Failed to start simulator attempt:", res.status, err);
       }
     } catch (err) {
-      console.error("Failed to start simulator attempt:", err);
+      console.error("[SIMULATOR ERROR] Exception starting simulator attempt:", err);
     }
     return null;
   }, [user]);
 
-  const syncCompletion = useCallback(async (evidence?: any): Promise<{ success: boolean; authoritativeScore: number; breakdown: any; replay?: boolean } | null> => {
-    if (!user) return null;
+  const syncCompletion = useCallback(async (evidence?: any): Promise<{ success: boolean; authoritativeScore: number; breakdown: any; replay?: boolean; dbPersisted?: boolean } | null> => {
+    if (!user) {
+      console.error("[SIMULATOR ERROR] syncCompletion aborted: No authenticated user session found.");
+      return null;
+    }
 
     // Ensure we have a server-issued attempt ID
     let currentAttemptId = attemptId || localStorage.getItem("zupskill_sim_attempt_id");
     if (!currentAttemptId) {
+      console.log("[SIMULATOR] No attemptId in state/storage, requesting new attempt ticket...");
       currentAttemptId = await startAttempt();
     }
 
     if (!currentAttemptId) {
-      console.error("Cannot complete simulation without a valid server attempt ticket.");
+      console.error("[SIMULATOR ERROR] Cannot complete simulation without a valid server attempt ticket.");
       return null;
     }
 
     try {
+      console.log("[SIMULATOR] Submitting completion payload to /api/simulator/complete for attempt:", currentAttemptId);
       const payload = {
         attemptId: currentAttemptId,
         problemObservations: evidence?.problemObservations || [],
@@ -205,7 +218,7 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
         stages: activityProgress
       };
 
-      const res = await apiFetch("./api/simulator/complete", {
+      const res = await apiFetch("/api/simulator/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -213,35 +226,41 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
 
       if (res.ok) {
         const data = await res.json();
-        // Clear local draft progress upon verified server completion
-        setActivityProgress([]);
-        localStorage.removeItem("zupskill_sim_draft_progress");
+        if (data && data.success === true) {
+          console.log("[SIMULATOR SUCCESS] Server confirmed simulation completion & Supabase persistence:", data);
+          // Clear local draft progress ONLY upon verified server confirmation
+          setActivityProgress([]);
+          localStorage.removeItem("zupskill_sim_draft_progress");
 
-        // Notify parent iframe / window of completion for ZupSkill integration
-        try {
-          if (window.parent && window.parent !== window) {
-            window.parent.postMessage({
-              type: "ZUPSKILL_SIMULATOR_COMPLETED",
-              simulatorId: "S003",
-              activityId: "S003",
-              activityName: "Design Thinking",
-              score: data.authoritativeScore,
-              breakdown: data.breakdown,
-              success: true
-            }, "*");
+          // Notify parent iframe / window of completion for ZupSkill integration
+          try {
+            if (window.parent && window.parent !== window) {
+              window.parent.postMessage({
+                type: "ZUPSKILL_SIMULATOR_COMPLETED",
+                simulatorId: "S003",
+                activityId: "S003",
+                activityName: "Design Thinking",
+                score: data.authoritativeScore,
+                breakdown: data.breakdown,
+                success: true
+              }, "*");
+            }
+          } catch (e) {
+            console.warn("Could not postMessage to parent window:", e);
           }
-        } catch (e) {
-          console.warn("Could not postMessage to parent window:", e);
-        }
 
-        return data;
+          return data;
+        } else {
+          console.error("[SIMULATOR ERROR] Server returned ok status but success is false:", data);
+          return null;
+        }
       } else {
-        const errData = await res.json().catch(() => ({ error: "Server completion failed" }));
-        console.error("Server authoritative completion error:", errData);
+        const errData = await res.json().catch(() => ({ error: "Server completion failed", status: res.status }));
+        console.error("[SIMULATOR ERROR] Server authoritative completion failed:", res.status, errData);
         return null;
       }
     } catch (err) {
-      console.error("Exception during server completion:", err);
+      console.error("[SIMULATOR ERROR] Exception during server completion:", err);
       return null;
     }
   }, [user, attemptId, startAttempt, activityProgress]);

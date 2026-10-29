@@ -2696,11 +2696,17 @@ app.post(["/api/simulator/reset", "/simulator/reset"], requireSupabaseAuth, mode
     try {
       dbClient = hasServiceKey
         ? createClient(supabaseUrl, supabaseServiceKey, {
-            auth: { persistSession: false, autoRefreshToken: false }
+            auth: { persistSession: false, autoRefreshToken: false },
+            global: {
+              fetch: (url, options) => fetch(url, { ...options, signal: AbortSignal.timeout(5000) })
+            }
           })
         : createClient(supabaseUrl, supabaseAnonKey, {
             auth: { persistSession: false, autoRefreshToken: false },
-            global: { headers: { Authorization: `Bearer ${token}` } }
+            global: {
+              headers: { Authorization: `Bearer ${token}` },
+              fetch: (url, options) => fetch(url, { ...options, signal: AbortSignal.timeout(5000) })
+            }
           });
     } catch (clientErr: any) {
       console.error("[SIMULATOR RESET DB INIT ERROR]", clientErr?.message || clientErr);

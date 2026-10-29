@@ -18,6 +18,14 @@ function getSupabaseAuthClient(): SupabaseClient | null {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
+      },
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, {
+            ...options,
+            signal: AbortSignal.timeout(3000)
+          });
+        }
       }
     });
   } catch (err) {
@@ -39,9 +47,10 @@ export interface AuthenticatedRequest extends Request {
 }
 
 /**
- * Safely decodes Base64/Base64Url JWT payload without requiring external libraries
+ * Diagnostic helper to safely decode Base64/Base64Url JWT payload for logging/diagnostics.
+ * CRITICAL SECURITY: This must NEVER be used for authentication or authorization.
  */
-function decodeJwtPayload(token: string): any | null {
+export function decodeJwtPayloadForDiagnostics(token: string): any | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
@@ -94,7 +103,7 @@ export async function requireSupabaseAuth(
       return;
     }
 
-    // Check in-memory verification cache
+    // Check in-memory verification cache (stores only cryptographically verified users)
     const cached = tokenVerificationCache.get(token);
     if (cached && Date.now() < cached.expiresAt) {
       req.user = cached.user;
@@ -103,60 +112,48 @@ export async function requireSupabaseAuth(
       return;
     }
 
+    // Dynamic resolution of Supabase Auth Client
     const client = getSupabaseAuthClient();
-    if (client) {
-      try {
-        const { data, error } = await client.auth.getUser(token);
-        if (!error && data?.user?.id) {
-          tokenVerificationCache.set(token, {
-            user: data.user,
-            expiresAt: Date.now() + 60 * 1000
-          });
-          req.user = data.user;
-          req.userId = data.user.id;
-          next();
-          return;
-        }
-      } catch (authErr: any) {
-        console.warn("[AUTH] Supabase auth.getUser exception, falling back to JWT verification:", authErr?.message || authErr);
-      }
-    }
-
-    // Fallback: Verify JWT structure, expiration, and extract user identity directly from JWT payload
-    const payload = decodeJwtPayload(token);
-    if (payload && (payload.sub || payload.id)) {
-      const userId = String(payload.sub || payload.id);
-      
-      // Check expiration if exp field exists
-      if (typeof payload.exp === "number") {
-        const nowSec = Math.floor(Date.now() / 1000);
-        if (payload.exp < nowSec) {
-          res.status(401).json({ error: "Unauthorized: Expired Bearer token", success: false });
-          return;
-        }
-      }
-
-      const verifiedUser = {
-        id: userId,
-        email: payload.email || `${userId}@user.local`,
-        user_metadata: payload.user_metadata || {}
-      };
-
-      tokenVerificationCache.set(token, {
-        user: verifiedUser,
-        expiresAt: Date.now() + 60 * 1000
+    if (!client) {
+      // Fail closed if server authentication service / Supabase credentials are missing
+      res.status(503).json({
+        error: "Server authentication service unavailable: Supabase credentials not configured",
+        success: false
       });
-
-      req.user = verifiedUser;
-      req.userId = userId;
-      next();
       return;
     }
 
-    res.status(401).json({
-      error: "Unauthorized: Invalid or unparseable Bearer token",
-      success: false
+    // Cryptographically verify token with Supabase Auth getUser(token) (with 5s timeout guard)
+    const authPromise = client.auth.getUser(token);
+    const timeoutPromise = new Promise<{ data: any; error: any }>((_, reject) =>
+      setTimeout(() => reject(new Error("Supabase auth verification timeout")), 5000)
+    );
+
+    const { data, error } = await Promise.race([authPromise, timeoutPromise]).catch((err: any) => ({
+      data: null,
+      error: err
+    }));
+
+    if (error || !data?.user?.id) {
+      if (error) {
+        console.warn("[AUTH] Supabase auth verification failed:", error.message || error);
+      }
+      res.status(401).json({
+        error: "Unauthorized: Invalid, expired, or untrusted Bearer token",
+        success: false
+      });
+      return;
+    }
+
+    // Cache cryptographically verified token for 60 seconds
+    tokenVerificationCache.set(token, {
+      user: data.user,
+      expiresAt: Date.now() + 60 * 1000
     });
+
+    req.user = data.user;
+    req.userId = data.user.id;
+    next();
   } catch (err: any) {
     console.error("[AUTH EXCEPTION] Error in requireSupabaseAuth:", err?.message || err);
     res.status(401).json({ error: "Unauthorized: Authentication verification failed", success: false });

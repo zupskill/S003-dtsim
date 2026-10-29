@@ -2671,7 +2671,8 @@ app.post(["/api/simulator/reset", "/simulator/reset"], requireSupabaseAuth, mode
       return res.status(401).json({ error: "Unauthorized: Missing authenticated user identity", success: false });
     }
 
-    console.log(`[SIMULATOR RESET] Processing reset for user ${userId.slice(0, 8)} on S003...`);
+    const safeUserId = String(userId);
+    console.log(`[SIMULATOR RESET] Processing reset for user ${safeUserId.slice(0, 8)} on S003...`);
 
     // Resolve Supabase Credentials
     const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
@@ -2681,27 +2682,40 @@ app.post(["/api/simulator/reset", "/simulator/reset"], requireSupabaseAuth, mode
     const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
 
     const hasServiceKey = !!supabaseServiceKey;
+    const hasAnonKey = !!supabaseAnonKey;
 
-    if (!supabaseUrl || (!hasServiceKey && !supabaseAnonKey)) {
+    if (!supabaseUrl || (!hasServiceKey && !hasAnonKey)) {
       console.error("[SIMULATOR RESET ERROR] Supabase credentials not configured on server.");
-      return res.status(500).json({ error: "Supabase credentials not configured on server", success: false });
+      return res.status(503).json({
+        error: "Supabase database credentials not configured on server. Cannot reset database records.",
+        success: false
+      });
     }
 
-    const dbClient = hasServiceKey
-      ? createClient(supabaseUrl, supabaseServiceKey, {
-          auth: { persistSession: false, autoRefreshToken: false }
-        })
-      : createClient(supabaseUrl, supabaseAnonKey, {
-          auth: { persistSession: false, autoRefreshToken: false },
-          global: { headers: { Authorization: `Bearer ${token}` } }
-        });
+    let dbClient: any;
+    try {
+      dbClient = hasServiceKey
+        ? createClient(supabaseUrl, supabaseServiceKey, {
+            auth: { persistSession: false, autoRefreshToken: false }
+          })
+        : createClient(supabaseUrl, supabaseAnonKey, {
+            auth: { persistSession: false, autoRefreshToken: false },
+            global: { headers: { Authorization: `Bearer ${token}` } }
+          });
+    } catch (clientErr: any) {
+      console.error("[SIMULATOR RESET DB INIT ERROR]", clientErr?.message || clientErr);
+      return res.status(502).json({
+        error: `Failed to initialize database client: ${clientErr?.message || 'Invalid database configuration'}`,
+        success: false
+      });
+    }
 
     // Delete user's previous S003 records ONLY
-    console.log(`[SIMULATOR RESET] Deleting existing S003 records from activity_designthinking for user ${userId.slice(0, 8)}...`);
+    console.log(`[SIMULATOR RESET] Deleting existing S003 records from activity_designthinking for user ${safeUserId.slice(0, 8)}...`);
     const { error: deleteError } = await dbClient
       .from("activity_designthinking")
       .delete()
-      .eq("user_id", userId)
+      .eq("user_id", safeUserId)
       .eq("activity_id", "S003");
 
     if (deleteError) {
@@ -2716,22 +2730,22 @@ app.post(["/api/simulator/reset", "/simulator/reset"], requireSupabaseAuth, mode
       });
     }
 
-    console.log(`[SIMULATOR RESET DB SUCCESS] Previous S003 records deleted successfully for user ${userId.slice(0, 8)}.`);
+    console.log(`[SIMULATOR RESET DB SUCCESS] Previous S003 records deleted successfully for user ${safeUserId.slice(0, 8)}.`);
 
     // Abandon user's in-progress attempts in memory
-    abandonUserAttempts(userId, "S003");
+    abandonUserAttempts(safeUserId, "S003");
 
     // Issue a clean new attempt
-    const newAttempt = createServerAttempt(userId, "S003");
+    const newAttempt = createServerAttempt(safeUserId, "S003");
 
     res.setHeader("Cache-Control", "no-store, no-cache, private");
-    return res.json({
+    return res.status(200).json({
       success: true,
       message: "Simulation reset and previous records cleared successfully",
       newAttemptId: newAttempt.attemptId
     });
   } catch (error: any) {
-    logApiError("Error in simulator reset:", error);
+    console.error("[SIMULATOR RESET UNCAUGHT EXCEPTION]:", error?.message || error);
     return res.status(500).json({ error: error?.message || "Failed to reset simulation", success: false });
   }
 });

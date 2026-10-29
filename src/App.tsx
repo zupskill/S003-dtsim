@@ -611,23 +611,18 @@ export default function App() {
       try {
         console.log("[SIMULATOR RESET] Requesting simulation reset and record deletion on server...");
         const res = await apiFetch("/api/simulator/reset", { method: "POST" });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({ error: res.statusText }));
-          console.error("[SIMULATOR RESET ERROR] Server returned error:", res.status, errData);
-          showToast("Failed to reset simulation on server. Please try again.", "info");
-          return false;
-        }
-
         const data = await res.json().catch(() => null);
-        if (!data || data.success !== true) {
-          console.error("[SIMULATOR RESET ERROR] Server response indicated failure:", data);
-          showToast("Failed to reset simulation. Please try again.", "info");
+
+        if (!res.ok || !data || data.success !== true) {
+          const errMsg = data?.error || res.statusText || "Server reset failed";
+          console.error("[SIMULATOR RESET ERROR] Server returned error:", res.status, errMsg, data);
+          showToast(`Reset failed: ${errMsg}`, "info");
           return false;
         }
 
         console.log("[SIMULATOR RESET SUCCESS] Server confirmed S003 deletion & attempt reset:", data);
         await startAttempt();
-      } catch (err) {
+      } catch (err: any) {
         console.error("[SIMULATOR RESET EXCEPTION] Failed to reset simulator on server:", err);
         showToast("Network error resetting simulation. Please try again.", "info");
         return false;

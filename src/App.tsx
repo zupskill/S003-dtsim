@@ -44,7 +44,7 @@ import {
   saveSupabaseProfile,
   unlockSupabaseBadge,
 } from "./supabase";
-import { apiFetch } from "./utils/api";
+import { apiFetch, safeReadResponse } from "./utils/api";
 
 // Lucide icon imports for general App use
 import { Award, Compass, Eye, ShieldAlert, Zap, PenTool, Flame, User, MessageSquare, Users, RotateCcw, RefreshCw, Sparkles, Play, MoreVertical } from "lucide-react";
@@ -611,16 +611,21 @@ export default function App() {
       try {
         console.log("[SIMULATOR RESET] Requesting simulation reset and record deletion on server...");
         const res = await apiFetch("/api/simulator/reset", { method: "POST" });
-        const data = await res.json().catch(() => null);
+        const result = await safeReadResponse(res);
 
-        if (!res.ok || !data || data.success !== true) {
-          const errMsg = data?.error || res.statusText || "Server reset failed";
-          console.error("[SIMULATOR RESET ERROR] Server returned error:", res.status, errMsg, data);
-          showToast(`Reset failed: ${errMsg}`, "info");
+        if (!result.ok || !result.data || result.data.success !== true) {
+          console.error("[SIMULATOR RESET ERROR] Server returned error:", {
+            status: result.status,
+            statusText: result.statusText,
+            error: result.error,
+            rawText: result.text,
+            parsedData: result.data
+          });
+          showToast(`Reset failed (${result.status}): ${result.error}`, "info");
           return false;
         }
 
-        console.log("[SIMULATOR RESET SUCCESS] Server confirmed S003 deletion & attempt reset:", data);
+        console.log("[SIMULATOR RESET SUCCESS] Server confirmed S003 deletion & attempt reset:", result.data);
         await startAttempt();
       } catch (err: any) {
         console.error("[SIMULATOR RESET EXCEPTION] Failed to reset simulator on server:", err);

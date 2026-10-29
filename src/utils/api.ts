@@ -1,5 +1,14 @@
 import { supabase } from "../supabase";
 
+export interface SafeResponseResult {
+  ok: boolean;
+  status: number;
+  statusText: string;
+  data: any | null;
+  text: string;
+  error: string;
+}
+
 /**
  * Robust, authenticated fetch wrapper for simulator API requests.
  * Automatically injects the Supabase access token as a Bearer Authorization header.
@@ -31,4 +40,41 @@ export async function apiFetch(input: RequestInfo | URL, init?: RequestInit): Pr
   }
 
   return fetch(input, { ...init, headers });
+}
+
+/**
+ * Safely parses response body (JSON or text) and extracts status, data, and diagnostic errors.
+ * Never throws on non-JSON or HTML error responses.
+ */
+export async function safeReadResponse(res: Response): Promise<SafeResponseResult> {
+  const status = res.status;
+  const statusText = res.statusText;
+  const ok = res.ok;
+  let text = "";
+  let data: any = null;
+
+  try {
+    text = await res.text();
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = null;
+      }
+    }
+  } catch (err: any) {
+    text = `Failed to read response body: ${err?.message || String(err)}`;
+  }
+
+  let error = "";
+  if (!ok || (data && data.success === false)) {
+    error =
+      data?.error ||
+      data?.message ||
+      (text && !text.startsWith("<") ? text.slice(0, 200) : "") ||
+      statusText ||
+      `HTTP Error ${status}`;
+  }
+
+  return { ok, status, statusText, data, text, error };
 }

@@ -123,20 +123,21 @@ export async function requireSupabaseAuth(
       return;
     }
 
-    // Cryptographically verify token with Supabase Auth getUser(token) (with 5s timeout guard)
-    const authPromise = client.auth.getUser(token);
-    const timeoutPromise = new Promise<{ data: any; error: any }>((_, reject) =>
-      setTimeout(() => reject(new Error("Supabase auth verification timeout")), 5000)
-    );
-
-    const { data, error } = await Promise.race([authPromise, timeoutPromise]).catch((err: any) => ({
-      data: null,
-      error: err
-    }));
+    // Cryptographically verify token with Supabase Auth getUser(token)
+    let data: any = null;
+    let error: any = null;
+    try {
+      const authRes = await client.auth.getUser(token);
+      data = authRes.data;
+      error = authRes.error;
+    } catch (authErr: any) {
+      console.warn("[AUTH] Supabase auth.getUser exception:", authErr?.message || authErr);
+      error = authErr;
+    }
 
     if (error || !data?.user?.id) {
       if (error) {
-        console.warn("[AUTH] Supabase auth verification failed:", error.message || error);
+        console.warn("[AUTH] Supabase auth verification failed:", error?.message || String(error));
       }
       res.status(401).json({
         error: "Unauthorized: Invalid, expired, or untrusted Bearer token",

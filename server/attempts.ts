@@ -20,14 +20,19 @@ const attemptsStore = new Map<string, AttemptRecord>();
 const inFlightCompletions = new Map<string, Promise<any>>();
 
 // Cleanup stale attempts older than 24 hours every 15 minutes
-setInterval(() => {
-  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-  for (const [id, attempt] of attemptsStore.entries()) {
-    if (attempt.createdAt < oneDayAgo) {
-      attemptsStore.delete(id);
+if (typeof setInterval !== "undefined") {
+  const cleanupAttemptsTimer = setInterval(() => {
+    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    for (const [id, attempt] of attemptsStore.entries()) {
+      if (attempt.createdAt < oneDayAgo) {
+        attemptsStore.delete(id);
+      }
     }
+  }, 15 * 60 * 1000);
+  if (cleanupAttemptsTimer && typeof cleanupAttemptsTimer.unref === "function") {
+    cleanupAttemptsTimer.unref();
   }
-}, 15 * 60 * 1000);
+}
 
 /**
  * Creates a new secure, server-issued attempt ID for a user.

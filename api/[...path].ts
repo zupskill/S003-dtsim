@@ -1,20 +1,28 @@
 import app from "../server";
 
-export default function handler(req: any, res: any) {
-  // Set CORS headers
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+export default async function handler(req: any, res: any) {
+  try {
+    // Set CORS headers
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
+    // Handle CORS preflight
+    if (req.method === "OPTIONS") {
+      return res.status(204).end();
+    }
+
+    // Normalize URL to always include /api prefix for Express routing
+    if (!req.url.startsWith("/api")) {
+      req.url = "/api" + (req.url.startsWith("/") ? req.url : "/" + req.url);
+    }
+
+    return app(req, res);
+  } catch (err: any) {
+    console.error("[VERCEL HANDLER ERROR /api/[...path]]:", err?.message || err);
+    return res.status(500).json({
+      error: err?.message || "Internal Serverless Function Error",
+      success: false
+    });
   }
-
-  // Normalize URL to always include /api prefix for Express routing
-  if (!req.url.startsWith("/api")) {
-    req.url = "/api" + (req.url.startsWith("/") ? req.url : "/" + req.url);
-  }
-
-  return app(req, res);
 }

@@ -2664,7 +2664,7 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
 });
 
 // 14. Server-Authoritative Simulator Reset
-app.post("/api/simulator/reset", requireSupabaseAuth, moderateLimiter, async (req: AuthenticatedRequest, res: Response) => {
+app.post(["/api/simulator/reset", "/simulator/reset"], requireSupabaseAuth, moderateLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.userId;
     if (!userId) {
@@ -2761,7 +2761,8 @@ async function startServer() {
   });
 }
 
-if (!process.env.VERCEL) {
+const isMainModule = typeof process !== "undefined" && process.argv && process.argv[1] && (process.argv[1].endsWith("server.ts") || process.argv[1].endsWith("server.cjs"));
+if (isMainModule && !process.env.VERCEL) {
   startServer();
 }
 

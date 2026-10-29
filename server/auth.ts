@@ -18,14 +18,6 @@ function getSupabaseAuthClient(): SupabaseClient | null {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
-      },
-      global: {
-        fetch: (url, options) => {
-          return fetch(url, {
-            ...options,
-            signal: AbortSignal.timeout(3000)
-          });
-        }
       }
     });
   } catch (err) {
@@ -127,7 +119,20 @@ export async function requireSupabaseAuth(
     let data: any = null;
     let error: any = null;
     try {
-      const authRes = await client.auth.getUser(token);
+      let timeoutId: any = null;
+      const timeoutPromise = new Promise<{ data: any; error: any }>((resolve) => {
+        timeoutId = setTimeout(() => {
+          resolve({ data: null, error: new Error("Supabase auth verification timeout") });
+        }, 4000);
+        if (timeoutId && typeof timeoutId.unref === "function") {
+          timeoutId.unref();
+        }
+      });
+
+      const authRes = await Promise.race([client.auth.getUser(token), timeoutPromise]);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       data = authRes.data;
       error = authRes.error;
     } catch (authErr: any) {

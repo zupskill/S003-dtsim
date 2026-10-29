@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { supabase, getSupabaseProfile, isSupabaseConfigured } from '../supabase';
 import { UserProfile } from '../types';
 import { getOrCreateUser } from '../utils/auth';
-import { apiFetch } from '../utils/api';
+import { apiFetch, safeReadResponse } from '../utils/api';
 
 interface RuntimeState {
   user: any | null;
@@ -188,20 +188,23 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
         method: "POST",
         headers: { "Content-Type": "application/json" }
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.attemptId) {
-          console.log("[SIMULATOR] Acquired server attempt ticket:", data.attemptId);
-          setAttemptId(data.attemptId);
-          if (user?.id) {
-            localStorage.setItem(`zupskill_sim_attempt_id_${user.id}`, data.attemptId);
-          }
-          localStorage.setItem("zupskill_sim_attempt_id", data.attemptId);
-          return data.attemptId;
+      const result = await safeReadResponse(res);
+      if (result.ok && result.data?.attemptId) {
+        console.log("[SIMULATOR] Acquired server attempt ticket:", result.data.attemptId);
+        setAttemptId(result.data.attemptId);
+        if (user?.id) {
+          localStorage.setItem(`zupskill_sim_attempt_id_${user.id}`, result.data.attemptId);
         }
+        localStorage.setItem("zupskill_sim_attempt_id", result.data.attemptId);
+        return result.data.attemptId;
       } else {
-        const err = await res.json().catch(() => ({ error: res.statusText }));
-        console.error("[SIMULATOR ERROR] Failed to start simulator attempt:", res.status, err);
+        console.error("[SIMULATOR ERROR] Failed to start simulator attempt:", {
+          status: result.status,
+          statusText: result.statusText,
+          error: result.error,
+          body: result.text,
+          data: result.data
+        });
       }
     } catch (err) {
       console.error("[SIMULATOR ERROR] Exception starting simulator attempt:", err);
@@ -266,39 +269,40 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
         }
       }
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.success === true) {
-          console.log("[SIMULATOR SUCCESS] Server confirmed simulation completion & Supabase persistence:", data);
-          // Clear local draft progress ONLY upon verified server confirmation
-          setActivityProgress([]);
-          localStorage.removeItem("zupskill_sim_draft_progress");
+      const result = await safeReadResponse(res);
+      if (result.ok && result.data && result.data.success === true) {
+        const data = result.data;
+        console.log("[SIMULATOR SUCCESS] Server confirmed simulation completion & Supabase persistence:", data);
+        // Clear local draft progress ONLY upon verified server confirmation
+        setActivityProgress([]);
+        localStorage.removeItem("zupskill_sim_draft_progress");
 
-          // Notify parent iframe / window of completion for ZupSkill integration
-          try {
-            if (window.parent && window.parent !== window) {
-              window.parent.postMessage({
-                type: "ZUPSKILL_SIMULATOR_COMPLETED",
-                simulatorId: "S003",
-                activityId: "S003",
-                activityName: "Design Thinking",
-                score: data.authoritativeScore,
-                breakdown: data.breakdown,
-                success: true
-              }, "*");
-            }
-          } catch (e) {
-            console.warn("Could not postMessage to parent window:", e);
+        // Notify parent iframe / window of completion for ZupSkill integration
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              type: "ZUPSKILL_SIMULATOR_COMPLETED",
+              simulatorId: "S003",
+              activityId: "S003",
+              activityName: "Design Thinking",
+              score: data.authoritativeScore,
+              breakdown: data.breakdown,
+              success: true
+            }, "*");
           }
-
-          return data;
-        } else {
-          console.error("[SIMULATOR ERROR] Server returned ok status but success is false:", data);
-          return null;
+        } catch (e) {
+          console.warn("Could not postMessage to parent window:", e);
         }
+
+        return data;
       } else {
-        const errData = await res.json().catch(() => ({ error: "Server completion failed", status: res.status }));
-        console.error("[SIMULATOR ERROR] Server authoritative completion failed:", res.status, errData);
+        console.error("[SIMULATOR ERROR] Server authoritative completion failed:", {
+          status: result.status,
+          statusText: result.statusText,
+          error: result.error,
+          body: result.text,
+          data: result.data
+        });
         return null;
       }
     } catch (err) {

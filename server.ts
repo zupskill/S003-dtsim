@@ -16,6 +16,28 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
+// CORS middleware for cross-origin requests from experience.zupskill.com and local preview
+app.use((req: Request, res: Response, next) => {
+  const origin = req.headers.origin;
+  if (
+    origin === "https://experience.zupskill.com" ||
+    origin === "https://s003-dtsim.vercel.app" ||
+    (origin && origin.includes("localhost")) ||
+    (origin && origin.includes("zupskill.com"))
+  ) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else if (!origin) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 // Security-hardened body limits (prevent OOM / DoS memory attacks)
 app.use(express.json({ limit: "500kb" }));
 app.use(express.urlencoded({ extended: true, limit: "500kb" }));

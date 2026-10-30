@@ -30,5 +30,11 @@ export async function apiFetch(input: RequestInfo | URL, init?: RequestInit): Pr
     }
   }
 
-  return fetch(input, { ...init, headers });
+  let url = input;
+  if (typeof input === "string" && input.startsWith("/api")) {
+    const apiBase = import.meta.env.VITE_API_BASE_URL || (typeof window !== "undefined" && window.location.hostname.includes("experience.zupskill.com") ? "https://s003-dtsim.vercel.app" : "");
+    url = `${apiBase}${input}`;
+  }
+
+  return fetch(url, { ...init, headers });
 }

@@ -621,10 +621,18 @@ export default function App() {
     if (user) {
       try {
         console.log("Resetting journey on server...");
-        await apiFetch("/api/simulator/reset", { method: "POST" });
+        const res = await apiFetch("/api/simulator/reset", { method: "POST" });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          console.error("Failed to reset simulator on server:", res.status, errData);
+          showToast("Failed to clear previous session on server. Please try again.", "info");
+          return;
+        }
         await startAttempt();
       } catch (err) {
         console.error("Failed to reset simulator on server:", err);
+        showToast("Error resetting journey. Please try again.", "info");
+        return;
       }
     }
 
@@ -638,6 +646,7 @@ export default function App() {
     setActiveScreen("landing");
     setSessionSeenIntros({});
     setPersistedSeenIntros({});
+    setProfile((prev) => prev ? ({ ...prev, lastCompletedSimulation: undefined }) : null);
     handleAddXP(10);
   };
 
@@ -648,12 +657,19 @@ export default function App() {
     
     if (user) {
       try {
-        await apiFetch("/api/simulator/reset", { method: "POST" });
+        const res = await apiFetch("/api/simulator/reset", { method: "POST" });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          console.error("[RESET] Server reset failed:", res.status, errData);
+          showToast("Failed to clear server session.", "info");
+          return;
+        }
         await startAttempt();
         console.log("[RESET] Server reset successful");
       } catch (err) {
         console.error("[RESET] Server reset error:", err);
-        console.log("Proceeding with local reset...");
+        showToast("Error resetting simulator on server.", "info");
+        return;
       }
     }
 

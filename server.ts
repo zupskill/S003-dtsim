@@ -9,7 +9,7 @@ import { securityHeadersMiddleware, sanitizeString, sanitizeStringArray, isPlain
 import { computeServerAuthoritativeScore } from "./server/evaluator";
 import { requireSupabaseAuth, AuthenticatedRequest } from "./server/auth";
 import { createServerAttempt, getAttempt, abandonUserAttempts, executeAtomicCompletion, finalizeAttempt } from "./server/attempts";
-import { buildRow1Payload, buildRow2Payload, buildRow3Payload } from "./server/lpfb";
+import { buildRow1Payload, buildRow2Payload, buildRow3Payload, buildOneRowPayload } from "./server/lpfb";
 
 dotenv.config();
 
@@ -2193,14 +2193,14 @@ app.post("/api/scoring/evaluate", requireSupabaseAuth, scoringLimiter, async (re
     if (req.body?.task_id !== undefined && req.body?.task_id !== null) {
       const rawTid = req.body.task_id;
       const parsedTid = parseFloat(String(rawTid));
-      const validTaskIds = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
+      const validTaskIds = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 10.0];
       if (
         isNaN(parsedTid) ||
         !isFinite(parsedTid) ||
         !validTaskIds.includes(parsedTid)
       ) {
         return res.status(400).json({
-          error: "Invalid task_id: Must be a valid simulator task between 1.0 and 6.0",
+          error: "Invalid task_id: Must be a valid simulator task ID",
           received: rawTid
         });
       }
@@ -2477,7 +2477,7 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
         console.warn("[SIMULATOR PROGRESS-ENGINE] Non-blocking exception:", progressEngineError);
       }
 
-      // C. Server-Validated 3-Row Plain-Text Persistence to activity_designthinking
+      // C. Server-Validated 1-Row Plain-Text Persistence to activity_designthinking
       // Resolve challenge/topic safely
       const resolvedTopic = req.body.selectedTopic || {
         id: (Array.isArray(stages) && stages.find((s: any) => String(s.task_id) === "1.0" || String(s.task_id) === "1")?.value1) || "custom",
@@ -2485,18 +2485,11 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
         trendingTag: "Innovation"
       };
 
-      const row1Payload = buildRow1Payload({
+      const oneRowPayload = buildOneRowPayload({
         topic: resolvedTopic,
         problemObservations,
-        refinedHowMightWe
-      });
-
-      const row2Payload = buildRow2Payload({
+        refinedHowMightWe,
         ideas,
-        selectedPrototype
-      });
-
-      const row3Payload = buildRow3Payload({
         selectedPrototype,
         testingData,
         rubric: evaluationResult,
@@ -2505,57 +2498,33 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
 
       const nowIso = new Date().toISOString();
 
-      const threeRows = [
-        {
-          activity_id: "S003",
-          task_id: 1.0,
-          task_name: "Discovery & Definition",
-          task_description: "Stage 1 & 2: Empathize & Define",
-          value1: row1Payload.value1,
-          value2: row1Payload.value2,
-          value3: row1Payload.value3,
-          score: null,
-          completed: true,
-          user_id: userId,
-          updated_at: nowIso
-        },
-        {
-          activity_id: "S003",
-          task_id: 2.0,
-          task_name: "Ideation",
-          task_description: "Stage 3: Brainstorming & Selection",
-          value1: row2Payload.value1,
-          value2: row2Payload.value2,
-          value3: row2Payload.value3,
-          score: null,
-          completed: true,
-          user_id: userId,
-          updated_at: nowIso
-        },
-        {
-          activity_id: "S003",
-          task_id: 3.0,
-          task_name: "Prototype & Testing",
-          task_description: "Stage 4 & 5: Solution Evaluation & Authoritative Score",
-          value1: row3Payload.value1,
-          value2: row3Payload.value2,
-          value3: row3Payload.value3,
-          score: authoritativeScore,
-          completed: true,
-          user_id: userId,
-          updated_at: nowIso
-        }
-      ];
+      const singleRow = {
+        activity_id: "S003",
+        task_id: 10.0,
+        task_name: "Design Thinking Journey",
+        task_description: "Complete Design Thinking Simulation",
+        value1: oneRowPayload.value1,
+        value2: oneRowPayload.value2,
+        value3: oneRowPayload.value3,
+        value4: oneRowPayload.value4,
+        value5: oneRowPayload.value5,
+        value6: oneRowPayload.value6,
+        value7: oneRowPayload.value7,
+        score: authoritativeScore,
+        completed: true,
+        user_id: userId,
+        updated_at: nowIso
+      };
 
-      console.log(`[SIMULATOR COMPLETE] Executing Supabase insert of 3 rows for user ${userId.slice(0, 8)}... (mode: ${hasServiceKey ? 'service_role' : 'user_jwt'})`);
+      console.log(`[SIMULATOR COMPLETE] Executing Supabase upsert of 1 row for user ${userId.slice(0, 8)}... (mode: ${hasServiceKey ? 'service_role' : 'user_jwt'})`);
 
       const { data: insertData, error: insertErr } = await dbClient
         .from("activity_designthinking")
-        .insert(threeRows)
+        .upsert(singleRow, { onConflict: "user_id,task_id" })
         .select();
 
       if (insertErr) {
-        console.error("[SIMULATOR COMPLETE DB ERROR] Supabase insert failed:", {
+        console.error("[SIMULATOR COMPLETE DB ERROR] Supabase upsert failed:", {
           code: insertErr.code,
           message: insertErr.message,
           details: insertErr.details,
@@ -2567,7 +2536,7 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
         throw persistenceErr;
       }
 
-      console.log(`[SIMULATOR COMPLETE DB SUCCESS] Successfully persisted 3 rows to activity_designthinking (rows returned: ${insertData ? insertData.length : 3})`);
+      console.log(`[SIMULATOR COMPLETE DB SUCCESS] Successfully persisted 1 row to activity_designthinking (task_id: 10.0, rows returned: ${insertData ? insertData.length : 1})`);
 
       // D. Finalize Attempt ONLY after verified database persistence
       finalizeAttempt(attempt.attemptId, {
@@ -2621,10 +2590,54 @@ app.post("/api/simulator/reset", requireSupabaseAuth, moderateLimiter, async (re
   try {
     const userId = req.userId;
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(401).json({ error: "Unauthorized", success: false });
     }
 
-    console.log(`[SIMULATOR RESET] Resetting in-progress simulator attempts for user ${userId.slice(0, 8)}...`);
+    console.log(`[SIMULATOR RESET] Resetting simulation for authenticated user ${userId.slice(0, 8)}...`);
+
+    // Resolve Supabase Client for DB operations
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "";
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
+
+    const hasServiceKey = !!supabaseServiceKey;
+    const hasAnonKey = !!supabaseAnonKey;
+    const hasUrl = !!supabaseUrl;
+
+    if (!hasUrl || (!hasServiceKey && !hasAnonKey)) {
+      console.error("[SIMULATOR RESET ERROR] Supabase credentials not configured on server.");
+      return res.status(500).json({ error: "Supabase credentials not configured on server", success: false });
+    }
+
+    const dbClient = hasServiceKey
+      ? createClient(supabaseUrl, supabaseServiceKey, {
+          auth: { persistSession: false, autoRefreshToken: false }
+        })
+      : createClient(supabaseUrl, supabaseAnonKey, {
+          auth: { persistSession: false, autoRefreshToken: false },
+          global: { headers: { Authorization: `Bearer ${token}` } }
+        });
+
+    console.log(`[SIMULATOR RESET] Executing server-side deletion of S003 records for user ${userId.slice(0, 8)}...`);
+
+    // Explicitly delete only this learner's S003 records from activity_designthinking
+    const { error: dbDeleteErr } = await dbClient
+      .from("activity_designthinking")
+      .delete()
+      .eq("user_id", userId)
+      .eq("activity_id", "S003");
+
+    if (dbDeleteErr) {
+      console.error("[SIMULATOR RESET DB ERROR] Failed to delete S003 records:", dbDeleteErr);
+      return res.status(502).json({
+        error: `Failed to reset simulation records: ${dbDeleteErr.message || "Database deletion failed"}`,
+        success: false
+      });
+    }
+
+    console.log(`[SIMULATOR RESET DB SUCCESS] Cleared previous S003 records for user ${userId.slice(0, 8)}`);
 
     // Abandon user's in-progress attempts in memory
     abandonUserAttempts(userId, "S003");
@@ -2640,7 +2653,7 @@ app.post("/api/simulator/reset", requireSupabaseAuth, moderateLimiter, async (re
     });
   } catch (error: any) {
     logApiError("Error in simulator reset:", error);
-    return res.status(500).json({ error: "Failed to reset simulation" });
+    return res.status(500).json({ error: "Failed to reset simulation", success: false });
   }
 });
 

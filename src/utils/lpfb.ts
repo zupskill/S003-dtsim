@@ -241,10 +241,145 @@ export function buildRow3Payload(data: {
 }
 
 /**
+ * Builds New 1-Row Architecture Payload (task_id: 10.0, task_name: "Design Thinking Journey")
+ * Formats data as clean, human-readable plain text without LPFB, JSON, or base64 encoding.
+ * 
+ * value1: Stage 1: Topic and Challenge
+ * value2: Stage 2: Empathy Observations
+ * value3: Stage 3: How Might We Statement
+ * value4: Stage 4: Brainstormed Ideas and Selected Idea
+ * value5: Stage 5: Prototype Details
+ * value6: Stage 6: Testing Scores and Rubric Breakdown
+ * value7: Stage 6: Feedback, Level Title and Level Description
+ */
+export function buildOneRowPayload(data: {
+  topic?: { id?: string; title?: string; trendingTag?: string } | null;
+  problemObservations?: Array<{ id?: string; perspectiveName?: string; cluster?: string; text?: string; votes?: number }> | null;
+  refinedHowMightWe?: string | null;
+  ideas?: Array<{ id?: string; category?: string; text?: string; reasoning?: string }> | null;
+  selectedPrototype?: { title?: string; format?: string; description?: string } | null;
+  testingData?: any;
+  rubric?: {
+    stageCompletion?: number;
+    meaningfulInput?: number;
+    reflectionIteration?: number;
+    aiThoughtfulness?: number;
+    feedback?: string;
+    levelTitle?: string;
+    levelDesc?: string;
+  } | null;
+  overallScore?: number;
+}): {
+  value1: string;
+  value2: string;
+  value3: string;
+  value4: string;
+  value5: string;
+  value6: string;
+  value7: string;
+} {
+  // value1 – Stage 1: Topic and Challenge
+  const topicId = clampText(data.topic?.id || "custom", 100);
+  const topicTitle = clampText(data.topic?.title || "Design Challenge", 250);
+  const trendingTag = clampText(data.topic?.trendingTag || "Innovation", 100);
+  const value1 = [
+    `Topic ID: ${topicId}`,
+    `Topic Title: ${topicTitle}`,
+    `Trending Tag: ${trendingTag}`
+  ].join("\n");
+
+  // value2 – Stage 2: Empathy Observations (Preserve all collected observations with context)
+  const obsList = Array.isArray(data.problemObservations) ? data.problemObservations : [];
+  const obsLines = obsList.map((obs, idx) => {
+    const metaParts: string[] = [];
+    if (obs.perspectiveName) metaParts.push(`Perspective: ${obs.perspectiveName}`);
+    if (obs.cluster) metaParts.push(`Cluster: ${obs.cluster}`);
+    const meta = metaParts.length > 0 ? ` [${metaParts.join(", ")}]` : "";
+    const cleanTextVal = clampText(obs.text || "", 500).replace(/[\r\n]+/g, " ").trim();
+    return `Observation ${idx + 1}${meta}: ${cleanTextVal}`;
+  });
+  const value2 = obsLines.length > 0
+    ? obsLines.join("\n")
+    : "Observation 1: User empathy research and observations recorded.";
+
+  // value3 – Stage 3: How Might We Statement
+  const cleanHmw = clampText(data.refinedHowMightWe || "", 2000).replace(/[\r\n]+/g, " ").trim();
+  const value3 = `How Might We: ${cleanHmw || "Problem definition and challenge recorded."}`;
+
+  // value4 – Stage 4: Brainstormed Ideas and Selected Idea (Preserve all ideas collected)
+  const ideaList = Array.isArray(data.ideas) ? data.ideas : [];
+  const ideaLines = ideaList.map((idea, idx) => {
+    const cat = idea.category ? ` [${idea.category}]` : "";
+    const text = clampText(idea.text || "", 500).replace(/[\r\n]+/g, " ").trim();
+    return `Idea ${idx + 1}${cat}: ${text}`;
+  });
+  const primaryIdea = ideaList[0] || null;
+  const selectedIdeaText = clampText(primaryIdea?.text || data.selectedPrototype?.title || "Generated creative solutions.", 500).replace(/[\r\n]+/g, " ").trim();
+  const selectedCategory = clampText(primaryIdea?.category || "HOW", 50);
+  const sortedCount = ideaList.filter(i => i.category && i.category !== "UNSORTED").length;
+
+  const value4Parts = [...ideaLines];
+  if (value4Parts.length > 0) value4Parts.push("");
+  value4Parts.push(`Selected Idea: ${selectedIdeaText}`);
+  value4Parts.push(`Selected Category: ${selectedCategory}`);
+  value4Parts.push(`Total Ideas: ${ideaList.length}`);
+  value4Parts.push(`Sorted Ideas: ${sortedCount}`);
+  const value4 = value4Parts.join("\n");
+
+  // value5 – Stage 5: Prototype Details
+  const protoTitle = clampText(data.selectedPrototype?.title || "Prototype Solution", 250);
+  const protoFormat = clampText(data.selectedPrototype?.format || "canvas", 100);
+  const protoDesc = clampText(data.selectedPrototype?.description || "Built and summarized the final prototype.", 4000);
+  const value5 = [
+    `Prototype Title: ${protoTitle}`,
+    `Format: ${protoFormat}`,
+    `Description: ${protoDesc}`
+  ].join("\n");
+
+  // value6 – Stage 6: Testing Scores and Rubric Breakdown
+  const whatIfScore = typeof data.testingData?.whatIfScore === "number" ? data.testingData.whatIfScore : 0;
+  const iLikeScore = data.testingData?.iLikeScore ? 1 : 0;
+  const iWishScore = data.testingData?.iWishScore ? 1 : 0;
+  const stageCompletion = typeof data.rubric?.stageCompletion === "number" ? data.rubric.stageCompletion : 0;
+  const meaningfulInput = typeof data.rubric?.meaningfulInput === "number" ? data.rubric.meaningfulInput : 0;
+  const reflectionIteration = typeof data.rubric?.reflectionIteration === "number" ? data.rubric.reflectionIteration : 0;
+  const aiThoughtfulness = typeof data.rubric?.aiThoughtfulness === "number" ? data.rubric.aiThoughtfulness : 0;
+
+  const value6 = [
+    `WhatIfScore: ${whatIfScore}`,
+    `ILikeScore: ${iLikeScore}`,
+    `IWishScore: ${iWishScore}`,
+    `StageCompletion: ${stageCompletion}`,
+    `MeaningfulInput: ${meaningfulInput}`,
+    `ReflectionIteration: ${reflectionIteration}`,
+    `AiThoughtfulness: ${aiThoughtfulness}`
+  ].join("\n");
+
+  // value7 – Stage 6: Feedback, Level Title and Level Description
+  const overall = typeof data.overallScore === "number" ? data.overallScore : 0;
+  const levelTitle = clampText(data.rubric?.levelTitle || (
+    overall >= 91 ? "DT Innovation Master" :
+    overall >= 76 ? "Innovation Builder" :
+    overall >= 61 ? "Creative Thinker" : "Problem Solver"
+  ), 100);
+  const levelDesc = clampText(data.rubric?.levelDesc || "Completed Design Thinking journey", 500);
+  const feedback = clampText(data.rubric?.feedback || "Great problem solving and prototype testing.", 2000);
+
+  const value7 = [
+    `LevelTitle: ${levelTitle}`,
+    `LevelDescription: ${levelDesc}`,
+    `Feedback: ${feedback}`
+  ].join("\n");
+
+  return { value1, value2, value3, value4, value5, value6, value7 };
+}
+
+/**
  * Reconstructs a CompletedSimulationRecap from Supabase rows.
- * Supports both:
- * 1. New 3-Row LPFB plain-text records
- * 2. Legacy 5-Row records (defensive JSON parse with fallback)
+ * Supports all three architectures:
+ * 1. New 1-Row human-readable plain-text records (task_id: 10.0, task_name: "Design Thinking Journey")
+ * 2. Existing 3-Row LPFB plain-text records (task_id: 1.0, 2.0, 3.0)
+ * 3. Legacy 5-Row records (defensive JSON parse with fallback)
  */
 export function reconstructRecapFromActivities(activities: any[]): {
   recap: CompletedSimulationRecap | null;
@@ -255,12 +390,13 @@ export function reconstructRecapFromActivities(activities: any[]): {
   }
 
   // Count total completed simulations
-  // New 3-row architecture completions have task_name "Prototype & Testing" (or task_id 3.0)
-  // Legacy completions have task_name "Test" and task_id 5.0
+  // New 1-row architecture completions: task_name "Design Thinking Journey" or task_id 10.0
+  // Existing 3-row architecture completions: task_name "Prototype & Testing" or task_id 3.0
+  // Legacy 5-row architecture completions: task_name "Test" and task_id 5.0
   const completionRows = activities.filter(a => 
     a && (
-      a.task_name === "Prototype & Testing" || 
-      (a.task_id === 3 && a.task_name === "Prototype & Testing") ||
+      (a.task_name === "Design Thinking Journey" || a.task_id === 10) ||
+      (a.task_name === "Prototype & Testing" || (a.task_id === 3 && a.task_name === "Prototype & Testing")) ||
       (a.task_id === 5 && a.task_name === "Test")
     )
   );
@@ -280,7 +416,129 @@ export function reconstructRecapFromActivities(activities: any[]): {
   const completionTimestamp = new Date(latestCompletion.updated_at || Date.now()).getTime();
   const completionDate = new Date(latestCompletion.updated_at || Date.now()).toLocaleDateString();
 
-  // CHECK A: Is the latest completion using the new 3-Row architecture?
+  // CHECK A: Is the latest completion using the New 1-Row Architecture?
+  if (
+    latestCompletion.task_name === "Design Thinking Journey" ||
+    latestCompletion.task_id === 10
+  ) {
+    const row = latestCompletion;
+
+    // 1. Extract Challenge from value1 (Stage 1)
+    const val1 = row.value1 || "";
+    let challenge = "";
+    const titleMatch = val1.match(/^Topic Title:\s*(.*)$/im);
+    if (titleMatch && titleMatch[1].trim()) {
+      challenge = titleMatch[1].trim();
+    } else {
+      const firstLine = val1.split("\n").filter(Boolean)[0] || "";
+      challenge = firstLine.replace(/^Topic Title:\s*/i, "").replace(/^Topic ID:\s*/i, "").trim() || "Design Challenge";
+    }
+
+    // 2. Extract Empathize Summary from value2 (Stage 2)
+    const val2 = row.value2 || "";
+    let empathizeSummary = "";
+    const obsMatch = val2.match(/^Observation \d+(?:\s*\[.*?\])*:\s*(.*)$/im);
+    if (obsMatch && obsMatch[1].trim()) {
+      empathizeSummary = obsMatch[1].trim();
+    } else {
+      const firstObsLine = val2.split("\n").filter(Boolean)[0] || "";
+      empathizeSummary = firstObsLine.replace(/^Observation \d+:\s*/i, "").trim() || "User empathy research and observations recorded.";
+    }
+
+    // 3. Extract Problem Statement (HMW) from value3 (Stage 3)
+    const val3 = row.value3 || "";
+    const problemStatement = val3.replace(/^How Might We:\s*/i, "").trim() || "Problem definition and challenge recorded.";
+
+    // 4. Extract Top Ideas from value4 (Stage 4)
+    const val4 = row.value4 || "";
+    const topIdeas: string[] = [];
+    const val4Lines = val4.split("\n").map((l: string) => l.trim()).filter(Boolean);
+    for (const line of val4Lines) {
+      const ideaMatch = line.match(/^Idea \d+(?:\s*\[.*?\])?:\s*(.*)$/i);
+      if (ideaMatch && ideaMatch[1].trim()) {
+        topIdeas.push(ideaMatch[1].trim());
+        if (topIdeas.length >= 3) break;
+      }
+    }
+    if (topIdeas.length === 0) {
+      const selMatch = val4.match(/^Selected Idea:\s*(.*)$/im);
+      if (selMatch && selMatch[1].trim()) {
+        topIdeas.push(selMatch[1].trim());
+      }
+    }
+    if (topIdeas.length === 0) {
+      topIdeas.push("Generated creative solutions.");
+    }
+
+    // 5. Extract Prototype Summary from value5 (Stage 5)
+    const val5 = row.value5 || "";
+    let prototypeSummary = "";
+    const descMatch = val5.match(/^Description:\s*([\s\S]*)$/im);
+    if (descMatch && descMatch[1].trim()) {
+      prototypeSummary = descMatch[1].trim();
+    } else {
+      const protoTitleMatch = val5.match(/^Prototype Title:\s*(.*)$/im);
+      if (protoTitleMatch && protoTitleMatch[1].trim()) {
+        prototypeSummary = protoTitleMatch[1].trim();
+      } else {
+        prototypeSummary = val5.trim() || "Built and summarized the final prototype.";
+      }
+    }
+
+    // 6. Authoritative overall score from score column
+    const overallScore = typeof row.score === "number" ? Math.max(0, Math.min(100, Math.round(row.score))) : (Number(row.score) || 0);
+
+    // 7. Extract Rubric & Testing scores from value6 (Stage 6)
+    const val6 = row.value6 || "";
+    const extractScalar = (key: string): number => {
+      const m = val6.match(new RegExp(`^${key}:\\s*(\\d+)`, "im"));
+      return m ? Number(m[1]) : 0;
+    };
+
+    // 8. Extract Achievements & Feedback from value7 (Stage 6)
+    const val7 = row.value7 || "";
+    const lvlMatch = val7.match(/^LevelTitle:\s*(.*)$/im);
+    const levelTitle = (lvlMatch && lvlMatch[1].trim()) || (
+      overallScore >= 91 ? "DT Innovation Master" :
+      overallScore >= 76 ? "Innovation Builder" :
+      overallScore >= 61 ? "Creative Thinker" : "Problem Solver"
+    );
+
+    const descMatchLvl = val7.match(/^LevelDescription:\s*(.*)$/im);
+    const levelDesc = (descMatchLvl && descMatchLvl[1].trim()) || "Completed Design Thinking journey";
+
+    const fbMatch = val7.match(/^Feedback:\s*([\s\S]*)$/im);
+    const feedback = (fbMatch && fbMatch[1].trim()) || "";
+
+    const breakdown = {
+      stageCompletion: extractScalar("StageCompletion"),
+      meaningfulInput: extractScalar("MeaningfulInput"),
+      reflectionIteration: extractScalar("ReflectionIteration"),
+      aiThoughtfulness: extractScalar("AiThoughtfulness"),
+      overallScore,
+      feedback,
+      levelTitle,
+      levelDesc
+    };
+
+    const recap: CompletedSimulationRecap = {
+      simulationName: "DT Innovation Lab",
+      completionDate,
+      challenge,
+      empathizeSummary,
+      problemStatement,
+      topIdeas,
+      prototypeSummary,
+      achievements: [levelTitle],
+      overallScore,
+      engagementBreakdown: breakdown,
+      completionTime: completionTimestamp
+    };
+
+    return { recap, completedCount };
+  }
+
+  // CHECK B: Is the latest completion using the existing 3-Row architecture?
   if (latestCompletion.task_name === "Prototype & Testing" || (latestCompletion.task_id === 3 && latestCompletion.task_name === "Prototype & Testing")) {
     const otherCompletions = completionRows.filter(c => c !== latestCompletion);
 

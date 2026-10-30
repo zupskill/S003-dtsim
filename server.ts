@@ -3,13 +3,13 @@ import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
 import { createClient } from "@supabase/supabase-js";
-import { strictAiLimiter, scoringLimiter, completionLimiter, moderateLimiter } from "./server/rateLimiter.ts";
-import { perspectivesCache, moderationCache, aiContentCache, evaluationCache, MemoryCache } from "./server/cache.ts";
-import { securityHeadersMiddleware, sanitizeString, sanitizeStringArray, isPlainObject, clampNumber } from "./server/validation.ts";
-import { computeServerAuthoritativeScore } from "./server/evaluator.ts";
-import { requireSupabaseAuth, AuthenticatedRequest } from "./server/auth.ts";
-import { createServerAttempt, getAttempt, abandonUserAttempts, executeAtomicCompletion, finalizeAttempt } from "./server/attempts.ts";
-import { buildRow1Payload, buildRow2Payload, buildRow3Payload } from "./server/lpfb.ts";
+import { strictAiLimiter, scoringLimiter, completionLimiter, moderateLimiter } from "./server/rateLimiter";
+import { perspectivesCache, moderationCache, aiContentCache, evaluationCache, MemoryCache } from "./server/cache";
+import { securityHeadersMiddleware, sanitizeString, sanitizeStringArray, isPlainObject, clampNumber } from "./server/validation";
+import { computeServerAuthoritativeScore } from "./server/evaluator";
+import { requireSupabaseAuth, AuthenticatedRequest } from "./server/auth";
+import { createServerAttempt, getAttempt, abandonUserAttempts, executeAtomicCompletion, finalizeAttempt } from "./server/attempts";
+import { buildRow1Payload, buildRow2Payload, buildRow3Payload } from "./server/lpfb";
 
 dotenv.config();
 
@@ -18,48 +18,8 @@ const PORT = 3000;
 
 // Security-hardened body limits (prevent OOM / DoS memory attacks)
 app.use(express.json({ limit: "500kb" }));
+app.use(express.urlencoded({ extended: true, limit: "500kb" }));
 app.use(securityHeadersMiddleware);
-
-// Global CORS middleware for API routes
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Vary", "Origin");
-  } else {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-  }
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-  next();
-});
-
-// URL normalization middleware for Vercel serverless catch-all routing
-app.use((req, res, next) => {
-  if (req.url && !req.url.startsWith("/api")) {
-    const apiPrefixes = [
-      "/simulator",
-      "/scoring",
-      "/test",
-      "/perspectives",
-      "/empathize",
-      "/define",
-      "/ideate",
-      "/ideas",
-      "/prototype",
-      "/moderate",
-      "/generate-topic-perspectives"
-    ];
-    if (apiPrefixes.some((p) => req.url.startsWith(p))) {
-      req.url = "/api" + req.url;
-    }
-  }
-  next();
-});
 
 // Initialize GoogleGenAI client lazily to avoid startup crashes if key is initially blank
 let aiClient: GoogleGenAI | null = null;
@@ -120,7 +80,7 @@ function logApiError(message: string, err: any) {
 // Helper to execute generating with optional retries
 async function generateContentWithRetry(prompt: string, config: any, retries = 2): Promise<string> {
   const ai = getAiClient();
-  console.log("[AI] Initializing Gemini model: gemini-2.5-flash");
+  console.log("[AI] Initializing Gemini model: gemini-2.5-flash-lite");
   const boundedConfig = {
     maxOutputTokens: config?.maxOutputTokens || 1000,
     ...config,
@@ -129,7 +89,7 @@ async function generateContentWithRetry(prompt: string, config: any, retries = 2
   while (attempt <= retries) {
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-flash-lite",
         contents: prompt,
         config: boundedConfig,
       });
@@ -1907,9 +1867,9 @@ function cleanTitle(title: string): string {
 
 // 6. Test Stage (Path A): WHAT IF Generator
 app.post("/api/test/what-if", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
-  const prototypeTitle = sanitizeString(req.body?.prototypeTitle, 200);
   try {
     const problemStatement = sanitizeString(req.body?.problemStatement, 1000);
+    const prototypeTitle = sanitizeString(req.body?.prototypeTitle, 200);
     const prototypeDescription = sanitizeString(req.body?.prototypeDescription, 2000);
     const selectedIdea = sanitizeString(req.body?.selectedIdea, 500);
     const originalProblemText = sanitizeString(req.body?.originalProblemText, 1000);
@@ -1980,23 +1940,15 @@ Provide your response in JSON matching the specified response schema. Determine 
     return res.json(parsed);
   } catch (error: any) {
     logApiError("Error testing what-if:", error);
-    const fallbackWhatIf = {
-      category: "Software Product",
-      challenges: [
-        `What if users on campus experience connectivity delays when using ${prototypeTitle || "this solution"}?`,
-        `What if peak hour adoption creates unexpected friction for student users?`
-      ],
-      score: 76
-    };
-    return res.json(fallbackWhatIf);
+    return res.status(500).json({ error: "Failed to generate what-if scenarios" });
   }
 });
 
 // 7. Test Stage (Path B): I LIKE Generator
 app.post("/api/test/i-like", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
-  const prototypeTitle = sanitizeString(req.body?.prototypeTitle, 200);
   try {
     const problemStatement = sanitizeString(req.body?.problemStatement, 1000);
+    const prototypeTitle = sanitizeString(req.body?.prototypeTitle, 200);
     const prototypeDescription = sanitizeString(req.body?.prototypeDescription, 2000);
     const selectedIdea = sanitizeString(req.body?.selectedIdea, 500);
     const originalProblemText = sanitizeString(req.body?.originalProblemText, 1000);
@@ -2066,23 +2018,15 @@ Provide your response in JSON matching the specified response schema. Determine 
     return res.json(parsed);
   } catch (error: any) {
     logApiError("Error testing i-like:", error);
-    const fallbackILike = {
-      category: "Software Product",
-      highlights: [
-        `I like that ${prototypeTitle || "this solution"} directly tackles the core user pain point identified in your research.`,
-        `I like the clear focus on student accessibility and practical campus workflow.`
-      ],
-      score: 82
-    };
-    return res.json(fallbackILike);
+    return res.status(500).json({ error: "Failed to generate i-like highlights" });
   }
 });
 
 // 8. Test Stage (Path C): I WISH Generator
 app.post("/api/test/i-wish", requireSupabaseAuth, strictAiLimiter, async (req: AuthenticatedRequest, res: Response) => {
-  const prototypeTitle = sanitizeString(req.body?.prototypeTitle, 200);
   try {
     const problemStatement = sanitizeString(req.body?.problemStatement, 1000);
+    const prototypeTitle = sanitizeString(req.body?.prototypeTitle, 200);
     const prototypeDescription = sanitizeString(req.body?.prototypeDescription, 2000);
     const selectedIdea = sanitizeString(req.body?.selectedIdea, 500);
     const originalProblemText = sanitizeString(req.body?.originalProblemText, 1000);
@@ -2151,15 +2095,7 @@ Provide your response in JSON matching the specified response schema. Determine 
     return res.json(parsed);
   } catch (error: any) {
     logApiError("Error testing i-wish:", error);
-    const fallbackIWish = {
-      category: "Software Product",
-      improvements: [
-        `I wish there was an automated notification channel for real-time status updates in ${prototypeTitle || "this solution"}.`,
-        `I wish future iterations explore peer collaboration or community integration.`
-      ],
-      score: 80
-    };
-    return res.json(fallbackIWish);
+    return res.status(500).json({ error: "Failed to generate i-wish improvements" });
   }
 });
 
@@ -2234,10 +2170,7 @@ Provide a score from 0 to 10 as an integer, and a short 1-sentence reason.`;
     return res.json(responsePayload);
   } catch (error: any) {
     logApiError("Error evaluating AI thoughtfulness:", error);
-    return res.json({
-      score: 7,
-      reason: "Consistent progress demonstrated across empathize, define, and ideation stages."
-    });
+    return res.status(500).json({ error: "Failed to generate AI Thoughtfulness score", score: 0 });
   }
 });
 
@@ -2341,35 +2274,6 @@ app.post("/api/simulator/attempt/start", requireSupabaseAuth, moderateLimiter, a
     // Abandon any existing in-progress attempts for this user & activity
     abandonUserAttempts(userId, "S003");
 
-    // Defensively ensure user row exists in 'users' table upon attempt start
-    try {
-      const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
-      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "";
-      if (supabaseUrl && supabaseServiceKey) {
-        const adminClient = createClient(supabaseUrl, supabaseServiceKey, {
-          auth: { persistSession: false, autoRefreshToken: false }
-        });
-        const userPayload: any = {
-          id: userId,
-          email: req.user?.email || null,
-          full_name: req.user?.user_metadata?.full_name || req.user?.user_metadata?.name || null,
-          avatar_url: req.user?.user_metadata?.avatar_url || req.user?.user_metadata?.picture || null,
-          updated_at: new Date().toISOString()
-        };
-        const { error: ensureErr } = await adminClient.from("users").upsert(
-          userPayload,
-          { onConflict: "id", ignoreDuplicates: true }
-        );
-        if (ensureErr) {
-          console.warn("[SIMULATOR ATTEMPT START] User record ensure notice:", ensureErr.message);
-        } else {
-          console.log(`[SIMULATOR ATTEMPT START] Verified user record in users table for ${userId.slice(0, 8)}`);
-        }
-      }
-    } catch (uStartErr: any) {
-      console.warn("[SIMULATOR ATTEMPT START] Non-blocking user check notice:", uStartErr?.message);
-    }
-
     // Issue a cryptographically secure, server-authoritative attempt
     const attempt = createServerAttempt(userId, "S003");
 
@@ -2450,7 +2354,6 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
       console.warn(`[SIMULATOR COMPLETE] Rejected: Attempt ${attemptId} not found or expired`);
       return res.status(404).json({
         error: "Attempt not found or expired. Please refresh and restart the simulation to acquire an attempt ticket.",
-        code: "ATTEMPT_EXPIRED",
         success: false
       });
     }
@@ -2458,11 +2361,7 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
     // 2. Validate attempt ownership
     if (attempt.userId !== userId) {
       console.warn(`[SIMULATOR COMPLETE] Forbidden: Attempt user ${attempt.userId} != request user ${userId}`);
-      return res.status(403).json({
-        error: "Forbidden: Attempt was issued to a different user identity",
-        code: "ATTEMPT_USER_MISMATCH",
-        success: false
-      });
+      return res.status(403).json({ error: "Forbidden: Attempt was issued to a different user identity", success: false });
     }
 
     if (attempt.activityId !== "S003") {
@@ -2543,22 +2442,10 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
 
       // Defensive check: Ensure user row exists in 'users' table to satisfy activity_designthinking_user_id_fkey constraint
       try {
-        const userPayload: any = {
-          id: userId,
-          email: req.user?.email || null,
-          full_name: req.user?.user_metadata?.full_name || req.user?.user_metadata?.name || null,
-          avatar_url: req.user?.user_metadata?.avatar_url || req.user?.user_metadata?.picture || null,
-          updated_at: new Date().toISOString()
-        };
-        const { error: uErr } = await dbClient.from("users").upsert(
-          userPayload,
+        await dbClient.from("users").upsert(
+          { id: userId, email: req.user?.email || null },
           { onConflict: "id", ignoreDuplicates: true }
         );
-        if (uErr) {
-          console.warn("[SIMULATOR COMPLETE] User record ensure notice:", uErr.message);
-        } else {
-          console.log(`[SIMULATOR COMPLETE] Verified user record exists in users table for ${userId.slice(0, 8)}`);
-        }
       } catch (uErr: any) {
         console.warn("[SIMULATOR COMPLETE] Non-blocking user record check notice:", uErr?.message);
       }
@@ -2660,12 +2547,11 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
         }
       ];
 
-      console.log(`[SIMULATOR COMPLETE] Executing Supabase upsert of 3 rows for user ${userId.slice(0, 8)}... (mode: ${hasServiceKey ? 'service_role' : 'user_jwt'})`);
+      console.log(`[SIMULATOR COMPLETE] Executing Supabase insert of 3 rows for user ${userId.slice(0, 8)}... (mode: ${hasServiceKey ? 'service_role' : 'user_jwt'})`);
 
-      // Upsert to handle existing (user_id, task_id) unique constraint without deleting records during completion
       const { data: insertData, error: insertErr } = await dbClient
         .from("activity_designthinking")
-        .upsert(threeRows, { onConflict: "user_id,task_id" })
+        .insert(threeRows)
         .select();
 
       if (insertErr) {
@@ -2731,91 +2617,30 @@ app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, asyn
 });
 
 // 14. Server-Authoritative Simulator Reset
-app.post(["/api/simulator/reset", "/simulator/reset"], requireSupabaseAuth, moderateLimiter, async (req: AuthenticatedRequest, res: Response) => {
+app.post("/api/simulator/reset", requireSupabaseAuth, moderateLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.userId;
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized: Missing authenticated user identity", success: false });
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const safeUserId = String(userId);
-    console.log(`[SIMULATOR RESET] Processing reset for user ${safeUserId.slice(0, 8)} on S003...`);
-
-    // Resolve Supabase Credentials
-    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "";
-    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
-
-    const hasServiceKey = !!supabaseServiceKey;
-    const hasAnonKey = !!supabaseAnonKey;
-
-    if (!supabaseUrl || (!hasServiceKey && !hasAnonKey)) {
-      console.error("[SIMULATOR RESET ERROR] Supabase credentials not configured on server.");
-      return res.status(503).json({
-        error: "Supabase database credentials not configured on server. Cannot reset database records.",
-        success: false
-      });
-    }
-
-    let dbClient: any;
-    try {
-      dbClient = hasServiceKey
-        ? createClient(supabaseUrl, supabaseServiceKey, {
-            auth: { persistSession: false, autoRefreshToken: false }
-          })
-        : createClient(supabaseUrl, supabaseAnonKey, {
-            auth: { persistSession: false, autoRefreshToken: false },
-            global: {
-              headers: { Authorization: `Bearer ${token}` }
-            }
-          });
-    } catch (clientErr: any) {
-      console.error("[SIMULATOR RESET DB INIT ERROR]", clientErr?.message || clientErr);
-      return res.status(502).json({
-        error: `Failed to initialize database client: ${clientErr?.message || 'Invalid database configuration'}`,
-        success: false
-      });
-    }
-
-    // Delete user's previous S003 records ONLY
-    console.log(`[SIMULATOR RESET] Deleting existing S003 records from activity_designthinking for user ${safeUserId.slice(0, 8)}...`);
-    const { error: deleteError } = await dbClient
-      .from("activity_designthinking")
-      .delete()
-      .eq("user_id", safeUserId)
-      .eq("activity_id", "S003");
-
-    if (deleteError) {
-      console.error("[SIMULATOR RESET DB ERROR] Failed to delete previous S003 records:", {
-        code: deleteError.code,
-        message: deleteError.message,
-        details: deleteError.details
-      });
-      return res.status(502).json({
-        error: `Failed to delete previous simulation records [${deleteError.code || 'UNKNOWN'}]: ${deleteError.message}`,
-        success: false
-      });
-    }
-
-    console.log(`[SIMULATOR RESET DB SUCCESS] Previous S003 records deleted successfully for user ${safeUserId.slice(0, 8)}.`);
+    console.log(`[SIMULATOR RESET] Resetting in-progress simulator attempts for user ${userId.slice(0, 8)}...`);
 
     // Abandon user's in-progress attempts in memory
-    abandonUserAttempts(safeUserId, "S003");
+    abandonUserAttempts(userId, "S003");
 
     // Issue a clean new attempt
-    const newAttempt = createServerAttempt(safeUserId, "S003");
+    const newAttempt = createServerAttempt(userId, "S003");
 
     res.setHeader("Cache-Control", "no-store, no-cache, private");
-    return res.status(200).json({
+    return res.json({
       success: true,
-      message: "Simulation reset and previous records cleared successfully",
+      message: "Simulation reset successfully",
       newAttemptId: newAttempt.attemptId
     });
   } catch (error: any) {
-    console.error("[SIMULATOR RESET UNCAUGHT EXCEPTION]:", error?.message || error);
-    return res.status(500).json({ error: error?.message || "Failed to reset simulation", success: false });
+    logApiError("Error in simulator reset:", error);
+    return res.status(500).json({ error: "Failed to reset simulation" });
   }
 });
 
@@ -2844,8 +2669,7 @@ async function startServer() {
   });
 }
 
-const isMainModule = typeof process !== "undefined" && process.argv && process.argv[1] && (process.argv[1].endsWith("server.ts") || process.argv[1].endsWith("server.cjs"));
-if (isMainModule && !process.env.VERCEL) {
+if (!process.env.VERCEL) {
   startServer();
 }
 

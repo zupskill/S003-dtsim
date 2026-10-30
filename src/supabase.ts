@@ -2,8 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import { UserProfile } from "./types";
 import { reconstructRecapFromActivities } from "./utils/lpfb";
 
-const supabaseUrl = (import.meta as any)?.env?.VITE_SUPABASE_URL || "";
-const supabaseAnonKey = (import.meta as any)?.env?.VITE_SUPABASE_ANON_KEY || "";
+const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL || "";
+const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY || "";
 
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
 

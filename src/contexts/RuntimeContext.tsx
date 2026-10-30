@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { supabase, getSupabaseProfile, isSupabaseConfigured } from '../supabase';
 import { UserProfile } from '../types';
 import { getOrCreateUser } from '../utils/auth';
-import { apiFetch, safeReadResponse } from '../utils/api';
+import { apiFetch } from '../utils/api';
 
 interface RuntimeState {
   user: any | null;
@@ -42,7 +42,7 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
 
   const loadUserProfile = useCallback(async (authUser: any) => {
     try {
-      const currentUser = await getOrCreateUser(authUser);
+      const currentUser = await getOrCreateUser();
       if (!currentUser) {
         console.error("Failed to initialize central user record.");
         return;
@@ -157,26 +157,6 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
-  // Sync user-scoped attempt ID when authenticated user changes
-  useEffect(() => {
-    if (user?.id) {
-      const userKey = `zupskill_sim_attempt_id_${user.id}`;
-      const saved = localStorage.getItem(userKey);
-      if (saved) {
-        setAttemptId(saved);
-      } else {
-        // Discard any cross-user stale attempt in legacy storage
-        const generic = localStorage.getItem("zupskill_sim_attempt_id");
-        if (generic) {
-          localStorage.removeItem("zupskill_sim_attempt_id");
-        }
-        setAttemptId(null);
-      }
-    } else {
-      setAttemptId(null);
-    }
-  }, [user?.id]);
-
   const startAttempt = useCallback(async (): Promise<string | null> => {
     if (!user) {
       console.warn("[SIMULATOR] Cannot start attempt: User is not authenticated.");
@@ -188,23 +168,17 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
         method: "POST",
         headers: { "Content-Type": "application/json" }
       });
-      const result = await safeReadResponse(res);
-      if (result.ok && result.data?.attemptId) {
-        console.log("[SIMULATOR] Acquired server attempt ticket:", result.data.attemptId);
-        setAttemptId(result.data.attemptId);
-        if (user?.id) {
-          localStorage.setItem(`zupskill_sim_attempt_id_${user.id}`, result.data.attemptId);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.attemptId) {
+          console.log("[SIMULATOR] Acquired server attempt ticket:", data.attemptId);
+          setAttemptId(data.attemptId);
+          localStorage.setItem("zupskill_sim_attempt_id", data.attemptId);
+          return data.attemptId;
         }
-        localStorage.setItem("zupskill_sim_attempt_id", result.data.attemptId);
-        return result.data.attemptId;
       } else {
-        console.error("[SIMULATOR ERROR] Failed to start simulator attempt:", {
-          status: result.status,
-          statusText: result.statusText,
-          error: result.error,
-          body: result.text,
-          data: result.data
-        });
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        console.error("[SIMULATOR ERROR] Failed to start simulator attempt:", res.status, err);
       }
     } catch (err) {
       console.error("[SIMULATOR ERROR] Exception starting simulator attempt:", err);
@@ -218,9 +192,8 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
       return null;
     }
 
-    // Ensure we have a server-issued attempt ID for the current authenticated user
-    const userKey = `zupskill_sim_attempt_id_${user.id}`;
-    let currentAttemptId = attemptId || localStorage.getItem(userKey) || localStorage.getItem("zupskill_sim_attempt_id");
+    // Ensure we have a server-issued attempt ID
+    let currentAttemptId = attemptId || localStorage.getItem("zupskill_sim_attempt_id");
     if (!currentAttemptId) {
       console.log("[SIMULATOR] No attemptId in state/storage, requesting new attempt ticket...");
       currentAttemptId = await startAttempt();
@@ -231,9 +204,10 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
       return null;
     }
 
-    const submitPayload = async (targetAttemptId: string) => {
+    try {
+      console.log("[SIMULATOR] Submitting completion payload to /api/simulator/complete for attempt:", currentAttemptId);
       const payload = {
-        attemptId: targetAttemptId,
+        attemptId: currentAttemptId,
         problemObservations: evidence?.problemObservations || [],
         refinedHowMightWe: evidence?.refinedHowMightWe || "",
         ideas: evidence?.ideas || [],
@@ -244,65 +218,45 @@ export const RuntimeProvider = ({ children }: { children: ReactNode }) => {
         stages: activityProgress
       };
 
-      console.log("[SIMULATOR] Submitting completion payload to /api/simulator/complete for attempt:", targetAttemptId);
-      return apiFetch("/api/simulator/complete", {
+      const res = await apiFetch("/api/simulator/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-    };
 
-    try {
-      let res = await submitPayload(currentAttemptId);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success === true) {
+          console.log("[SIMULATOR SUCCESS] Server confirmed simulation completion & Supabase persistence:", data);
+          // Clear local draft progress ONLY upon verified server confirmation
+          setActivityProgress([]);
+          localStorage.removeItem("zupskill_sim_draft_progress");
 
-      // Automatic recovery if attempt ticket is expired (404) or belonged to a previous user (403)
-      if (!res.ok && (res.status === 403 || res.status === 404)) {
-        console.warn(`[SIMULATOR RECOVERY] Attempt ticket ${currentAttemptId} rejected (${res.status}). Acquiring fresh attempt ticket for user ${user.id}...`);
-        localStorage.removeItem("zupskill_sim_attempt_id");
-        localStorage.removeItem(userKey);
-        setAttemptId(null);
-
-        const freshAttemptId = await startAttempt();
-        if (freshAttemptId) {
-          console.log("[SIMULATOR RECOVERY] Retrying completion with fresh attempt ticket:", freshAttemptId);
-          res = await submitPayload(freshAttemptId);
-        }
-      }
-
-      const result = await safeReadResponse(res);
-      if (result.ok && result.data && result.data.success === true) {
-        const data = result.data;
-        console.log("[SIMULATOR SUCCESS] Server confirmed simulation completion & Supabase persistence:", data);
-        // Clear local draft progress ONLY upon verified server confirmation
-        setActivityProgress([]);
-        localStorage.removeItem("zupskill_sim_draft_progress");
-
-        // Notify parent iframe / window of completion for ZupSkill integration
-        try {
-          if (window.parent && window.parent !== window) {
-            window.parent.postMessage({
-              type: "ZUPSKILL_SIMULATOR_COMPLETED",
-              simulatorId: "S003",
-              activityId: "S003",
-              activityName: "Design Thinking",
-              score: data.authoritativeScore,
-              breakdown: data.breakdown,
-              success: true
-            }, "*");
+          // Notify parent iframe / window of completion for ZupSkill integration
+          try {
+            if (window.parent && window.parent !== window) {
+              window.parent.postMessage({
+                type: "ZUPSKILL_SIMULATOR_COMPLETED",
+                simulatorId: "S003",
+                activityId: "S003",
+                activityName: "Design Thinking",
+                score: data.authoritativeScore,
+                breakdown: data.breakdown,
+                success: true
+              }, "*");
+            }
+          } catch (e) {
+            console.warn("Could not postMessage to parent window:", e);
           }
-        } catch (e) {
-          console.warn("Could not postMessage to parent window:", e);
-        }
 
-        return data;
+          return data;
+        } else {
+          console.error("[SIMULATOR ERROR] Server returned ok status but success is false:", data);
+          return null;
+        }
       } else {
-        console.error("[SIMULATOR ERROR] Server authoritative completion failed:", {
-          status: result.status,
-          statusText: result.statusText,
-          error: result.error,
-          body: result.text,
-          data: result.data
-        });
+        const errData = await res.json().catch(() => ({ error: "Server completion failed", status: res.status }));
+        console.error("[SIMULATOR ERROR] Server authoritative completion failed:", res.status, errData);
         return null;
       }
     } catch (err) {

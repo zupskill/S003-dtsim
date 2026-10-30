@@ -15,20 +15,15 @@ export interface RateLimitOptions {
 const rateLimitStore = new Map<string, RateLimitRecord>();
 
 // Periodic cleanup of stale records every 60 seconds
-if (typeof setInterval !== "undefined") {
-  const cleanupTimer = setInterval(() => {
-    const now = Date.now();
-    for (const [key, record] of rateLimitStore.entries()) {
-      record.timestamps = record.timestamps.filter((ts) => now - ts < 120000);
-      if (record.timestamps.length === 0) {
-        rateLimitStore.delete(key);
-      }
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, record] of rateLimitStore.entries()) {
+    record.timestamps = record.timestamps.filter((ts) => now - ts < 120000);
+    if (record.timestamps.length === 0) {
+      rateLimitStore.delete(key);
     }
-  }, 60000);
-  if (cleanupTimer && typeof cleanupTimer.unref === "function") {
-    cleanupTimer.unref();
   }
-}
+}, 60000);
 
 export function getClientIdentifier(req: Request): string {
   // 1. Identity is based on verified user ID where authentication exists

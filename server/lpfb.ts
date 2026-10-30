@@ -9,6 +9,5 @@ export {
   buildRow1Payload,
   buildRow2Payload,
   buildRow3Payload,
-  reconstructRecapFromActivities,
-  parseStorageBlock
-} from "../src/utils/lpfb.ts";
+  reconstructRecapFromActivities
+} from "../src/utils/lpfb";

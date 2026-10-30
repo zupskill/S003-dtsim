@@ -1,4 +1,4 @@
-import { sanitizeString, clampNumber } from "./validation.ts";
+import { sanitizeString, clampNumber } from "./validation";
 
 export interface EvaluatorInput {
   maxReachedStage?: number;

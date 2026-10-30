@@ -1,12 +1,7 @@
 {
-  "version": 2,
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/[[...path]]"
-    },
-    {
-      "source": "/((?!api/|auth/callback).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]

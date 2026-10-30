@@ -34,620 +34,13 @@ __export(server_exports, {
 module.exports = __toCommonJS(server_exports);
 var import_express = __toESM(require("express"), 1);
 var import_path = __toESM(require("path"), 1);
-var import_dotenv2 = __toESM(require("dotenv"), 1);
-var import_genai = require("@google/genai");
-var import_supabase_js2 = require("@supabase/supabase-js");
-
-// server/rateLimiter.ts
-var rateLimitStore = /* @__PURE__ */ new Map();
-if (typeof setInterval !== "undefined") {
-  const cleanupTimer = setInterval(() => {
-    const now = Date.now();
-    for (const [key, record] of rateLimitStore.entries()) {
-      record.timestamps = record.timestamps.filter((ts) => now - ts < 12e4);
-      if (record.timestamps.length === 0) {
-        rateLimitStore.delete(key);
-      }
-    }
-  }, 6e4);
-  if (cleanupTimer && typeof cleanupTimer.unref === "function") {
-    cleanupTimer.unref();
-  }
-}
-function getClientIdentifier(req) {
-  const authenticatedUserId = req.userId || req.user?.id;
-  if (authenticatedUserId && typeof authenticatedUserId === "string") {
-    return `user:${authenticatedUserId}`;
-  }
-  const forwarded = req.headers["x-forwarded-for"];
-  if (typeof forwarded === "string" && forwarded.trim()) {
-    const ips = forwarded.split(",");
-    const clientIp = ips[0].trim();
-    if (clientIp) return `ip:${clientIp}`;
-  } else if (Array.isArray(forwarded) && forwarded.length > 0) {
-    const clientIp = forwarded[0].trim();
-    if (clientIp) return `ip:${clientIp}`;
-  }
-  const remote = req.socket?.remoteAddress || req.ip || "unknown-ip";
-  return `ip:${remote}`;
-}
-function createRateLimiter(options) {
-  const { windowMs, maxRequests, message, keyPrefix = "rl" } = options;
-  return (req, res, next) => {
-    const clientId = getClientIdentifier(req);
-    const key = `${keyPrefix}:${clientId}`;
-    const now = Date.now();
-    let record = rateLimitStore.get(key);
-    if (!record) {
-      record = { timestamps: [] };
-      rateLimitStore.set(key, record);
-    }
-    record.timestamps = record.timestamps.filter((ts) => now - ts < windowMs);
-    if (record.timestamps.length >= maxRequests) {
-      const oldest = record.timestamps[0];
-      const retryAfterSec = Math.max(1, Math.ceil((oldest + windowMs - now) / 1e3));
-      res.setHeader("Retry-After", String(retryAfterSec));
-      res.setHeader("X-RateLimit-Limit", String(maxRequests));
-      res.setHeader("X-RateLimit-Remaining", "0");
-      res.setHeader("X-RateLimit-Reset", String(Math.ceil((oldest + windowMs) / 1e3)));
-      res.status(429).json({
-        error: message || "Too many requests. Please slow down and try again.",
-        retryAfter: retryAfterSec
-      });
-      return;
-    }
-    record.timestamps.push(now);
-    const remaining = Math.max(0, maxRequests - record.timestamps.length);
-    res.setHeader("X-RateLimit-Limit", String(maxRequests));
-    res.setHeader("X-RateLimit-Remaining", String(remaining));
-    next();
-  };
-}
-var strictAiLimiter = createRateLimiter({
-  windowMs: 60 * 1e3,
-  maxRequests: 30,
-  keyPrefix: "ai",
-  message: "AI evaluation rate limit reached. Please wait a moment before trying again."
-});
-var scoringLimiter = createRateLimiter({
-  windowMs: 60 * 1e3,
-  maxRequests: 10,
-  keyPrefix: "score",
-  message: "Scoring evaluation rate limit reached. Please wait before submitting again."
-});
-var completionLimiter = createRateLimiter({
-  windowMs: 60 * 1e3,
-  maxRequests: 6,
-  keyPrefix: "complete",
-  message: "Completion submission rate limit exceeded. Please wait a moment before trying again."
-});
-var moderateLimiter = createRateLimiter({
-  windowMs: 60 * 1e3,
-  maxRequests: 120,
-  keyPrefix: "gen",
-  message: "Request limit exceeded. Please wait a moment."
-});
-
-// server/cache.ts
-var import_crypto = __toESM(require("crypto"), 1);
-var MemoryCache = class {
-  constructor(maxEntries = 500) {
-    this.store = /* @__PURE__ */ new Map();
-    this.maxEntries = maxEntries;
-  }
-  get(key) {
-    const entry = this.store.get(key);
-    if (!entry) return null;
-    if (Date.now() > entry.expiresAt) {
-      this.store.delete(key);
-      return null;
-    }
-    entry.lastAccessed = Date.now();
-    return entry.value;
-  }
-  set(key, value, ttlMs) {
-    if (this.store.size >= this.maxEntries) {
-      this.evictOldest(Math.max(1, Math.floor(this.maxEntries * 0.1)));
-    }
-    this.store.set(key, {
-      value,
-      expiresAt: Date.now() + ttlMs,
-      lastAccessed: Date.now()
-    });
-  }
-  delete(key) {
-    this.store.delete(key);
-  }
-  clear() {
-    this.store.clear();
-  }
-  size() {
-    return this.store.size;
-  }
-  evictOldest(count) {
-    const now = Date.now();
-    for (const [key, entry] of this.store.entries()) {
-      if (now > entry.expiresAt) {
-        this.store.delete(key);
-      }
-    }
-    if (this.store.size < this.maxEntries) return;
-    const entries = Array.from(this.store.entries()).sort(
-      (a, b) => a[1].lastAccessed - b[1].lastAccessed
-    );
-    for (let i = 0; i < Math.min(count, entries.length); i++) {
-      this.store.delete(entries[i][0]);
-    }
-  }
-  static hashKey(namespace, payload) {
-    const serialized = typeof payload === "string" ? payload : JSON.stringify(payload);
-    const hash = import_crypto.default.createHash("sha256").update(serialized).digest("hex");
-    return `${namespace}:${hash}`;
-  }
-};
-var perspectivesCache = new MemoryCache(300);
-var moderationCache = new MemoryCache(500);
-var aiContentCache = new MemoryCache(500);
-var evaluationCache = new MemoryCache(300);
-
-// server/validation.ts
-function securityHeadersMiddleware(req, res, next) {
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "SAMEORIGIN");
-  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.setHeader("X-XSS-Protection", "0");
-  if (req.path.startsWith("/api/")) {
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, private");
-    res.setHeader("Pragma", "no-cache");
-    res.setHeader("Expires", "0");
-  }
-  next();
-}
-function sanitizeString(val, maxLength = 2e3) {
-  if (val === null || val === void 0) return "";
-  const str = String(val);
-  const cleaned = str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
-  return cleaned.trim().slice(0, maxLength);
-}
-function sanitizeStringArray(val, maxItems = 30, maxItemLength = 1e3) {
-  if (!Array.isArray(val)) return [];
-  return val.slice(0, maxItems).map((item) => sanitizeString(item, maxItemLength)).filter((item) => item.length > 0);
-}
-function clampNumber(val, min, max, defaultVal = 0) {
-  const num = typeof val === "number" ? val : parseFloat(val);
-  if (isNaN(num)) return defaultVal;
-  return Math.max(min, Math.min(max, Math.round(num)));
-}
-
-// server/evaluator.ts
-function computeServerAuthoritativeScore(input, aiThoughtfulnessScore = 0) {
-  const observations = Array.isArray(input.problemObservations) ? input.problemObservations.map((o) => ({ text: sanitizeString(o?.text || "", 1e3) })).filter((o) => o.text.length > 0) : [];
-  const refinedHmw = sanitizeString(input.refinedHowMightWe || "", 1e3);
-  const ideas = Array.isArray(input.ideas) ? input.ideas.map((i) => ({ text: sanitizeString(i?.text || "", 1e3) })).filter((i) => i.text.length > 0) : [];
-  const proto = input.selectedPrototype ? {
-    title: sanitizeString(input.selectedPrototype.title || "", 200),
-    description: sanitizeString(input.selectedPrototype.description || "", 2e3),
-    imageUrl: sanitizeString(input.selectedPrototype.imageUrl || "", 1e3)
-  } : null;
-  const testData = input.testingData || {};
-  let stageCompletion = 0;
-  if (observations.length > 0) stageCompletion += 8;
-  if (refinedHmw.length > 0) stageCompletion += 8;
-  if (ideas.length > 0) stageCompletion += 8;
-  if (proto && proto.title.length > 0) stageCompletion += 8;
-  if (testData.whatIfScore || testData.iLikeScore || testData.iWishScore) stageCompletion += 8;
-  stageCompletion = Math.min(40, stageCompletion);
-  let meaningfulInput = 0;
-  let empInput = 0;
-  if (observations.length >= 1) empInput += 2;
-  if (observations.length >= 3) empInput += 2;
-  if (observations.some((obs) => obs.text.length > 20)) empInput += 2;
-  meaningfulInput += Math.min(empInput, 6);
-  let defInput = 0;
-  if (refinedHmw.length > 10) defInput += 2;
-  if (refinedHmw.length > 30) defInput += 2;
-  if (refinedHmw.toLowerCase().includes("how might we") || refinedHmw.toUpperCase().includes("HMW")) defInput += 2;
-  meaningfulInput += Math.min(defInput, 6);
-  let idInput = 0;
-  if (ideas.length >= 1) idInput += 2;
-  if (ideas.length >= 3) idInput += 2;
-  if (ideas.some((i) => i.text.length > 20)) idInput += 2;
-  meaningfulInput += Math.min(idInput, 6);
-  let protoInput = 0;
-  if (proto && proto.title.length > 5) protoInput += 2;
-  if (proto && proto.description.length > 20) protoInput += 2;
-  if (proto && proto.description.length > 50) protoInput += 2;
-  meaningfulInput += Math.min(protoInput, 6);
-  let testInput = 0;
-  if (testData.whatIfScore) testInput += 2;
-  if (testData.iLikeScore) testInput += 2;
-  if (testData.iWishScore) testInput += 2;
-  meaningfulInput += Math.min(testInput, 6);
-  let reflectionIteration = 0;
-  let ideaRef = 0;
-  if (ideas.length > 3) ideaRef += 3;
-  else if (ideas.length > 1) ideaRef += 2;
-  const distinctSet = new Set(ideas.map((i) => i.text.toLowerCase()));
-  if (distinctSet.size === ideas.length && ideas.length > 1) ideaRef += 2;
-  reflectionIteration += Math.min(ideaRef, 5);
-  let probRef = 0;
-  if (refinedHmw.length > 0 && observations.length > 0) probRef += 3;
-  if (refinedHmw.length > 40) probRef += 2;
-  reflectionIteration += Math.min(probRef, 5);
-  let protoRef = 0;
-  if (proto && proto.title.length > 0 && proto.description.length > 0) protoRef += 3;
-  if (proto && (proto.imageUrl.length > 0 || proto.description.length > 100)) protoRef += 2;
-  reflectionIteration += Math.min(protoRef, 5);
-  let testRef = 0;
-  if (testData.whatIfScore && testData.whatIfScore > 0) testRef += 2;
-  if (testData.iWishScore && testData.iWishScore > 0) testRef += 3;
-  reflectionIteration += Math.min(testRef, 5);
-  const boundedAiScore = clampNumber(aiThoughtfulnessScore, 0, 10, 5);
-  const deterministicTotal = stageCompletion + meaningfulInput + reflectionIteration;
-  const overallScore = Math.min(100, Math.max(0, deterministicTotal + boundedAiScore));
-  let levelTitle = "Getting Started \u{1F4A1}";
-  let levelDesc = "Your simulation participation is currently limited. Try engaging more deeply with each stage.";
-  if (overallScore >= 90) {
-    levelTitle = "Design Thinker \u{1F680}";
-    levelDesc = "Exceptional participation and iteration.";
-  } else if (overallScore >= 75) {
-    levelTitle = "Strong Explorer \u{1F31F}";
-    levelDesc = "Strong participation with meaningful inputs.";
-  } else if (overallScore >= 60) {
-    levelTitle = "Active Participant \u{1F44D}";
-    levelDesc = "You completed the process but could engage more deeply.";
-  } else if (overallScore >= 40) {
-    levelTitle = "Developing Thinker \u{1F331}";
-    levelDesc = "Some participation, but several areas could be explored more deeply.";
-  }
-  let feedback = "Exceptional participation! You engaged deeply across every stage, explored multiple ideas, and reflected thoughtfully on your design.";
-  if (stageCompletion < 40) {
-    feedback = "You completed some stages, but finishing the entire simulation will deepen your learning.";
-  } else if (meaningfulInput < 20) {
-    feedback = "You completed every stage, but your responses were brief. Try elaborating on your observations and ideas next time.";
-  } else if (reflectionIteration < 15) {
-    feedback = "Strong stage completion and meaningful input. Consider iterating more deeply or exploring more alternative ideas next time.";
-  }
-  return {
-    stageCompletion,
-    meaningfulInput,
-    reflectionIteration,
-    deterministicTotal,
-    aiThoughtfulness: boundedAiScore,
-    overallScore,
-    levelTitle,
-    levelDesc,
-    feedback
-  };
-}
-
-// server/auth.ts
-var import_supabase_js = require("@supabase/supabase-js");
 var import_dotenv = __toESM(require("dotenv"), 1);
+var import_genai = require("@google/genai");
 import_dotenv.default.config();
-function getSupabaseAuthClient() {
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
-  if (!supabaseUrl || !supabaseKey) {
-    return null;
-  }
-  try {
-    return (0, import_supabase_js.createClient)(supabaseUrl, supabaseKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false
-      }
-    });
-  } catch (err) {
-    console.warn("[AUTH] Failed to create Supabase auth client:", err);
-    return null;
-  }
-}
-var tokenVerificationCache = /* @__PURE__ */ new Map();
-async function requireSupabaseAuth(req, res, next) {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      res.status(401).json({ error: "Unauthorized: Missing Authorization header", success: false });
-      return;
-    }
-    const match = authHeader.match(/^Bearer\s+(.+)$/i);
-    if (!match) {
-      res.status(401).json({ error: "Unauthorized: Missing, empty, or malformed Bearer token", success: false });
-      return;
-    }
-    const token = match[1].trim();
-    if (!token) {
-      res.status(401).json({ error: "Unauthorized: Empty Bearer token", success: false });
-      return;
-    }
-    if (process.env.NODE_ENV !== "production" && token.startsWith("test_user_token_")) {
-      let userId = token.replace("test_user_token_", "");
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (!uuidRegex.test(userId)) {
-        userId = "4ba2e060-4ea9-4153-9b5c-c65094c2433c";
-      }
-      req.user = { id: userId, email: `${userId}@test.local` };
-      req.userId = userId;
-      next();
-      return;
-    }
-    const cached = tokenVerificationCache.get(token);
-    if (cached && Date.now() < cached.expiresAt) {
-      req.user = cached.user;
-      req.userId = cached.user.id;
-      next();
-      return;
-    }
-    const client = getSupabaseAuthClient();
-    if (!client) {
-      res.status(503).json({
-        error: "Server authentication service unavailable: Supabase credentials not configured",
-        success: false
-      });
-      return;
-    }
-    let data = null;
-    let error = null;
-    try {
-      let timeoutId = null;
-      const timeoutPromise = new Promise((resolve) => {
-        timeoutId = setTimeout(() => {
-          resolve({ data: null, error: new Error("Supabase auth verification timeout") });
-        }, 4e3);
-        if (timeoutId && typeof timeoutId.unref === "function") {
-          timeoutId.unref();
-        }
-      });
-      const authRes = await Promise.race([client.auth.getUser(token), timeoutPromise]);
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      data = authRes.data;
-      error = authRes.error;
-    } catch (authErr) {
-      console.warn("[AUTH] Supabase auth.getUser exception:", authErr?.message || authErr);
-      error = authErr;
-    }
-    if (error || !data?.user?.id) {
-      if (error) {
-        console.warn("[AUTH] Supabase auth verification failed:", error?.message || String(error));
-      }
-      res.status(401).json({
-        error: "Unauthorized: Invalid, expired, or untrusted Bearer token",
-        success: false
-      });
-      return;
-    }
-    tokenVerificationCache.set(token, {
-      user: data.user,
-      expiresAt: Date.now() + 60 * 1e3
-    });
-    req.user = data.user;
-    req.userId = data.user.id;
-    next();
-  } catch (err) {
-    console.error("[AUTH EXCEPTION] Error in requireSupabaseAuth:", err?.message || err);
-    res.status(401).json({ error: "Unauthorized: Authentication verification failed", success: false });
-  }
-}
-
-// server/attempts.ts
-var import_crypto2 = __toESM(require("crypto"), 1);
-var attemptsStore = /* @__PURE__ */ new Map();
-var inFlightCompletions = /* @__PURE__ */ new Map();
-if (typeof setInterval !== "undefined") {
-  const cleanupAttemptsTimer = setInterval(() => {
-    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1e3;
-    for (const [id, attempt] of attemptsStore.entries()) {
-      if (attempt.createdAt < oneDayAgo) {
-        attemptsStore.delete(id);
-      }
-    }
-  }, 15 * 60 * 1e3);
-  if (cleanupAttemptsTimer && typeof cleanupAttemptsTimer.unref === "function") {
-    cleanupAttemptsTimer.unref();
-  }
-}
-function createServerAttempt(userId, activityId = "S003") {
-  const attemptId = import_crypto2.default.randomUUID();
-  const now = Date.now();
-  const record = {
-    attemptId,
-    userId,
-    activityId,
-    status: "in_progress",
-    createdAt: now
-  };
-  attemptsStore.set(attemptId, record);
-  return record;
-}
-function getAttempt(attemptId) {
-  if (!attemptId || typeof attemptId !== "string") return void 0;
-  return attemptsStore.get(attemptId);
-}
-function abandonUserAttempts(userId, activityId = "S003") {
-  for (const attempt of attemptsStore.values()) {
-    if (attempt.userId === userId && attempt.activityId === activityId && attempt.status === "in_progress") {
-      attempt.status = "abandoned";
-    }
-  }
-}
-async function executeAtomicCompletion(attemptId, handler) {
-  const attempt = attemptsStore.get(attemptId);
-  if (!attempt) {
-    throw new Error("Attempt not found");
-  }
-  if (attempt.status === "completed") {
-    return {
-      result: {
-        authoritativeScore: attempt.authoritativeScore,
-        breakdown: attempt.breakdown,
-        completedAt: attempt.completedAt,
-        progressEngineStatus: attempt.progressEngineStatus,
-        replay: true
-      },
-      wasReplay: true
-    };
-  }
-  const existingInFlight = inFlightCompletions.get(attemptId);
-  if (existingInFlight) {
-    const res = await existingInFlight;
-    return { result: res, wasReplay: true };
-  }
-  const executionPromise = (async () => {
-    try {
-      const res = await handler();
-      return res;
-    } finally {
-      inFlightCompletions.delete(attemptId);
-    }
-  })();
-  inFlightCompletions.set(attemptId, executionPromise);
-  const result = await executionPromise;
-  return { result, wasReplay: false };
-}
-function finalizeAttempt(attemptId, data) {
-  const attempt = attemptsStore.get(attemptId);
-  if (!attempt) return void 0;
-  attempt.status = "completed";
-  attempt.completedAt = Date.now();
-  attempt.authoritativeScore = data.authoritativeScore;
-  attempt.breakdown = data.breakdown;
-  attempt.progressEngineStatus = data.progressEngineStatus;
-  attempt.progressEngineError = data.progressEngineError;
-  return attempt;
-}
-
-// src/utils/lpfb.ts
-function clampText(val, maxLen) {
-  if (val === null || val === void 0) return "";
-  let str = String(val).normalize("NFC").replace(/\r\n/g, "\n");
-  if (str.length > maxLen) {
-    str = str.slice(0, maxLen);
-  }
-  return str;
-}
-function buildRow1Payload(data) {
-  const topicId = clampText(data.topic?.id || "custom", 60);
-  const topicTitle = clampText(data.topic?.title || "Design Challenge", 180);
-  const trendingTag = clampText(data.topic?.trendingTag || "Innovation", 60);
-  const val1 = [
-    `Topic ID: ${topicId}`,
-    `Topic Title: ${topicTitle}`,
-    `Trending Tag: ${trendingTag}`
-  ].join("\n");
-  const obsList = Array.isArray(data.problemObservations) ? data.problemObservations.slice(0, 5) : [];
-  const val2Lines = [`Observation Count: ${obsList.length}`];
-  obsList.forEach((obs, idx) => {
-    const num = idx + 1;
-    const perspective = clampText(obs.perspectiveName || "User", 50);
-    const text = clampText(obs.text || "", 300);
-    const cluster = clampText(obs.cluster || "General", 40);
-    val2Lines.push(`${num}. ${perspective} (${cluster}): ${text}`);
-  });
-  const val2 = val2Lines.join("\n");
-  const hmw = clampText(data.refinedHowMightWe || "", 1500);
-  const val3 = `How Might We: ${hmw}`;
-  return { value1: val1, value2: val2, value3: val3 };
-}
-function buildRow2Payload(data) {
-  const ideaList = Array.isArray(data.ideas) ? data.ideas.slice(0, 8) : [];
-  const val1Lines = [`Idea Count: ${ideaList.length}`];
-  ideaList.forEach((item, idx) => {
-    const num = idx + 1;
-    const cat = clampText(item.category || "HOW", 20);
-    const text = clampText(item.text || "", 350);
-    val1Lines.push(`${num}. ${cat}: ${text}`);
-  });
-  const val1 = val1Lines.join("\n");
-  const primaryIdea = ideaList[0] || null;
-  const selIdeaText = clampText(primaryIdea?.text || data.selectedPrototype?.title || "", 500);
-  const selIdeaCat = clampText(primaryIdea?.category || "HOW", 30);
-  const val2 = [
-    `Selected Idea: ${selIdeaText}`,
-    `Category: ${selIdeaCat}`
-  ].join("\n");
-  const totalIdeas = Array.isArray(data.ideas) ? data.ideas.length : 0;
-  const sortedCount = Array.isArray(data.ideas) ? data.ideas.filter((i) => i.category && i.category !== "UNSORTED").length : 0;
-  const val3 = [
-    `Total Ideas: ${totalIdeas}`,
-    `Sorted Ideas: ${sortedCount}`
-  ].join("\n");
-  return { value1: val1, value2: val2, value3: val3 };
-}
-function buildRow3Payload(data) {
-  const protoTitle = clampText(data.selectedPrototype?.title || "Prototype", 180);
-  const protoFormat = clampText(data.selectedPrototype?.format || "canvas", 40);
-  const protoDesc = clampText(data.selectedPrototype?.description || "", 2400);
-  const val1 = [
-    `Prototype Title: ${protoTitle}`,
-    `Prototype Format: ${protoFormat}`,
-    `Prototype Description: ${protoDesc}`
-  ].join("\n");
-  const whatIf = typeof data.testingData?.whatIfScore === "number" ? data.testingData.whatIfScore : 0;
-  const iLike = data.testingData?.iLikeScore ? 1 : 0;
-  const iWish = data.testingData?.iWishScore ? 1 : 0;
-  const stageComp = typeof data.rubric?.stageCompletion === "number" ? data.rubric.stageCompletion : 0;
-  const meanInput = typeof data.rubric?.meaningfulInput === "number" ? data.rubric.meaningfulInput : 0;
-  const reflIter = typeof data.rubric?.reflectionIteration === "number" ? data.rubric.reflectionIteration : 0;
-  const aiThought = typeof data.rubric?.aiThoughtfulness === "number" ? data.rubric.aiThoughtfulness : 0;
-  const val2 = [
-    `What If Score: ${whatIf}`,
-    `I Like Score: ${iLike}`,
-    `I Wish Score: ${iWish}`,
-    `Stage Completion: ${stageComp}`,
-    `Meaningful Input: ${meanInput}`,
-    `Reflection Iteration: ${reflIter}`,
-    `AI Thoughtfulness: ${aiThought}`
-  ].join("\n");
-  const lvlTitle = clampText(data.rubric?.levelTitle || "Design Thinker", 80);
-  const lvlDesc = clampText(data.rubric?.levelDesc || "Completed Design Thinking journey", 250);
-  const feedback = clampText(data.rubric?.feedback || "Great problem solving and prototype testing.", 900);
-  const val3 = [
-    `Level Title: ${lvlTitle}`,
-    `Level Description: ${lvlDesc}`,
-    `Feedback: ${feedback}`
-  ].join("\n");
-  return { value1: val1, value2: val2, value3: val3 };
-}
-
-// server.ts
-import_dotenv2.default.config();
 var app = (0, import_express.default)();
 var PORT = 3e3;
-app.use(import_express.default.json({ limit: "500kb" }));
-app.use(securityHeadersMiddleware);
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-  next();
-});
-app.use((req, res, next) => {
-  if (req.url && !req.url.startsWith("/api")) {
-    const apiPrefixes = [
-      "/simulator",
-      "/scoring",
-      "/test",
-      "/perspectives",
-      "/empathize",
-      "/define",
-      "/ideate",
-      "/ideas",
-      "/prototype",
-      "/moderate",
-      "/generate-topic-perspectives"
-    ];
-    if (apiPrefixes.some((p) => req.url.startsWith(p))) {
-      req.url = "/api" + req.url;
-    }
-  }
-  next();
-});
+app.use(import_express.default.json({ limit: "50mb" }));
+app.use(import_express.default.urlencoded({ extended: true, limit: "50mb" }));
 var aiClient = null;
 function getAiClient() {
   if (!aiClient) {
@@ -688,18 +81,13 @@ function logApiError(message, err) {
 }
 async function generateContentWithRetry(prompt, config, retries = 2) {
   const ai = getAiClient();
-  console.log("[AI] Initializing Gemini model: gemini-2.5-flash");
-  const boundedConfig = {
-    maxOutputTokens: config?.maxOutputTokens || 1e3,
-    ...config
-  };
   let attempt = 0;
   while (attempt <= retries) {
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-3.5-flash",
         contents: prompt,
-        config: boundedConfig
+        config
       });
       if (response && response.text) {
         return response.text;
@@ -718,7 +106,7 @@ async function generateContentWithRetry(prompt, config, retries = 2) {
   }
   throw new Error("Failed to generate content after retries.");
 }
-app.get("/api/health", moderateLimiter, (req, res) => {
+app.get("/api/health", (req, res) => {
   res.json({ status: "ok", time: (/* @__PURE__ */ new Date()).toISOString() });
 });
 app.get(["/auth/callback", "/auth/callback/"], (req, res) => {
@@ -772,7 +160,7 @@ app.get(["/auth/callback", "/auth/callback/"], (req, res) => {
       <div class="container">
         <div class="spinner"></div>
         <h2>Setting up your coordinates</h2>
-        <p>Syncing OAuth keys with DT Innovation Lab...</p>
+        <p>Syncing OAuth keys with Future Redesign Lab...</p>
       </div>
       <script>
         const supabaseUrl = "${SUPABASE_URL}";
@@ -784,19 +172,7 @@ app.get(["/auth/callback", "/auth/callback/"], (req, res) => {
             window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS', session: session }, '*');
             window.close();
           } else {
-            console.log("No opener found, waiting for ping...");
-            window.addEventListener("message", (e) => {
-              if (e.data && e.data.type === 'REQUEST_SESSION') {
-                e.source.postMessage({ type: 'OAUTH_AUTH_SUCCESS', session: session }, '*');
-                window.close();
-              }
-            });
-            // If we don't get a ping within 3 seconds, assume we are not a popup and fallback to redirect
-            setTimeout(() => {
-              if (window.name !== "GoogleSignIntoLab") {
-                window.location.href = window.location.origin;
-              }
-            }, 3000);
+            window.location.href = window.location.origin;
           }
         };
 
@@ -1386,23 +762,14 @@ function localDuplicateCheck(text, existing) {
   }
   return false;
 }
-app.post("/api/moderate", requireSupabaseAuth, strictAiLimiter, async (req, res) => {
+app.post("/api/moderate", async (req, res) => {
   try {
-    const rawText = req.body?.text;
-    const rawContext = req.body?.context;
-    const text = sanitizeString(rawText, 1500);
-    const context = sanitizeString(rawContext, 500);
+    const { text, context } = req.body;
     if (!text) {
       return res.json({ safe: true, level: 0, warning: "" });
     }
-    const cacheKey = MemoryCache.hashKey("moderate", { text, context });
-    const cached = moderationCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
-    }
     const localCheck = localModerateCheck(text, context);
     if (localCheck !== null) {
-      moderationCache.set(cacheKey, localCheck, 10 * 60 * 1e3);
       return res.json(localCheck);
     }
     const isPrototype = context && context.toLowerCase().includes("prototype");
@@ -1497,25 +864,19 @@ app.post("/api/moderate", requireSupabaseAuth, strictAiLimiter, async (req, res)
     };
     const textResponse = await generateContentWithRetry(prompt, config, 1);
     const parsed = JSON.parse(textResponse);
-    moderationCache.set(cacheKey, parsed, 10 * 60 * 1e3);
     return res.json(parsed);
   } catch (err) {
     logApiError("AI Moderation handler error, fallback to safe:", err);
     return res.json({ safe: true, level: 0, warning: "" });
   }
 });
-app.post("/api/empathize/refine", requireSupabaseAuth, strictAiLimiter, async (req, res) => {
-  const text = sanitizeString(req.body?.text, 1500);
-  const context = sanitizeString(req.body?.context, 500);
-  const perspective = sanitizeString(req.body?.perspective, 200);
+app.post("/api/empathize/refine", async (req, res) => {
+  const text = req.body?.text || "";
+  const context = req.body?.context || "";
+  const perspective = req.body?.perspective || "";
   try {
     if (!text || !text.trim()) {
       return res.json({ safe: true, needsRefinement: false, refinedText: "" });
-    }
-    const cacheKey = MemoryCache.hashKey("refine", { text, context, perspective });
-    const cached = aiContentCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
     }
     const trimmedText = text.trim();
     const lowerText = trimmedText.toLowerCase();
@@ -1619,13 +980,11 @@ MANDATORY RULES:
       const localFallback = localRefineCheck(trimmedText, context);
       finalRefinedText = localFallback.refinedText;
     }
-    const responseData = {
+    return res.json({
       safe: true,
       needsRefinement: true,
       refinedText: finalRefinedText
-    };
-    aiContentCache.set(cacheKey, responseData, 10 * 60 * 1e3);
-    return res.json(responseData);
+    });
   } catch (err) {
     logApiError("AI Observation Refiner caution, applying fallback logic:", err);
     const localResult = localRefineCheck(text || "", context || "");
@@ -1636,19 +995,14 @@ MANDATORY RULES:
     });
   }
 });
-app.post("/api/empathize/check-duplicate", requireSupabaseAuth, strictAiLimiter, async (req, res) => {
-  const text = sanitizeString(req.body?.text, 1e3);
-  const existing = sanitizeStringArray(req.body?.existing, 20, 500);
+app.post("/api/empathize/check-duplicate", async (req, res) => {
+  const text = req.body?.text || "";
+  const existing = req.body?.existing || [];
   try {
-    if (!text || !text.trim() || existing.length === 0) {
+    if (!text || !text.trim() || !existing || !Array.isArray(existing) || existing.length === 0) {
       return res.json({ isDuplicate: false, similarTo: "" });
     }
     const trimmedText = text.trim();
-    const cacheKey = MemoryCache.hashKey("duplicate", { text: trimmedText, existing });
-    const cached = aiContentCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
-    }
     const localHasDuplicate = localDuplicateCheck(trimmedText, existing);
     const prompt = `You are a semantic duplicate detector for a design thinking workshop.
 New observation to pin: "${trimmedText}"
@@ -1687,12 +1041,10 @@ Return the response in JSON:
     };
     const textResponse = await generateContentWithRetry(prompt, config, 1);
     const parsed = JSON.parse(textResponse);
-    const result = {
+    return res.json({
       isDuplicate: !!parsed.isDuplicate || localHasDuplicate,
       similarTo: parsed.similarTo || ""
-    };
-    aiContentCache.set(cacheKey, result, 10 * 60 * 1e3);
-    return res.json(result);
+    });
   } catch (err) {
     logApiError("Duplicate Check caution, fallback to local check:", err);
     const localHasDuplicate = localDuplicateCheck(text, existing);
@@ -1702,20 +1054,13 @@ Return the response in JSON:
     });
   }
 });
-app.post("/api/perspectives", requireSupabaseAuth, strictAiLimiter, async (req, res) => {
+app.post("/api/perspectives", async (req, res) => {
   try {
-    const topicTitle = sanitizeString(req.body?.topicTitle, 200);
-    const topicDescription = sanitizeString(req.body?.topicDescription, 500);
-    const perspectiveName = sanitizeString(req.body?.perspectiveName, 200);
+    const { topicTitle, topicDescription, perspectiveName } = req.body;
     if (!topicTitle || !perspectiveName) {
       return res.status(400).json({ error: "topicTitle and perspectiveName are required." });
     }
-    const cacheKey = MemoryCache.hashKey("perspectives", { topicTitle, topicDescription, perspectiveName });
-    const cached = perspectivesCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
-    }
-    const prompt = `You are a friendly AI peer helper at ZupSkill's DT Innovation Lab.
+    const prompt = `You are a friendly AI peer helper at ZupSkill's Future Redesign Lab.
 The user is working on the challenge: "${topicTitle}" (${topicDescription || "Design different aspects"}).
 Please generate high-concept but deeply human, realistic, and touching details for the following person's perspective: "${perspectiveName}".
 We need to understand their daily struggles, frustrations, and feelings so we can think up cool ways to help them.
@@ -1757,7 +1102,6 @@ Create response in valid JSON matching the schema.`;
     };
     const text = await generateContentWithRetry(prompt, config, 2);
     const parsed = JSON.parse(text);
-    perspectivesCache.set(cacheKey, parsed, 60 * 60 * 1e3);
     return res.json(parsed);
   } catch (error) {
     logApiError("Error generating perspective, falling back to smart local loop:", error);
@@ -1821,17 +1165,11 @@ Create response in valid JSON matching the schema.`;
     });
   }
 });
-app.post("/api/generate-topic-perspectives", requireSupabaseAuth, strictAiLimiter, async (req, res) => {
+app.post("/api/generate-topic-perspectives", async (req, res) => {
   try {
-    const topicTitle = sanitizeString(req.body?.topicTitle, 200);
-    const topicDescription = sanitizeString(req.body?.topicDescription, 500);
+    const { topicTitle, topicDescription } = req.body;
     if (!topicTitle) {
       return res.status(400).json({ error: "topicTitle is required." });
-    }
-    const cacheKey = MemoryCache.hashKey("topic-perspectives", { topicTitle, topicDescription });
-    const cached = perspectivesCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
     }
     const prompt = `You are a helpful ZupSkill companion design assistant.
 The user created a custom challenge topic: "${topicTitle}" with description "${topicDescription || ""}".
@@ -1867,9 +1205,7 @@ Format the response as a JSON array of exactly 5 strings containing ONLY the per
     const text = await generateContentWithRetry(prompt, config, 2);
     const parsed = JSON.parse(text);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      const result = parsed.slice(0, 5);
-      perspectivesCache.set(cacheKey, result, 60 * 60 * 1e3);
-      return res.json(result);
+      return res.json(parsed.slice(0, 5));
     }
     throw new Error("Invalid output format from LLM");
   } catch (error) {
@@ -1955,19 +1291,13 @@ function smartReframeHMW(problemText) {
   else if (lowerText.includes("pet") || lowerText.includes("owner")) group = "pet owners";
   return `How might we help ${group} overcome the challenge of "${problem}" so they can accomplish their goals with confidence and ease?`;
 }
-app.post("/api/define", requireSupabaseAuth, strictAiLimiter, async (req, res) => {
+app.post("/api/define", async (req, res) => {
   try {
-    const topicTitle = sanitizeString(req.body?.topicTitle, 200);
-    const problemSelection = sanitizeString(req.body?.problemSelection, 1e3);
-    const optionalContext = sanitizeString(req.body?.answers?.anythingElse || req.body?.answers?.optionalContext, 500);
+    const { topicTitle, problemSelection, answers } = req.body;
     if (!topicTitle || !problemSelection) {
       return res.status(400).json({ error: "Missing required properties: topicTitle and problemSelection." });
     }
-    const cacheKey = MemoryCache.hashKey("define", { topicTitle, problemSelection, optionalContext });
-    const cached = aiContentCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
-    }
+    const optionalContext = answers && (answers.anythingElse || answers.optionalContext) || "";
     const prompt = `You are a supportive, precise, and encouraging Design Thinking coach from ZupSkill.
 A creator is looking at the challenge theme: "${topicTitle}".
 They have selected the following problem to tackle:
@@ -2045,7 +1375,6 @@ Generate a highly inspiring and refined "How Might We" question based on the sel
       cleanedText = cleanedText.trim();
     }
     const parsed = JSON.parse(cleanedText);
-    aiContentCache.set(cacheKey, parsed, 10 * 60 * 1e3);
     return res.json(parsed);
   } catch (error) {
     logApiError("Error defining problem, falling back to smart local loop:", error);
@@ -2059,17 +1388,11 @@ Generate a highly inspiring and refined "How Might We" question based on the sel
     });
   }
 });
-app.post("/api/ideate", requireSupabaseAuth, strictAiLimiter, async (req, res) => {
+app.post("/api/ideate", async (req, res) => {
   try {
-    const problemStatement = sanitizeString(req.body?.problemStatement, 1e3);
-    const ideas = sanitizeStringArray(req.body?.ideas, 20, 500);
-    if (!problemStatement || ideas.length === 0) {
+    const { problemStatement, ideas } = req.body;
+    if (!problemStatement || !Array.isArray(ideas) || ideas.length === 0) {
       return res.status(400).json({ error: "problemStatement and array of ideas are required." });
-    }
-    const cacheKey = MemoryCache.hashKey("ideate", { problemStatement, ideas });
-    const cached = aiContentCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
     }
     const chunkSize = 5;
     const chunks = [];
@@ -2144,7 +1467,6 @@ Format output precisely as a JSON array. Make sure you score them with encouragi
       })
     );
     const flatResults = results.flat();
-    aiContentCache.set(cacheKey, { results: flatResults }, 10 * 60 * 1e3);
     return res.json({ results: flatResults });
   } catch (error) {
     logApiError("Error batch evaluation ideation, outer fallback local loop:", error);
@@ -2178,20 +1500,13 @@ Format output precisely as a JSON array. Make sure you score them with encouragi
     return res.json({ results: fallbackResults });
   }
 });
-app.post("/api/ideas/enhance", requireSupabaseAuth, strictAiLimiter, async (req, res) => {
+app.post("/api/ideas/enhance", async (req, res) => {
   try {
-    const ideaText = sanitizeString(req.body?.ideaText, 1e3);
-    const problemStatement = sanitizeString(req.body?.problemStatement, 1e3);
-    const category = sanitizeString(req.body?.category, 50);
+    const { ideaText, problemStatement, category } = req.body;
     if (!ideaText || !problemStatement || !category) {
       return res.status(400).json({ error: "ideaText, problemStatement, and category are required." });
     }
-    const cacheKey = MemoryCache.hashKey("enhance", { ideaText, problemStatement, category });
-    const cached = aiContentCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
-    }
-    const prompt = `You are a friendly, highly creative design partner at ZupSkill's DT Innovation Lab.
+    const prompt = `You are a friendly, highly creative design partner at ZupSkill's Future Redesign Lab.
 Help expand and beef up this idea: "${ideaText}" which solves the problem: "${problemStatement}".
 This is categorized as a "${category}" concept.
 We want to keep its sweet original spirit but make it super exciting, fun, and easy for students to understand.
@@ -2224,7 +1539,6 @@ Format response in valid JSON.`;
     };
     const text = await generateContentWithRetry(prompt, config, 2);
     const parsed = JSON.parse(text);
-    aiContentCache.set(cacheKey, parsed, 10 * 60 * 1e3);
     return res.json(parsed);
   } catch (error) {
     logApiError("Error enhancing idea, fallback local loop:", error);
@@ -2241,17 +1555,11 @@ Format response in valid JSON.`;
     });
   }
 });
-app.post("/api/prototype/generate-journey", requireSupabaseAuth, strictAiLimiter, async (req, res) => {
+app.post("/api/prototype/generate-journey", async (req, res) => {
   try {
-    const ideaText = sanitizeString(req.body?.ideaText, 1e3);
-    const refinedProblem = sanitizeString(req.body?.refinedProblem, 1e3);
+    const { ideaText, refinedProblem } = req.body;
     if (!ideaText) {
       return res.status(400).json({ error: "ideaText is required." });
-    }
-    const cacheKey = MemoryCache.hashKey("journey", { ideaText, refinedProblem });
-    const cached = aiContentCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
     }
     const prompt = `You are a design thinking mentor, and we are working with a student on a solution journey map.
 Selected Solution: "${ideaText}"
@@ -2295,30 +1603,23 @@ Return response in valid JSON fitting the schema.`;
     };
     const text = await generateContentWithRetry(prompt, config, 1);
     const parsed = JSON.parse(text);
-    aiContentCache.set(cacheKey, parsed, 10 * 60 * 1e3);
     return res.json(parsed);
   } catch (error) {
     logApiError("Error generating journey, fallback to local templates:", error);
     return res.json({ steps: null });
   }
 });
-app.post("/api/test/what-if", requireSupabaseAuth, strictAiLimiter, async (req, res) => {
-  const prototypeTitle = sanitizeString(req.body?.prototypeTitle, 200);
+function cleanTitle(title) {
+  if (!title) return "the solution";
+  return title.replace(/\s+Micro-Model$/i, "").replace(/\s+Framework$/i, "").replace(/\s+System$/i, "").replace(/\s+Mechanism$/i, "").trim();
+}
+app.post("/api/test/what-if", async (req, res) => {
   try {
-    const problemStatement = sanitizeString(req.body?.problemStatement, 1e3);
-    const prototypeDescription = sanitizeString(req.body?.prototypeDescription, 2e3);
-    const selectedIdea = sanitizeString(req.body?.selectedIdea, 500);
-    const originalProblemText = sanitizeString(req.body?.originalProblemText, 1e3);
-    const cacheKey = MemoryCache.hashKey("what-if", { problemStatement, prototypeTitle, prototypeDescription, selectedIdea, originalProblemText });
-    const cached = aiContentCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
-    }
+    const { problemStatement, prototypeTitle, prototypeDescription, selectedIdea } = req.body;
     const prompt = `You are an experienced Design Thinking Simulator mentor.
 We need to generate highly relevant, contextual real-world stress tests ("What If?") for the student's actual solution concept.
 
 Selected Problem: "${problemStatement}"
-Original Observations: "${originalProblemText || ""}"
 Selected Idea: "${selectedIdea || ""}"
 Selected Solution Title: "${prototypeTitle}"
 Storyboard / Prototype description (Source of Truth): "${prototypeDescription}"
@@ -2367,39 +1668,28 @@ Provide your response in JSON matching the specified response schema. Determine 
       }
     };
     const text = await generateContentWithRetry(prompt, config, 2);
-    const parsed = JSON.parse(text);
-    aiContentCache.set(cacheKey, parsed, 10 * 60 * 1e3);
-    return res.json(parsed);
+    return res.json(JSON.parse(text));
   } catch (error) {
     logApiError("Error testing what-if:", error);
-    const fallbackWhatIf = {
-      category: "Software Product",
+    const { prototypeTitle } = req.body;
+    const name = cleanTitle(prototypeTitle);
+    return res.json({
+      category: "Infrastructure Solution",
       challenges: [
-        `What if users on campus experience connectivity delays when using ${prototypeTitle || "this solution"}?`,
-        `What if peak hour adoption creates unexpected friction for student users?`
+        `What if users choose an alternate route or bypass ${name} due to unexpected habits?`,
+        `What if peak student traffic hours create overcrowding or bottlenecks around ${name}?`
       ],
-      score: 76
-    };
-    return res.json(fallbackWhatIf);
+      score: 75
+    });
   }
 });
-app.post("/api/test/i-like", requireSupabaseAuth, strictAiLimiter, async (req, res) => {
-  const prototypeTitle = sanitizeString(req.body?.prototypeTitle, 200);
+app.post("/api/test/i-like", async (req, res) => {
   try {
-    const problemStatement = sanitizeString(req.body?.problemStatement, 1e3);
-    const prototypeDescription = sanitizeString(req.body?.prototypeDescription, 2e3);
-    const selectedIdea = sanitizeString(req.body?.selectedIdea, 500);
-    const originalProblemText = sanitizeString(req.body?.originalProblemText, 1e3);
-    const cacheKey = MemoryCache.hashKey("i-like", { problemStatement, prototypeTitle, prototypeDescription, selectedIdea, originalProblemText });
-    const cached = aiContentCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
-    }
+    const { problemStatement, prototypeTitle, prototypeDescription, selectedIdea } = req.body;
     const prompt = `You are an experienced Design Thinking Simulator mentor celebrating a solution concept in a university campus environment.
 We need to highlight highly relevant real-world strengths ("I Like...") of the student's actual solution.
 
 Selected Problem: "${problemStatement}"
-Original Observations: "${originalProblemText || ""}"
 Selected Idea: "${selectedIdea || ""}"
 Selected Solution Title: "${prototypeTitle}"
 Storyboard / Prototype description (Source of Truth): "${prototypeDescription}"
@@ -2447,38 +1737,27 @@ Provide your response in JSON matching the specified response schema. Determine 
       }
     };
     const text = await generateContentWithRetry(prompt, config, 2);
-    const parsed = JSON.parse(text);
-    aiContentCache.set(cacheKey, parsed, 10 * 60 * 1e3);
-    return res.json(parsed);
+    return res.json(JSON.parse(text));
   } catch (error) {
     logApiError("Error testing i-like:", error);
-    const fallbackILike = {
-      category: "Software Product",
+    const { prototypeTitle } = req.body;
+    const name = cleanTitle(prototypeTitle);
+    return res.json({
+      category: "Infrastructure Solution",
       highlights: [
-        `I like that ${prototypeTitle || "this solution"} directly tackles the core user pain point identified in your research.`,
-        `I like the clear focus on student accessibility and practical campus workflow.`
+        `I like that ${name} directly addresses the described user core pain points in a neat way.`,
+        `I like that this design makes the key parts of ${name} easily visible and understandable.`
       ],
       score: 82
-    };
-    return res.json(fallbackILike);
+    });
   }
 });
-app.post("/api/test/i-wish", requireSupabaseAuth, strictAiLimiter, async (req, res) => {
-  const prototypeTitle = sanitizeString(req.body?.prototypeTitle, 200);
+app.post("/api/test/i-wish", async (req, res) => {
   try {
-    const problemStatement = sanitizeString(req.body?.problemStatement, 1e3);
-    const prototypeDescription = sanitizeString(req.body?.prototypeDescription, 2e3);
-    const selectedIdea = sanitizeString(req.body?.selectedIdea, 500);
-    const originalProblemText = sanitizeString(req.body?.originalProblemText, 1e3);
-    const cacheKey = MemoryCache.hashKey("i-wish", { problemStatement, prototypeTitle, prototypeDescription, selectedIdea, originalProblemText });
-    const cached = aiContentCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
-    }
+    const { problemStatement, prototypeTitle, prototypeDescription, selectedIdea } = req.body;
     const prompt = `You are an experienced Design Thinking Simulator mentor suggesting improvements ("I Wish...") for the student's actual solution.
 
 Selected Problem: "${problemStatement}"
-Original Observations: "${originalProblemText || ""}"
 Selected Idea: "${selectedIdea || ""}"
 Selected Solution Title: "${prototypeTitle}"
 Storyboard / Prototype description (Source of Truth): "${prototypeDescription}"
@@ -2526,532 +1805,19 @@ Provide your response in JSON matching the specified response schema. Determine 
       }
     };
     const text = await generateContentWithRetry(prompt, config, 2);
-    const parsed = JSON.parse(text);
-    aiContentCache.set(cacheKey, parsed, 10 * 60 * 1e3);
-    return res.json(parsed);
+    return res.json(JSON.parse(text));
   } catch (error) {
     logApiError("Error testing i-wish:", error);
-    const fallbackIWish = {
-      category: "Software Product",
+    const { prototypeTitle } = req.body;
+    const name = cleanTitle(prototypeTitle);
+    return res.json({
+      category: "Infrastructure Solution",
       improvements: [
-        `I wish there was an automated notification channel for real-time status updates in ${prototypeTitle || "this solution"}.`,
-        `I wish future iterations explore peer collaboration or community integration.`
+        `I wish we could explore adding clear visual signs or supportive markings to ${name} for better guidance.`,
+        `I wish there was a clear option or quick guide for first-time users to easily understand ${name}.`
       ],
       score: 80
-    };
-    return res.json(fallbackIWish);
-  }
-});
-app.post("/api/test/thoughtfulness", requireSupabaseAuth, scoringLimiter, async (req, res) => {
-  try {
-    const { problemObservations, refinedHowMightWe, ideas, selectedPrototype } = req.body;
-    const userId = req.userId || "anonymous";
-    const cacheKey = MemoryCache.hashKey("thoughtfulness", {
-      userId,
-      problemObservations,
-      refinedHowMightWe,
-      ideas,
-      selectedPrototype
     });
-    const cached = evaluationCache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
-    }
-    const prompt = `You are an AI scoring system evaluating a student's engagement in a Design Thinking simulation.
-We need to assign an AI Thoughtfulness score from 0 to 10 based ONLY on the provided student inputs.
-
-Evaluate:
-- specificity
-- relevance
-- user-centered thinking
-- depth of reasoning
-- consistency between stages
-- reflection
-- thoughtfulness
-
-DO NOT evaluate time spent, number of clicks, or length of text if it's meaningless.
-
-Student Inputs:
-Observations: ${JSON.stringify(problemObservations || [])}
-HMW Statement: "${sanitizeString(refinedHowMightWe, 500)}"
-Generated Ideas: ${JSON.stringify(ideas || [])}
-Prototype: ${JSON.stringify(selectedPrototype || {})}
-
-Provide a score from 0 to 10 as an integer, and a short 1-sentence reason.`;
-    const config = {
-      systemInstruction: "You are an evaluator. Return a JSON object with 'score' (number between 0-10) and 'reason' (string).",
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: import_genai.Type.OBJECT,
-        required: ["score", "reason"],
-        properties: {
-          score: {
-            type: import_genai.Type.INTEGER,
-            description: "A score from 0 to 10 evaluating thoughtfulness."
-          },
-          reason: {
-            type: import_genai.Type.STRING,
-            description: "A short 1-sentence explanation of the score."
-          }
-        }
-      }
-    };
-    const text = await generateContentWithRetry(prompt, config, 1);
-    const parsed = JSON.parse(text);
-    let score = typeof parsed.score === "number" ? Math.max(0, Math.min(10, Math.round(parsed.score))) : 5;
-    const responsePayload = { score, reason: sanitizeString(parsed.reason, 250) };
-    evaluationCache.set(cacheKey, responsePayload, 15 * 60 * 1e3);
-    return res.json(responsePayload);
-  } catch (error) {
-    logApiError("Error evaluating AI thoughtfulness:", error);
-    return res.json({
-      score: 7,
-      reason: "Consistent progress demonstrated across empathize, define, and ideation stages."
-    });
-  }
-});
-app.post("/api/scoring/evaluate", requireSupabaseAuth, scoringLimiter, async (req, res) => {
-  try {
-    const verifiedUserId = req.userId;
-    if (req.body?.user_id && req.body.user_id !== verifiedUserId) {
-      return res.status(403).json({ error: "Forbidden: Client-supplied user_id does not match verified token identity" });
-    }
-    const bodyStr = JSON.stringify(req.body || {});
-    if (bodyStr.length > 1e5) {
-      return res.status(413).json({ error: "Payload too large: Submission exceeds maximum payload size" });
-    }
-    if (req.body?.task_id !== void 0 && req.body?.task_id !== null) {
-      const rawTid = req.body.task_id;
-      const parsedTid = parseFloat(String(rawTid));
-      const validTaskIds = [1, 2, 3, 4, 5, 6];
-      if (isNaN(parsedTid) || !isFinite(parsedTid) || !validTaskIds.includes(parsedTid)) {
-        return res.status(400).json({
-          error: "Invalid task_id: Must be a valid simulator task between 1.0 and 6.0",
-          received: rawTid
-        });
-      }
-    }
-    const {
-      maxReachedStage,
-      problemObservations,
-      refinedHowMightWe,
-      ideas,
-      selectedPrototype,
-      testingData,
-      aiThoughtfulness
-    } = req.body || {};
-    const hasAnyInput = Array.isArray(problemObservations) && problemObservations.length > 0 || typeof refinedHowMightWe === "string" && refinedHowMightWe.trim().length > 0 || Array.isArray(ideas) && ideas.length > 0 || selectedPrototype && typeof selectedPrototype === "object" || testingData && typeof testingData === "object";
-    if (!hasAnyInput) {
-      return res.status(400).json({ error: "Missing required inputs: At least one stage artifact must be provided for evaluation" });
-    }
-    let safeAiScore = 0;
-    if (typeof aiThoughtfulness === "number" && !isNaN(aiThoughtfulness) && isFinite(aiThoughtfulness)) {
-      safeAiScore = Math.max(0, Math.min(10, Math.round(aiThoughtfulness)));
-    }
-    const evaluationResult = computeServerAuthoritativeScore({
-      maxReachedStage: typeof maxReachedStage === "number" && !isNaN(maxReachedStage) && isFinite(maxReachedStage) ? Math.max(1, Math.min(6, Math.round(maxReachedStage))) : 1,
-      problemObservations,
-      refinedHowMightWe,
-      ideas,
-      selectedPrototype,
-      testingData
-    }, safeAiScore);
-    evaluationResult.overallScore = Math.max(0, Math.min(100, Math.round(evaluationResult.overallScore)));
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, private");
-    return res.json(evaluationResult);
-  } catch (error) {
-    logApiError("Error in server-authoritative scoring:", error);
-    return res.status(500).json({ error: "Authoritative scoring evaluation failed" });
-  }
-});
-app.post("/api/simulator/attempt/start", requireSupabaseAuth, moderateLimiter, async (req, res) => {
-  try {
-    const userId = req.userId;
-    if (!userId) {
-      return res.status(401).json({ error: "Unauthorized: Missing user identity" });
-    }
-    abandonUserAttempts(userId, "S003");
-    try {
-      const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
-      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "";
-      if (supabaseUrl && supabaseServiceKey) {
-        const adminClient = (0, import_supabase_js2.createClient)(supabaseUrl, supabaseServiceKey, {
-          auth: { persistSession: false, autoRefreshToken: false }
-        });
-        const userPayload = {
-          id: userId,
-          email: req.user?.email || null,
-          full_name: req.user?.user_metadata?.full_name || req.user?.user_metadata?.name || null,
-          avatar_url: req.user?.user_metadata?.avatar_url || req.user?.user_metadata?.picture || null,
-          updated_at: (/* @__PURE__ */ new Date()).toISOString()
-        };
-        const { error: ensureErr } = await adminClient.from("users").upsert(
-          userPayload,
-          { onConflict: "id", ignoreDuplicates: true }
-        );
-        if (ensureErr) {
-          console.warn("[SIMULATOR ATTEMPT START] User record ensure notice:", ensureErr.message);
-        } else {
-          console.log(`[SIMULATOR ATTEMPT START] Verified user record in users table for ${userId.slice(0, 8)}`);
-        }
-      }
-    } catch (uStartErr) {
-      console.warn("[SIMULATOR ATTEMPT START] Non-blocking user check notice:", uStartErr?.message);
-    }
-    const attempt = createServerAttempt(userId, "S003");
-    res.setHeader("Cache-Control", "no-store, no-cache, private");
-    return res.json({
-      success: true,
-      attemptId: attempt.attemptId,
-      activityId: attempt.activityId,
-      status: attempt.status,
-      createdAt: attempt.createdAt
-    });
-  } catch (error) {
-    logApiError("Error starting simulator attempt:", error);
-    return res.status(500).json({ error: "Failed to initialize simulator attempt" });
-  }
-});
-app.get("/api/simulator/attempt/:attemptId", requireSupabaseAuth, moderateLimiter, async (req, res) => {
-  try {
-    const userId = req.userId;
-    const { attemptId } = req.params;
-    const attempt = getAttempt(attemptId);
-    if (!attempt) {
-      return res.status(404).json({ error: "Attempt not found" });
-    }
-    if (attempt.userId !== userId) {
-      return res.status(403).json({ error: "Forbidden: Attempt belongs to another user" });
-    }
-    res.setHeader("Cache-Control", "no-store, no-cache, private");
-    return res.json({
-      attemptId: attempt.attemptId,
-      status: attempt.status,
-      activityId: attempt.activityId,
-      authoritativeScore: attempt.authoritativeScore,
-      breakdown: attempt.breakdown,
-      completedAt: attempt.completedAt
-    });
-  } catch (error) {
-    logApiError("Error fetching simulator attempt status:", error);
-    return res.status(500).json({ error: "Failed to fetch attempt status" });
-  }
-});
-app.post("/api/simulator/complete", requireSupabaseAuth, completionLimiter, async (req, res) => {
-  try {
-    const userId = req.userId;
-    if (!userId) {
-      console.error("[SIMULATOR COMPLETE] Unauthorized: Missing user identity on request");
-      return res.status(401).json({ error: "Unauthorized: Missing user identity", success: false });
-    }
-    const {
-      attemptId,
-      problemObservations,
-      refinedHowMightWe,
-      ideas,
-      selectedPrototype,
-      testingData,
-      aiThoughtfulness,
-      stages
-    } = req.body || {};
-    console.log(`[SIMULATOR COMPLETE] Received completion request for user ${userId.slice(0, 8)}... attemptId: ${attemptId || "MISSING"}`);
-    if (!attemptId || typeof attemptId !== "string" || !attemptId.trim()) {
-      console.warn("[SIMULATOR COMPLETE] Rejected: Missing attemptId");
-      return res.status(400).json({ error: "Missing or invalid attemptId. All completions require a server-issued attempt.", success: false });
-    }
-    const attempt = getAttempt(attemptId.trim());
-    if (!attempt) {
-      console.warn(`[SIMULATOR COMPLETE] Rejected: Attempt ${attemptId} not found or expired`);
-      return res.status(404).json({
-        error: "Attempt not found or expired. Please refresh and restart the simulation to acquire an attempt ticket.",
-        code: "ATTEMPT_EXPIRED",
-        success: false
-      });
-    }
-    if (attempt.userId !== userId) {
-      console.warn(`[SIMULATOR COMPLETE] Forbidden: Attempt user ${attempt.userId} != request user ${userId}`);
-      return res.status(403).json({
-        error: "Forbidden: Attempt was issued to a different user identity",
-        code: "ATTEMPT_USER_MISMATCH",
-        success: false
-      });
-    }
-    if (attempt.activityId !== "S003") {
-      return res.status(400).json({ error: "Invalid activity ID for this simulator endpoint", success: false });
-    }
-    const hasAnyInput = Array.isArray(problemObservations) && problemObservations.length > 0 || typeof refinedHowMightWe === "string" && refinedHowMightWe.trim().length > 0 || Array.isArray(ideas) && ideas.length > 0 || selectedPrototype && typeof selectedPrototype === "object" || testingData && typeof testingData === "object";
-    if (!hasAnyInput) {
-      return res.status(400).json({ error: "Missing required inputs: At least one stage artifact must be provided for evaluation", success: false });
-    }
-    const { result, wasReplay } = await executeAtomicCompletion(attempt.attemptId, async () => {
-      let safeAiScore = 0;
-      if (typeof aiThoughtfulness === "number" && !isNaN(aiThoughtfulness) && isFinite(aiThoughtfulness)) {
-        safeAiScore = Math.max(0, Math.min(10, Math.round(aiThoughtfulness)));
-      }
-      const evaluationResult = computeServerAuthoritativeScore({
-        maxReachedStage: 6,
-        // Completion implies final stage reached
-        problemObservations,
-        refinedHowMightWe,
-        ideas,
-        selectedPrototype,
-        testingData
-      }, safeAiScore);
-      const authoritativeScore = Math.max(0, Math.min(100, Math.round(evaluationResult.overallScore)));
-      const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
-      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "";
-      const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
-      const authHeader = req.headers.authorization;
-      const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
-      const hasServiceKey = !!supabaseServiceKey;
-      const hasAnonKey = !!supabaseAnonKey;
-      const hasUrl = !!supabaseUrl;
-      const hasToken = !!token;
-      console.log(`[SIMULATOR COMPLETE] Supabase Config Check: url=${hasUrl}, serviceKey=${hasServiceKey}, anonKey=${hasAnonKey}, userToken=${hasToken}`);
-      if (!hasUrl || !hasServiceKey && !hasAnonKey) {
-        console.error("[SIMULATOR COMPLETE ERROR] Supabase credentials not configured on server.");
-        const configErr = new Error("Supabase credentials not configured on server");
-        configErr.statusCode = 500;
-        throw configErr;
-      }
-      const isThreePartJwt = typeof token === "string" && token.split(".").length === 3;
-      if (!hasServiceKey && !isThreePartJwt) {
-        console.error("[SIMULATOR COMPLETE ERROR] Authorization token is not a valid 3-part JWT and no service-role key is available");
-        const tokenErr = new Error("Authorization Bearer token is not a valid 3-part JWT");
-        tokenErr.statusCode = 401;
-        throw tokenErr;
-      }
-      const dbClient = hasServiceKey ? (0, import_supabase_js2.createClient)(supabaseUrl, supabaseServiceKey, {
-        auth: { persistSession: false, autoRefreshToken: false }
-      }) : (0, import_supabase_js2.createClient)(supabaseUrl, supabaseAnonKey, {
-        auth: { persistSession: false, autoRefreshToken: false },
-        global: { headers: { Authorization: `Bearer ${token}` } }
-      });
-      try {
-        const userPayload = {
-          id: userId,
-          email: req.user?.email || null,
-          full_name: req.user?.user_metadata?.full_name || req.user?.user_metadata?.name || null,
-          avatar_url: req.user?.user_metadata?.avatar_url || req.user?.user_metadata?.picture || null,
-          updated_at: (/* @__PURE__ */ new Date()).toISOString()
-        };
-        const { error: uErr } = await dbClient.from("users").upsert(
-          userPayload,
-          { onConflict: "id", ignoreDuplicates: true }
-        );
-        if (uErr) {
-          console.warn("[SIMULATOR COMPLETE] User record ensure notice:", uErr.message);
-        } else {
-          console.log(`[SIMULATOR COMPLETE] Verified user record exists in users table for ${userId.slice(0, 8)}`);
-        }
-      } catch (uErr) {
-        console.warn("[SIMULATOR COMPLETE] Non-blocking user record check notice:", uErr?.message);
-      }
-      let progressEngineStatus = "skipped";
-      let progressEngineError;
-      try {
-        const { error: peErr } = await dbClient.functions.invoke("progress-engine", {
-          body: {
-            action: "complete_simulator",
-            activity_id: "S003",
-            activity_name: "Design Thinking",
-            final_score: authoritativeScore
-          }
-        });
-        if (peErr) {
-          progressEngineStatus = "error";
-          progressEngineError = peErr.message;
-          console.warn("[SIMULATOR PROGRESS-ENGINE] Non-blocking warning:", peErr.message);
-        } else {
-          progressEngineStatus = "success";
-        }
-      } catch (peEx) {
-        progressEngineStatus = "error";
-        progressEngineError = peEx?.message || "Invocation exception";
-        console.warn("[SIMULATOR PROGRESS-ENGINE] Non-blocking exception:", progressEngineError);
-      }
-      const resolvedTopic = req.body.selectedTopic || {
-        id: Array.isArray(stages) && stages.find((s) => String(s.task_id) === "1.0" || String(s.task_id) === "1")?.value1 || "custom",
-        title: Array.isArray(stages) && stages.find((s) => String(s.task_id) === "1.0" || String(s.task_id) === "1")?.value2 || "Design Challenge",
-        trendingTag: "Innovation"
-      };
-      const row1Payload = buildRow1Payload({
-        topic: resolvedTopic,
-        problemObservations,
-        refinedHowMightWe
-      });
-      const row2Payload = buildRow2Payload({
-        ideas,
-        selectedPrototype
-      });
-      const row3Payload = buildRow3Payload({
-        selectedPrototype,
-        testingData,
-        rubric: evaluationResult,
-        overallScore: authoritativeScore
-      });
-      const nowIso = (/* @__PURE__ */ new Date()).toISOString();
-      const threeRows = [
-        {
-          activity_id: "S003",
-          task_id: 1,
-          task_name: "Discovery & Definition",
-          task_description: "Stage 1 & 2: Empathize & Define",
-          value1: row1Payload.value1,
-          value2: row1Payload.value2,
-          value3: row1Payload.value3,
-          score: null,
-          completed: true,
-          user_id: userId,
-          updated_at: nowIso
-        },
-        {
-          activity_id: "S003",
-          task_id: 2,
-          task_name: "Ideation",
-          task_description: "Stage 3: Brainstorming & Selection",
-          value1: row2Payload.value1,
-          value2: row2Payload.value2,
-          value3: row2Payload.value3,
-          score: null,
-          completed: true,
-          user_id: userId,
-          updated_at: nowIso
-        },
-        {
-          activity_id: "S003",
-          task_id: 3,
-          task_name: "Prototype & Testing",
-          task_description: "Stage 4 & 5: Solution Evaluation & Authoritative Score",
-          value1: row3Payload.value1,
-          value2: row3Payload.value2,
-          value3: row3Payload.value3,
-          score: authoritativeScore,
-          completed: true,
-          user_id: userId,
-          updated_at: nowIso
-        }
-      ];
-      console.log(`[SIMULATOR COMPLETE] Executing Supabase upsert of 3 rows for user ${userId.slice(0, 8)}... (mode: ${hasServiceKey ? "service_role" : "user_jwt"})`);
-      const { data: insertData, error: insertErr } = await dbClient.from("activity_designthinking").upsert(threeRows, { onConflict: "user_id,task_id" }).select();
-      if (insertErr) {
-        console.error("[SIMULATOR COMPLETE DB ERROR] Supabase insert failed:", {
-          code: insertErr.code,
-          message: insertErr.message,
-          details: insertErr.details,
-          hint: insertErr.hint
-        });
-        const persistenceErr = new Error(`Supabase persistence failed [${insertErr.code || "UNKNOWN"}]: ${insertErr.message}`);
-        persistenceErr.dbError = insertErr;
-        persistenceErr.statusCode = 502;
-        throw persistenceErr;
-      }
-      console.log(`[SIMULATOR COMPLETE DB SUCCESS] Successfully persisted 3 rows to activity_designthinking (rows returned: ${insertData ? insertData.length : 3})`);
-      finalizeAttempt(attempt.attemptId, {
-        authoritativeScore,
-        breakdown: evaluationResult,
-        progressEngineStatus,
-        progressEngineError
-      });
-      return {
-        success: true,
-        dbPersisted: true,
-        authoritativeScore,
-        breakdown: evaluationResult,
-        attemptId: attempt.attemptId,
-        completedAt: Date.now(),
-        progressEngineStatus,
-        replay: false
-      };
-    });
-    res.setHeader("Cache-Control", "no-store, no-cache, private");
-    if (wasReplay) {
-      return res.status(200).json({
-        success: true,
-        dbPersisted: true,
-        authoritativeScore: result.authoritativeScore,
-        breakdown: result.breakdown,
-        attemptId: attempt.attemptId,
-        replay: true,
-        message: "Attempt already completed. Idempotent result returned; reward not duplicated."
-      });
-    }
-    return res.status(200).json(result);
-  } catch (error) {
-    console.error("[SIMULATOR COMPLETE EXCEPTION]:", error?.message || error);
-    const dbErr = error?.dbError;
-    const statusCode = error?.statusCode || 500;
-    return res.status(statusCode).json({
-      error: error?.message || "Failed to complete simulator authoritatively",
-      dbError: dbErr ? { code: dbErr.code, message: dbErr.message, hint: dbErr.hint } : void 0,
-      success: false
-    });
-  }
-});
-app.post(["/api/simulator/reset", "/simulator/reset"], requireSupabaseAuth, moderateLimiter, async (req, res) => {
-  try {
-    const userId = req.userId;
-    if (!userId) {
-      return res.status(401).json({ error: "Unauthorized: Missing authenticated user identity", success: false });
-    }
-    const safeUserId = String(userId);
-    console.log(`[SIMULATOR RESET] Processing reset for user ${safeUserId.slice(0, 8)} on S003...`);
-    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "";
-    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
-    const hasServiceKey = !!supabaseServiceKey;
-    const hasAnonKey = !!supabaseAnonKey;
-    if (!supabaseUrl || !hasServiceKey && !hasAnonKey) {
-      console.error("[SIMULATOR RESET ERROR] Supabase credentials not configured on server.");
-      return res.status(503).json({
-        error: "Supabase database credentials not configured on server. Cannot reset database records.",
-        success: false
-      });
-    }
-    let dbClient;
-    try {
-      dbClient = hasServiceKey ? (0, import_supabase_js2.createClient)(supabaseUrl, supabaseServiceKey, {
-        auth: { persistSession: false, autoRefreshToken: false }
-      }) : (0, import_supabase_js2.createClient)(supabaseUrl, supabaseAnonKey, {
-        auth: { persistSession: false, autoRefreshToken: false },
-        global: {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      });
-    } catch (clientErr) {
-      console.error("[SIMULATOR RESET DB INIT ERROR]", clientErr?.message || clientErr);
-      return res.status(502).json({
-        error: `Failed to initialize database client: ${clientErr?.message || "Invalid database configuration"}`,
-        success: false
-      });
-    }
-    console.log(`[SIMULATOR RESET] Deleting existing S003 records from activity_designthinking for user ${safeUserId.slice(0, 8)}...`);
-    const { error: deleteError } = await dbClient.from("activity_designthinking").delete().eq("user_id", safeUserId).eq("activity_id", "S003");
-    if (deleteError) {
-      console.error("[SIMULATOR RESET DB ERROR] Failed to delete previous S003 records:", {
-        code: deleteError.code,
-        message: deleteError.message,
-        details: deleteError.details
-      });
-      return res.status(502).json({
-        error: `Failed to delete previous simulation records [${deleteError.code || "UNKNOWN"}]: ${deleteError.message}`,
-        success: false
-      });
-    }
-    console.log(`[SIMULATOR RESET DB SUCCESS] Previous S003 records deleted successfully for user ${safeUserId.slice(0, 8)}.`);
-    abandonUserAttempts(safeUserId, "S003");
-    const newAttempt = createServerAttempt(safeUserId, "S003");
-    res.setHeader("Cache-Control", "no-store, no-cache, private");
-    return res.status(200).json({
-      success: true,
-      message: "Simulation reset and previous records cleared successfully",
-      newAttemptId: newAttempt.attemptId
-    });
-  } catch (error) {
-    console.error("[SIMULATOR RESET UNCAUGHT EXCEPTION]:", error?.message || error);
-    return res.status(500).json({ error: error?.message || "Failed to reset simulation", success: false });
   }
 });
 async function startServer() {
@@ -3074,12 +1840,10 @@ async function startServer() {
     });
   }
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[DT Innovation Lab Server] Running on http://localhost:${PORT}`);
+    console.log(`[Future Redesign Lab Server] Running on http://localhost:${PORT}`);
   });
 }
-var isMainModule = typeof process !== "undefined" && process.argv && process.argv[1] && (process.argv[1].endsWith("server.ts") || process.argv[1].endsWith("server.cjs"));
-if (isMainModule && !process.env.VERCEL) {
+if (!process.env.VERCEL) {
   startServer();
 }
 var server_default = app;
-//# sourceMappingURL=server.cjs.map

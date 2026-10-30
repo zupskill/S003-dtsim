@@ -11,4 +11,4 @@ export {
   buildRow3Payload,
   reconstructRecapFromActivities,
   parseStorageBlock
-} from "../src/utils/lpfb";
+} from "../src/utils/lpfb.ts";

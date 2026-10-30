@@ -3,13 +3,13 @@ import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
 import { createClient } from "@supabase/supabase-js";
-import { strictAiLimiter, scoringLimiter, completionLimiter, moderateLimiter } from "./server/rateLimiter";
-import { perspectivesCache, moderationCache, aiContentCache, evaluationCache, MemoryCache } from "./server/cache";
-import { securityHeadersMiddleware, sanitizeString, sanitizeStringArray, isPlainObject, clampNumber } from "./server/validation";
-import { computeServerAuthoritativeScore } from "./server/evaluator";
-import { requireSupabaseAuth, AuthenticatedRequest } from "./server/auth";
-import { createServerAttempt, getAttempt, abandonUserAttempts, executeAtomicCompletion, finalizeAttempt } from "./server/attempts";
-import { buildRow1Payload, buildRow2Payload, buildRow3Payload } from "./server/lpfb";
+import { strictAiLimiter, scoringLimiter, completionLimiter, moderateLimiter } from "./server/rateLimiter.ts";
+import { perspectivesCache, moderationCache, aiContentCache, evaluationCache, MemoryCache } from "./server/cache.ts";
+import { securityHeadersMiddleware, sanitizeString, sanitizeStringArray, isPlainObject, clampNumber } from "./server/validation.ts";
+import { computeServerAuthoritativeScore } from "./server/evaluator.ts";
+import { requireSupabaseAuth, AuthenticatedRequest } from "./server/auth.ts";
+import { createServerAttempt, getAttempt, abandonUserAttempts, executeAtomicCompletion, finalizeAttempt } from "./server/attempts.ts";
+import { buildRow1Payload, buildRow2Payload, buildRow3Payload } from "./server/lpfb.ts";
 
 dotenv.config();
 
@@ -22,9 +22,16 @@ app.use(securityHeadersMiddleware);
 
 // Global CORS middleware for API routes
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
   if (req.method === "OPTIONS") {
     return res.status(204).end();
   }
